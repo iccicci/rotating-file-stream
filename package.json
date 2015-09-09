@@ -1,0 +1,24 @@
+{
+  "name": "rfs",
+  "version": "0.0.0",
+  "description": "Opens a WriteStream to a file rotated by interval and/or size. Designed to rotate log files as logrotate does",
+  "scripts": {
+    "test": "echo '.jshintrc\\n.gitignore\\n.travis.yml\\ntest' > .npmignore ; cat .gitignore >> .npmignore\n  ./node_modules/.bin/jshint index.js test || exit 1\n  ./node_modules/.bin/istanbul cover ./node_modules/.bin/_mocha -- --recursive test"
+  },
+  "bugs": "https://github.com/iccicci/rotating-file-stream/issues",
+  "repository": "https://github.com/iccicci/rotating-file-stream",
+  "keywords": [
+    "log",
+    "rotate",
+    "logrotate"
+  ],
+  "author": "Daniele Ricci <daniele.icc@gmail.com> (https://github.com/iccicci)",
+  "license": "MIT",
+  "readmeFilename": "README.md",
+  "devDependencies": {
+    "istanbul": "0.3.19",
+    "jshint": "2.8.0",
+    "mocha": "2.3.2",
+    "mocha-istanbul": "0.2.0"
+  }
+}
