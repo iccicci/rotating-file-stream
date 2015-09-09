@@ -9,3 +9,14 @@
 [![dev dependency status](https://david-dm.org/iccicci/rotating-file-stream/dev-status.svg)](https://david-dm.org/iccicci/rotating-file-stream#info=devDependencies)
 
 [![NPM](https://nodei.co/npm/rfs.png?downloads=true&downloadRank=true&stars=true)](https://nodei.co/npm/rfs/)
+
+# example
+```javascript
+var rfs = require("rfs");
+var stream = rfs.createRotatingStream("file.log", {
+    size: "10M",   // rotate every 10 MegaBytes written 
+    interval: "1d" // rotate daily
+});
+```
+
+[fs.createWriteStream](https://nodejs.org/api/fs.html#fs_fs_createwritestream_path_options)
