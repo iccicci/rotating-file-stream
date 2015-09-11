@@ -67,5 +67,6 @@ Do not hesitate to report any bug or inconsistency @[github](https://github.com/
 * Internal compression zip
 
 ### Changelog
-#### 2015-09-10 - v0.0.0
-* Embryonal stage
+
+* 2015-09-10 - v0.0.0
+  * Embryonal stage
