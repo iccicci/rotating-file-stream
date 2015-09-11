@@ -50,8 +50,9 @@ npm install rotating-file-stream
 
 ### rfs(filename, options)
 
-Returns a new __WritableStream__ to _filename_ as [fs.createWriteStream](https://nodejs.org/api/fs.html#fs_fs_createwritestream_path_options)
-does. The file is rotated following _options_ rules.
+Returns a new [stream.Writable](https://nodejs.org/api/stream.html#stream_class_stream_writable) to _filename_ as
+[fs.createWriteStream](https://nodejs.org/api/fs.html#fs_fs_createwritestream_path_options) does.
+The file is rotated following _options_ rules.
 
 #### options
 
