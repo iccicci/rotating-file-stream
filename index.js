@@ -3,11 +3,13 @@
 var util = require("util");
 var Writable = require("stream").Writable;
 
-function RotatingFileStream(option) {
+function RotatingFileStream(options) {
+	if(! (this instanceof RotatingFileStream))
+		return new RotatingFileStream(options);
+
+	Writable.call(this);
 }
 
 util.inherits(RotatingFileStream, Writable);
 
-module.exports = {
-	createRotatingStream: function(options) { return new RotatingFileStream(options); }
-};
+module.exports = RotatingFileStream;

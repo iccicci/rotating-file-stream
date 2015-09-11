@@ -7,15 +7,16 @@ var rfs = require("..");
 describe("rfs", function() {
 	describe("new", function() {
 		before(function(done) {
-			this.rfs = rfs.createRotatingStream();
+			this.rfs = rfs();
+			console.log(parseInt("666", 8));
 			done();
 		});
 
 		after(function() {
 		});
 
-		it("typeof", function() {
-			assert.equal(typeof this.rfs, "object");
+		it("constructor", function() {
+			assert.equal(this.rfs instanceof rfs, true);
 		});
 	});
 });

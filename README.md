@@ -10,13 +10,31 @@
 
 [![NPM](https://nodei.co/npm/rfs.png?downloads=true&downloadRank=true&stars=true)](https://nodei.co/npm/rfs/)
 
-# example
+## Example
+
 ```javascript
-var rfs = require("rfs");
-var stream = rfs.createRotatingStream("file.log", {
-    size: "10M",   // rotate every 10 MegaBytes written 
-    interval: "1d" // rotate daily
+var rfs    = require('rotating-file-stream');
+var stream = rfs('file.log', {
+    size:     '10M', // rotate every 10 MegaBytes written
+    interval: '1d',  // rotate daily
+    compress: 'gzip' // compress rotated files 
+});
+
+stream.on('error', function(err) {
+    // here are reported errors occurred while rotating as well write errors
+});
+
+stream.on('rotation', function() {
+    // rotation job started
+});
+
+stream.on('rotated', function(filename) {
+    // rotation job completed with success and produced given filename
 });
 ```
+
+# under development
+
+__This package is currently under development.__
 
 [fs.createWriteStream](https://nodejs.org/api/fs.html#fs_fs_createwritestream_path_options)
