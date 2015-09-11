@@ -37,4 +37,36 @@ stream.on('rotated', function(filename) {
 
 __This package is currently under development.__
 
-[fs.createWriteStream](https://nodejs.org/api/fs.html#fs_fs_createwritestream_path_options)
+## Installation
+
+With [npm](https://www.npmjs.com/package/rotating-file-stream):
+```sh
+npm install rotating-file-stream
+```
+
+## API
+
+### rfs(filename, options)
+
+Returns a new __WritableStream__ to _filename_ as [fs.createWriteStream](https://nodejs.org/api/fs.html#fs_fs_createwritestream_path_options)
+does. The file is rotated following _options_ rules.
+
+## Under the hood
+
+## Bugs
+
+Do not hesitate to report any bug or inconsistency @[github](https://github.com/iccicci/rotating-file-stream/issues).
+
+## TODO
+
+* Complete README
+* Emit events
+* External compression
+* Internal comprassion gzip
+* Internal compression bzip
+* Internal compression zip
+
+## Changelog
+
+* 2015-09-10 v0.0.0
+** Embryonal stage
