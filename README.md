@@ -8,9 +8,9 @@
 [![dependency status](https://david-dm.org/iccicci/rotating-file-stream.svg)](https://david-dm.org/iccicci/rotating-file-stream#info=dependencies)
 [![dev dependency status](https://david-dm.org/iccicci/rotating-file-stream/dev-status.svg)](https://david-dm.org/iccicci/rotating-file-stream#info=devDependencies)
 
-[![NPM](https://nodei.co/npm/rfs.png?downloads=true&downloadRank=true&stars=true)](https://nodei.co/npm/rfs/)
+[![NPM](https://nodei.co/npm/rotating-file-stream.png?downloads=true&downloadRank=true&stars=true)](https://nodei.co/npm/rotating-file-stream/)
 
-## Example
+### Usage
 
 ```javascript
 var rfs    = require('rotating-file-stream');
@@ -39,25 +39,27 @@ __This package is currently under development.__
 
 Please check the [TODO list](https://github.com/iccicci/rotating-file-stream#todo) to be aware of what is missing.
 
-## Installation
+### Installation
 
 With [npm](https://www.npmjs.com/package/rotating-file-stream):
 ```sh
 npm install rotating-file-stream
 ```
 
-## API
+# API
 
-### rfs(filename, options)
+## rfs(filename, options)
 
 Returns a new [stream.Writable](https://nodejs.org/api/stream.html#stream_class_stream_writable) to _filename_ as
 [fs.createWriteStream](https://nodejs.org/api/fs.html#fs_fs_createwritestream_path_options) does.
 The file is rotated following _options_ rules.
 
-#### options
+### options
 
-* defaultEncoding: {String} (default: 'utf8') Proxied to [fs.createWriteStream](https://nodejs.org/api/fs.html#fs_fs_createwritestream_path_options)
-* mode: {Integer} (default: 0o666) Proxied to [fs.createWriteStream](https://nodejs.org/api/fs.html#fs_fs_createwritestream_path_options)
+* compress: {String} (default: null) Specifies compression method of rotated files.
+* interval: {String} (default: null) Specifies the time interval to rotate the file.
+* size: {String} (default: null) Specifies the file size to rotate the file.
+* mode: {Integer} (default: 0o666) Proxied to [fs.createWriteStream](https://nodejs.org/api/fs.html#fs_fs_createwritestream_path_options).
 
 ### Under the hood
 
