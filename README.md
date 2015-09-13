@@ -59,7 +59,48 @@ The file is rotated following _options_ rules.
 * compress: {String} (default: null) Specifies compression method of rotated files.
 * interval: {String} (default: null) Specifies the time interval to rotate the file.
 * size: {String} (default: null) Specifies the file size to rotate the file.
-* mode: {Integer} (default: 0o666) Proxied to [fs.createWriteStream](https://nodejs.org/api/fs.html#fs_fs_createwritestream_path_options).
+* highWaterMark: {Number} (default: 16K) Proxied to [new stream.Writable](https://nodejs.org/api/stream.html#stream_new_stream_writable_options)
+* mode: {Integer} (default: 0o666) Proxied to [fs.open](https://nodejs.org/api/fs.html#fs_fs_open_path_flags_mode_callback)
+
+#### size
+
+Accepts a positive integer followed by one of these possible letters:
+
+* __K__: KiloBites
+* __M__: MegaBytes
+* __G__: GigaBytes
+
+```javascript
+  size: '300K', // rotates the file when its size exceeds 300 KiloBytes
+```
+
+```javascript
+  size: '100M', // rotates the file when its size exceeds 100 MegaBytes
+```
+
+```javascript
+  size: '1G', // rotates the file when its size exceeds a GigaBytes
+```
+
+#### interval
+
+Accepts a positive integer followed by one of these possible letters:
+
+* __m__: minutes. Accepts integer divider of 60.
+* __h__: hours. Accepts integer divider of 24.
+* __d__: days
+
+```javascript
+  interval: '5m', // rotates the file at minutes 0, 5, 10, 15 and so on
+```
+
+```javascript
+  interval: '2h', // rotates the file at midnight, 02:00, 04:00 and so on
+```
+
+```javascript
+  interval: '1d', // rotates the file at every midnight
+```
 
 ### Under the hood
 
