@@ -67,6 +67,7 @@ function generator(time, index) {
         return "file.log";
 
     var month  = time.getFullYear() + "" + pad(time.getMoth() + 1);
+    var day    = pad(time.getDay());
     var hour   = pad(time.getHours());
     var minute = pad(time.getMinutes());
 
@@ -195,7 +196,8 @@ an initial rotation attempt is done.
 At each rotation attempt a check is done to verify that destination rotated file does not exists yet;
 if this is not the case a new destination rotated file name is generated and the same check is
 performed before going on. This is repeated until a not existing destination file name is found or the
-package is exhausted.
+package is exhausted. For this reason the rotated file name generator function may be called several
+times for each rotation job.
 
 To not waste CPU power checking size for rotation at each _write_, a timer is set up to check size at
 every second. This means that rotated file size will be a bit greater than how much specified with
@@ -211,7 +213,6 @@ Do not hesitate to report any bug or inconsistency @[github](https://github.com/
 
 ### TODO
 
-* Complete README
 * Write tests
 * Write code
 * Emit events
