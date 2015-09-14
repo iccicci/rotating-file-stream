@@ -19,18 +19,6 @@ var stream = rfs('file.log', {
     interval: '1d',  // rotate daily
     compress: 'gzip' // compress rotated files
 });
-
-stream.on('error', function(err) {
-    // here are reported errors occurred while rotating as well write errors
-});
-
-stream.on('rotation', function() {
-    // rotation job started
-});
-
-stream.on('rotated', function(filename) {
-    // rotation job completed with success and produced given filename
-});
 ```
 
 # under development
@@ -94,7 +82,7 @@ var stream = rfs(generator, {
 
 __Note:__
 
-If part of destination path does not exists, the rotation job will try to create it.
+If part of returned destination path does not exists, the rotation job will try to create it.
 
 ### options {Object}
 
@@ -176,7 +164,42 @@ var stream = rfs('file.log', {
 });
 ```
 
+### Events
+
+Custom _Events_ are emitted by the stream.
+
+```javascript
+var rfs    = require('rotating-file-stream');
+var stream = rfs(...);
+
+stream.on('error', function(err) {
+    // here are reported errors occurred while rotating as well write errors
+});
+
+stream.on('rotation', function() {
+    // rotation job started
+});
+
+stream.on('rotated', function(filename) {
+    // rotation job completed with success and produced given filename
+});
+```
+
 ### Under the hood
+
+Logs should be handled so carefully, so this package tries to never overwrite files.
+
+At stream creation, if the not rotated log file already exists and its size exceeds the rotation size,
+an initial rotation attempt is done.
+
+At each rotation attempt a check is done to verify that destination rotated file does not exists yet;
+if this is not the case a new destination rotated file name is generated and the same check is
+performed before going on. This is repeated until a not existing destination file name is found or the
+package is exhausted.
+
+To not waste CPU power checking size for rotation at each _write_, a timer is set up to check size at
+every second. This means that rotated file size will be a bit greater than how much specified with
+__options.size__ parameter.
 
 ### Licence
 
