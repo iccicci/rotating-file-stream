@@ -54,7 +54,50 @@ Returns a new [stream.Writable](https://nodejs.org/api/stream.html#stream_class_
 [fs.createWriteStream](https://nodejs.org/api/fs.html#fs_fs_createwritestream_path_options) does.
 The file is rotated following _options_ rules.
 
-### options
+### filename {String|Function}
+
+The most complex problem about file name is: "how to call the rotated file name?"
+
+The answer to this question may vary in many forms depending on application requirements and/or specifications.
+If there are no requirements, a _String_ can be used and default rotated file name generator will be used;
+otherwise a _Function_ which returns the rotated file name can be used.
+
+#### function filename(time, index)
+
+* time: {Date} The start time of rotation period. If __null__, the not rotated file name must be returned.
+* index {Number} The progressive index of rotation by size in the same rotation period. Starts from 1.
+
+An example of a complex rotated file name generator function could be:
+
+```javascript
+function pad(num) {
+    return (num + "").length == 1 ? "0" + num : num;
+}
+
+function generator(time, index) {
+    if(! time)
+        return "file.log";
+
+    var year   = time.getFullYear();
+    var month  = pad(time.getMoth() + 1);
+    var hour   = pad(time.getHours());
+    var minute = pad(time.getMinutes());
+
+    return "/storage/" + year + month + "/" + year + month + day + "-" + hour + minute + "-file.log";
+}
+
+var rfs    = require('rotating-file-stream');
+var stream = rfs(generator, {
+    size:     '10M',
+    interval: '1d'
+});
+```
+
+__Note:__
+
+If part of destination path does not exists, the rotation job will try to create it.
+
+### options {Object}
 
 * compress: {String} (default: null) Specifies compression method of rotated files.
 * interval: {String} (default: null) Specifies the time interval to rotate the file.
@@ -106,7 +149,7 @@ Accepts a positive integer followed by one of these possible letters:
 
 Due the nature of __Node.js__ compression may be done with an external command (to use other CPUs than the one used
 by __Node.js__ to not subtract CPU power to our application) or with internal code (to use the CPU used by __Node.js__
-to not subtract more CPU power than expected from the system). This decision is left to you.
+to not subtract more CPU power than expected to the system). This decision is left to you.
 
 Following fixed strings are allowed to compress the files with internal libraries:
 * bzip
