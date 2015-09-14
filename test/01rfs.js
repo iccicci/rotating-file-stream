@@ -313,7 +313,7 @@ describe("rfs", function() {
 		});
 
 		it("error", function() {
-			assert.notEqual(null, this.err.message.match(/ENOTDIR: not a directory.* 'index.js\/test.log'/));
+			assert.equal("ENOTDIR", this.err.code);
 		});
 	});
 });
