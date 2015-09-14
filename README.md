@@ -66,12 +66,12 @@ function generator(time, index) {
     if(! time)
         return "file.log";
 
-    var month  = time.getFullYear() + "" + pad(time.getMoth() + 1);
-    var day    = pad(time.getDay());
+    var month  = time.getFullYear() + "" + pad(time.getMonth() + 1);
+    var day    = pad(time.getDate());
     var hour   = pad(time.getHours());
     var minute = pad(time.getMinutes());
 
-    return "/storage/" + month + "/" + month + day + "-" + hour + minute + "-file.log";
+    return "/storage/" + month + "/" + month + day + "-" + hour + minute + "-" + index + "-" + filename;
 }
 
 var rfs    = require('rotating-file-stream');

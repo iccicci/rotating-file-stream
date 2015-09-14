@@ -1,5 +1,6 @@
 "use strict";
 
+var fs = require("fs");
 var util = require("util");
 var Writable = require("stream").Writable;
 
@@ -78,11 +79,17 @@ function checkOptions(options) {
 						throw new Error("Don't know how to handle 'options.compress' type: " + typ);
 			break;
 
+		case "highWaterMark":
+			break;
+
 		case "interval":
 			if(typ != "string")
 				throw new Error("Don't know how to handle 'options.interval' type: " + typ);
 
 			options.interval = checkInterval(val);
+			break;
+
+		case "mode":
 			break;
 
 		case "size":
@@ -107,12 +114,12 @@ function createGenerator(filename) {
 		if(! time)
 			return filename;
 
-		var month  = time.getFullYear() + "" + pad(time.getMoth() + 1);
-		var day    = pad(time.getDay());
+		var month  = time.getFullYear() + "" + pad(time.getMonth() + 1);
+		var day    = pad(time.getDate());
 		var hour   = pad(time.getHours());
 		var minute = pad(time.getMinutes());
 
-		return month + day + "-" + hour + minute + "-" + filename;
+		return month + day + "-" + hour + minute + "-" + pad(index) + "-" + filename;
 	};
 }
 
@@ -121,6 +128,7 @@ function RotatingFileStream(filename, options) {
 		return new RotatingFileStream(filename, options);
 
 	var generator;
+	var opt = {};
 
 	if(typeof filename == "function")
 		generator = filename;
@@ -138,12 +146,51 @@ function RotatingFileStream(filename, options) {
 
 	checkOptions(options);
 
+	if(options.highWaterMark)
+		opt.highWaterMark = options.highWaterMark;
+
 	Writable.call(this);
 
 	this.generator = generator;
 	this.options   = options;
+
+	this.firstOpen();
 }
 
 util.inherits(RotatingFileStream, Writable);
+
+RotatingFileStream.prototype.firstOpen = function() {
+	var name;
+
+	try {
+		name = this.generator(null);
+	}
+	catch(e) {
+		var err = new Error("Executing file name generator first time: " + e.message);
+
+		err.source = e;
+
+		throw err;
+	}
+
+	this.firstRotation(name);
+};
+
+RotatingFileStream.prototype.firstRotation = function(name) {
+	var stats;
+
+	try {
+		stats = fs.statSync(name);
+	}
+	catch(e) {
+		if(e.code == "ENOENT")
+			return;
+
+		throw e;
+	}
+
+	if(! stats.isFile())
+		throw new Error("Can't write on: " + name + " (it is not a file)");
+};
 
 module.exports = RotatingFileStream;

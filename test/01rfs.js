@@ -8,7 +8,7 @@ var Writable = require("stream").Writable;
 describe("rfs", function() {
 	describe("new", function() {
 		before(function(done) {
-			this.rfs = rfs("test.log");
+			this.rfs = rfs("test.log", { highWaterMark: 1000, mode: parseInt("666", 8) });
 			done();
 		});
 
@@ -18,6 +18,14 @@ describe("rfs", function() {
 
 		it("Writable", function() {
 			assert.equal(this.rfs instanceof Writable, true);
+		});
+
+		it("std filename generator first time", function() {
+			assert.equal(this.rfs.generator(null), "test.log");
+		});
+
+		it("std filename generator later times", function() {
+			assert.equal(this.rfs.generator(new Date("1976-01-23 14:45"), 4), "19760123-1445-04-test.log");
 		});
 	});
 
@@ -258,6 +266,38 @@ describe("rfs", function() {
 
 		it("error", function() {
 			assert.equal(this.err.message, "An integer divider of 24 is expected as hours for 'options.interval'");
+		});
+	});
+
+	describe("wrong name generator first time", function() {
+		before(function(done) {
+			try {
+				this.rfs = rfs(function() { var a = {}; return a.doesNotExists(); });
+			}
+			catch(e) {
+				this.err = e;
+			}
+			done();
+		});
+
+		it("error", function() {
+			assert.equal(this.err.message, "Executing file name generator first time: a.doesNotExists is not a function");
+		});
+	});
+
+	describe("logging on directory", function() {
+		before(function(done) {
+			try {
+				this.rfs = rfs("test");
+			}
+			catch(e) {
+				this.err = e;
+			}
+			done();
+		});
+
+		it("error", function() {
+			assert.equal(this.err.message, "Can't write on: test (it is not a file)");
 		});
 	});
 });
