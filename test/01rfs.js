@@ -272,7 +272,7 @@ describe("rfs", function() {
 	describe("wrong name generator first time", function() {
 		before(function(done) {
 			try {
-				this.rfs = rfs(function() { var a = {}; return a.doesNotExists(); });
+				this.rfs = rfs(function() { throw new Error("test"); });
 			}
 			catch(e) {
 				this.err = e;
@@ -281,7 +281,7 @@ describe("rfs", function() {
 		});
 
 		it("error", function() {
-			assert.equal(this.err.message, "Executing file name generator first time: a.doesNotExists is not a function");
+			assert.equal(this.err.message, "Executing file name generator first time: test");
 		});
 	});
 
@@ -313,7 +313,7 @@ describe("rfs", function() {
 		});
 
 		it("error", function() {
-			assert.equal(this.err.message, "ENOTDIR: not a directory, stat 'index.js/test.log'");
+			assert.notEqual(null, this.err.message.match(/ENOTDIR: not a directory.* 'index.js\/test.log'/));
 		});
 	});
 });
