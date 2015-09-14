@@ -17,7 +17,7 @@ var rfs    = require('rotating-file-stream');
 var stream = rfs('file.log', {
     size:     '10M', // rotate every 10 MegaBytes written
     interval: '1d',  // rotate daily
-    compress: 'gzip' // compress rotated files 
+    compress: 'gzip' // compress rotated files
 });
 
 stream.on('error', function(err) {
@@ -100,6 +100,38 @@ Accepts a positive integer followed by one of these possible letters:
 
 ```javascript
   interval: '1d', // rotates the file at every midnight
+```
+
+#### compress
+
+Due the nature of __Node.js__ compression may be done with an external command (to use other CPUs than the one used
+by __Node.js__ to not subtract CPU power to our application) or with internal code (to use the CPU used by __Node.js__
+to not subtract more CPU power than expected from the system). This decision is left to you.
+
+Following fixed strings are allowed to compress the files with internal libraries:
+* bzip
+* gzip
+* zip
+
+To enable external compression, a _function_ can be used or simple the _boolean_ __true__ value to use default
+external compression. The two following code snippets have exactly the same effect:
+
+```javascript
+var rfs    = require('rotating-file-stream');
+var stream = rfs('file.log', {
+    size:     '10M',
+    compress: true
+});
+```
+
+```javascript
+var rfs    = require('rotating-file-stream');
+var stream = rfs('file.log', {
+    size:     '10M',
+    compress: function(src, dst) {
+        return "cat " + src + " | gzip -t9 > " + dst;
+    }
+});
 ```
 
 ### Under the hood
