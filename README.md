@@ -223,5 +223,7 @@ Do not hesitate to report any bug or inconsistency @[github](https://github.com/
 
 ### Changelog
 
+* 2015-09-14 - v0.0.1
+  * README.md
 * 2015-09-10 - v0.0.0
   * Embryonal stage

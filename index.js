@@ -51,10 +51,21 @@ function checkInterval(v) {
 }
 
 var sizeUnits = {
+	K: true,
+	M: true,
+	G: true
 };
 
 function checkSize(v) {
-	return checkMeasure(v, "size", sizeUnits);
+	var ret = checkMeasure(v, "size", sizeUnits);
+
+	if(ret.unit == "K")
+		return ret.num * 1024;
+
+	if(ret.unit == "M")
+		return ret.num * 1048576;
+
+	return ret.num * 1073741824;
 }
 
 function checkOptions(options) {
@@ -160,10 +171,8 @@ function RotatingFileStream(filename, options) {
 util.inherits(RotatingFileStream, Writable);
 
 RotatingFileStream.prototype.firstOpen = function() {
-	var name;
-
 	try {
-		name = this.generator(null);
+		this.name = this.generator(null);
 	}
 	catch(e) {
 		var err = new Error("Executing file name generator first time: " + e.message);
@@ -173,24 +182,37 @@ RotatingFileStream.prototype.firstOpen = function() {
 		throw err;
 	}
 
-	this.firstRotation(name);
+	// if file needs to be rotated at start time, do not open it: it will be opened by rotation
+	if(this.firstRotation())
+		return;
 };
 
-RotatingFileStream.prototype.firstRotation = function(name) {
+RotatingFileStream.prototype.firstRotation = function() {
 	var stats;
 
 	try {
-		stats = fs.statSync(name);
+		stats = fs.statSync(this.name);
 	}
 	catch(e) {
 		if(e.code == "ENOENT")
-			return;
+			return false;
 
 		throw e;
 	}
 
 	if(! stats.isFile())
-		throw new Error("Can't write on: " + name + " (it is not a file)");
+		throw new Error("Can't write on: " + this.name + " (it is not a file)");
+
+	if(stats.size < this.options.size)
+		return false;
+
+	this.rotate();
+
+	return true;
+};
+
+RotatingFileStream.prototype.rotate = function() {
+	this.emit("rotation");
 };
 
 module.exports = RotatingFileStream;

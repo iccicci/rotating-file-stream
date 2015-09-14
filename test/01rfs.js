@@ -300,4 +300,20 @@ describe("rfs", function() {
 			assert.equal(this.err.message, "Can't write on: test (it is not a file)");
 		});
 	});
+
+	describe("using file as directory", function() {
+		before(function(done) {
+			try {
+				this.rfs = rfs("index.js/test.log");
+			}
+			catch(e) {
+				this.err = e;
+			}
+			done();
+		});
+
+		it("error", function() {
+			assert.equal(this.err.message, "ENOTDIR: not a directory, stat 'index.js/test.log'");
+		});
+	});
 });
