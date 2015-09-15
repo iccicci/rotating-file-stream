@@ -85,8 +85,8 @@ describe("write", function() {
 		});
 
 		if(process.version.match(/^v0.10/)) {
-			it("3 single write", function() {
-				assert.equal(this.rfs.ev.single, 3);
+			it("4 single write", function() {
+				assert.equal(this.rfs.ev.single, 4);
 			});
 
 			it("0 multi write", function() {
@@ -206,8 +206,8 @@ describe("write", function() {
 		});
 
 		if(process.version.match(/^v0.10/)) {
-			it("3 single write", function() {
-				assert.equal(this.rfs.ev.single, 3);
+			it("5 single write", function() {
+				assert.equal(this.rfs.ev.single, 5);
 			});
 
 			it("0 multi write", function() {
@@ -230,6 +230,38 @@ describe("write", function() {
 
 		it("rotated file content", function() {
 			assert.equal(fs.readFileSync("3-test.log"), "test\ntest\n");
+		});
+	});
+
+	describe("no rotating single write with end", function() {
+		before(function(done) {
+			this.rfs = rfsh({ size: "20B" });
+			this.rfs.end("test\n");
+			this.rfs.on("finish", done);
+		});
+
+		it("no error", function() {
+			assert.ifError(this.rfs.ev.err);
+		});
+
+		it("0 rotation", function() {
+			assert.equal(this.rfs.ev.rotation, 0);
+		});
+
+		it("0 rotated", function() {
+			assert.equal(this.rfs.ev.rotated.length, 0);
+		});
+
+		it("2 single write", function() {
+			assert.equal(this.rfs.ev.single, 2);
+		});
+
+		it("0 multi write", function() {
+			assert.equal(this.rfs.ev.multi, 0);
+		});
+
+		it("file content", function() {
+			assert.equal(fs.readFileSync("test.log"), "test\ntest\n");
 		});
 	});
 });
