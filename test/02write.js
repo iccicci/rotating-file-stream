@@ -86,11 +86,11 @@ describe("write", function() {
 
 		if(process.version.match(/^v0.10/)) {
 			it("3 single write", function() {
-				assert.equal(this.rfs.ev.single, 1);
+				assert.equal(this.rfs.ev.single, 3);
 			});
 
 			it("0 multi write", function() {
-				assert.equal(this.rfs.ev.multi, 1);
+				assert.equal(this.rfs.ev.multi, 0);
 			});
 		}
 		else {
