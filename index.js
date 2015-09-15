@@ -164,11 +164,27 @@ function RotatingFileStream(filename, options) {
 
 	this.generator = generator;
 	this.options   = options;
+	this.size      = 0;
 
 	this.firstOpen();
 }
 
 util.inherits(RotatingFileStream, Writable);
+
+RotatingFileStream.prototype._write = function(chunk, encoding, callback) {
+	this._size += chunk.length;
+	this.stream.write(chunk, callback);
+};
+
+RotatingFileStream.prototype._writev = function(chunks, callback) {
+	var buffer = "";
+
+	for(var i in chunks)
+		buffer += chunks[i].chunk;
+
+	this._size += buffer.length;
+	this.stream.write(buffer, callback);
+};
 
 RotatingFileStream.prototype.firstOpen = function() {
 	try {
@@ -182,9 +198,8 @@ RotatingFileStream.prototype.firstOpen = function() {
 		throw err;
 	}
 
-	// if file needs to be rotated at start time, do not open it: it will be opened by rotation
 	if(this.firstRotation())
-		return;
+		this.open();
 };
 
 RotatingFileStream.prototype.firstRotation = function() {
@@ -195,7 +210,7 @@ RotatingFileStream.prototype.firstRotation = function() {
 	}
 	catch(e) {
 		if(e.code == "ENOENT")
-			return false;
+			return true;
 
 		throw e;
 	}
@@ -203,12 +218,34 @@ RotatingFileStream.prototype.firstRotation = function() {
 	if(! stats.isFile())
 		throw new Error("Can't write on: " + this.name + " (it is not a file)");
 
-	if(stats.size < this.options.size)
-		return false;
+	this.size = stats.size;
+
+	if((! this.options.size) || stats.size < this.options.size)
+		return true;
 
 	this.rotate();
 
-	return true;
+	return false;
+};
+
+RotatingFileStream.prototype.open = function() {
+	var fd;
+
+	try {
+		var options = { flags: "a" };
+
+		if("mode" in this.options)
+			options.mode = this.options.mode;
+
+		this.stream = fs.createWriteStream(this.name, options);
+	}
+	catch(e) {
+		console.log(e);
+		throw e;
+	}
+
+	this.stream.once("open", function(fd) {
+	});
 };
 
 RotatingFileStream.prototype.rotate = function() {

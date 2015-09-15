@@ -71,7 +71,8 @@ function generator(time, index) {
     var hour   = pad(time.getHours());
     var minute = pad(time.getMinutes());
 
-    return "/storage/" + month + "/" + month + day + "-" + hour + minute + "-" + index + "-" + filename;
+    return "/storage/" + month + "/" +
+        month + day + "-" + hour + minute + "-" + index + "-" + filename;
 }
 
 var rfs    = require('rotating-file-stream');
@@ -199,10 +200,6 @@ performed before going on. This is repeated until a not existing destination fil
 package is exhausted. For this reason the rotated file name generator function may be called several
 times for each rotation job.
 
-To not waste CPU power checking size for rotation at each _write_, a timer is set up to check size at
-every second. This means that rotated file size will be a bit greater than how much specified with
-__options.size__ parameter.
-
 ### Licence
 
 [MIT Licence](https://github.com/iccicci/rotating-file-stream/blob/master/LICENSE)
@@ -215,7 +212,7 @@ Do not hesitate to report any bug or inconsistency @[github](https://github.com/
 
 * Write tests
 * Write code
-* Emit events
+* Create missing path
 * External compression
 * Internal compression gzip
 * Internal compression bzip
