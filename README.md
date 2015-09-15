@@ -207,6 +207,14 @@ performed before going on. This is repeated until a not existing destination fil
 package is exhausted. For this reason the rotated file name generator function may be called several
 times for each rotation job.
 
+### Compatibility
+
+This package is tested under following __Node.js__ versions:
+* 4.0
+* 0.12
+* 0.11
+* 0.10
+
 ### Licence
 
 [MIT Licence](https://github.com/iccicci/rotating-file-stream/blob/master/LICENSE)

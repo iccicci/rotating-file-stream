@@ -170,6 +170,11 @@ function RotatingFileStream(filename, options) {
 	this.generator = generator;
 	this.options   = options;
 	this.size      = 0;
+	this.superEnd  = this.end;
+	this.end       = function(data, encoding, callback) {
+		this.ending = true;
+		this.write(data, encoding, callback);
+	};
 
 	this.firstOpen();
 }
@@ -189,6 +194,9 @@ RotatingFileStream.prototype._write = function(chunk, encoding, callback) {
 	this.size += chunk.length;
 	this.stream.write(chunk, callback);
 
+	if(this.ending && ! chunk.length)
+		return this.superEnd();
+
 	if(this.size >= this.options.size)
 		this.rotate();
 };
@@ -197,13 +205,39 @@ RotatingFileStream.prototype._writev = function(chunks, callback) {
 	if(this.err)
 		return process.nextTick(callback);
 
-	var buffer = "";
+	var i;
 
-	for(var i in chunks)
+	if(! this.stream) {
+		for(i in chunks)
+			this.buffer += chunks[i].chunk;
+
+		return process.nextTick(callback);
+	}
+
+	var buffer = "";
+	var enough = true;
+
+	for(i = 0; i < chunks.length && enough; ++i) {
 		buffer += chunks[i].chunk;
 
-	this._size += buffer.length;
+		if(this.options.size && (buffer.length + this.size >= this.options.size))
+			enough = false;
+	}
+
+	this.size += buffer.length;
 	this.stream.write(buffer, callback);
+
+	if(enough) {
+		if(this.ending)
+			this.superEnd();
+
+		return;
+	}
+
+	for(0; i < chunks.length; ++i)
+		this.buffer += chunks[i].chunk;
+
+	this.rotate();
 };
 
 RotatingFileStream.prototype.error = function(err) {
@@ -314,10 +348,12 @@ RotatingFileStream.prototype.open = function() {
 		throw e;
 	}
 
+	this.stream.on("open", this.write.bind(this, ""));
+
 	if(this.buffer.length)
 		this.stream.write(this.buffer);
 
-	this.size = this.buffer.length;
+	this.size += this.buffer.length;
 	this.buffer = "";
 };
 
