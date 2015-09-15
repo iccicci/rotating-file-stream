@@ -275,7 +275,7 @@ RotatingFileStream.prototype.move = function(attempts) {
 	var name = this.generator(this.rotation, count + 1);
 	var self = this;
 
-	fs.access(name, 0, function(err) {
+	fs.stat(name, function(err) {
 		if((! err) || err.code != "ENOENT" ) {
 			if(name in attempts)
 				attempts[name]++;
