@@ -51,6 +51,7 @@ function checkInterval(v) {
 }
 
 var sizeUnits = {
+	B: true,
 	K: true,
 	M: true,
 	G: true
@@ -65,7 +66,10 @@ function checkSize(v) {
 	if(ret.unit == "M")
 		return ret.num * 1048576;
 
-	return ret.num * 1073741824;
+	if(ret.unit == "G")
+		return ret.num * 1073741824;
+
+	return ret.num;
 }
 
 function checkOptions(options) {
@@ -162,6 +166,7 @@ function RotatingFileStream(filename, options) {
 
 	Writable.call(this);
 
+	this.buffer    = "";
 	this.generator = generator;
 	this.options   = options;
 	this.size      = 0;
@@ -172,11 +177,26 @@ function RotatingFileStream(filename, options) {
 util.inherits(RotatingFileStream, Writable);
 
 RotatingFileStream.prototype._write = function(chunk, encoding, callback) {
-	this._size += chunk.length;
+	if(this.err)
+		return process.nextTick(callback);
+
+	if(! this.stream) {
+		this.buffer += chunk;
+
+		return process.nextTick(callback);
+	}
+
+	this.size += chunk.length;
 	this.stream.write(chunk, callback);
+
+	if(this.size >= this.options.size)
+		this.rotate();
 };
 
 RotatingFileStream.prototype._writev = function(chunks, callback) {
+	if(this.err)
+		return process.nextTick(callback);
+
 	var buffer = "";
 
 	for(var i in chunks)
@@ -184,6 +204,11 @@ RotatingFileStream.prototype._writev = function(chunks, callback) {
 
 	this._size += buffer.length;
 	this.stream.write(buffer, callback);
+};
+
+RotatingFileStream.prototype.error = function(err) {
+	this.err = err;
+	this.emit("error", err);
 };
 
 RotatingFileStream.prototype.firstOpen = function() {
@@ -228,6 +253,51 @@ RotatingFileStream.prototype.firstRotation = function() {
 	return false;
 };
 
+RotatingFileStream.prototype.move = function(attempts) {
+	if(! attempts)
+		attempts = {};
+
+	var count = 0;
+
+	for(var i in attempts)
+		count += attempts[i];
+
+	if(count >= 1000) {
+		this.error(new Error("Too many destination file attempts"));
+		this.err.attempts = attempts;
+
+		return;
+	}
+
+	if(this.options.interval)
+		throw new Error("not implemented yet");
+
+	var name = this.generator(this.rotation, count + 1);
+	var self = this;
+
+	fs.access(name, 0, function(err) {
+		if((! err) || err.code != "ENOENT" ) {
+			if(name in attempts)
+				attempts[name]++;
+			else
+				attempts[name] = 1;
+
+			return self.move(attempts);
+		}
+
+		if(self.options.compress)
+			throw new Error("not implemented yet");
+
+		fs.rename(self.name, name, function(err) {
+			if(err)
+				return self.error(err);
+
+			self.emit("rotated", name);
+			self.open();
+		});
+	});
+};
+
 RotatingFileStream.prototype.open = function() {
 	var fd;
 
@@ -244,12 +314,24 @@ RotatingFileStream.prototype.open = function() {
 		throw e;
 	}
 
-	this.stream.once("open", function(fd) {
-	});
+	if(this.buffer.length)
+		this.stream.write(this.buffer);
+
+	this.size = this.buffer.length;
+	this.buffer = "";
 };
 
 RotatingFileStream.prototype.rotate = function() {
+	this.rotation = new Date();
 	this.emit("rotation");
+
+	if(this.stream) {
+		this.stream.end();
+		this.stream.on("finish", this.move.bind(this));
+		this.stream = null;
+	}
+	else
+		this.move();
 };
 
 module.exports = RotatingFileStream;

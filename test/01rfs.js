@@ -9,8 +9,6 @@ var Writable = require("stream").Writable;
 describe("rfs", function() {
 	describe("new", function() {
 		before(function(done) {
-			try { fs.unlinkSync("test.log"); }
-			catch(e) {}
 			this.rfs = rfs("test.log", { highWaterMark: 1000, mode: parseInt("666", 8) });
 			done();
 		});

@@ -52,7 +52,7 @@ otherwise a _Function_ which returns the rotated file name can be used.
 
 #### function filename(time, index)
 
-* time: {Date} The start time of rotation period. If __null__, the not rotated file name must be returned.
+* time: {Date} If rotation by interval is enabled, the start time of rotation period, otherwise the time when rotation job started. If __null__, the not rotated file name must be returned.
 * index {Number} The progressive index of rotation by size in the same rotation period. Starts from 1.
 
 An example of a complex rotated file name generator function could be:
@@ -83,7 +83,6 @@ var stream = rfs(generator, {
 ```
 
 __Note:__
-
 If part of returned destination path does not exists, the rotation job will try to create it.
 
 ### options {Object}
@@ -98,6 +97,7 @@ If part of returned destination path does not exists, the rotation job will try 
 
 Accepts a positive integer followed by one of these possible letters:
 
+* __B__: Bites
 * __K__: KiloBites
 * __M__: MegaBytes
 * __G__: GigaBytes
@@ -146,7 +146,10 @@ Following fixed strings are allowed to compress the files with internal librarie
 * zip
 
 To enable external compression, a _function_ can be used or simple the _boolean_ __true__ value to use default
-external compression. The two following code snippets have exactly the same effect:
+external compression.
+The function should accept _source_ and _dest_ file names and must return the shell command to be executed to
+archive the file.
+The two following code snippets have exactly the same effect:
 
 ```javascript
 var rfs    = require('rotating-file-stream');
@@ -160,11 +163,15 @@ var stream = rfs('file.log', {
 var rfs    = require('rotating-file-stream');
 var stream = rfs('file.log', {
     size:     '10M',
-    compress: function(src, dst) {
-        return "cat " + src + " | gzip -t9 > " + dst;
+    compress: function(source, dest) {
+        return "cat " + source + " | gzip -t9 > " + dest;
     }
 });
 ```
+
+__Note:__
+The shell command to archive the rotated file should not remove the source file, it will be removed by the package
+if archive job complete with success.
 
 ### Events
 

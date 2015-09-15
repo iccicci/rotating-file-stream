@@ -6,8 +6,8 @@ var fs = require("fs");
 var rfs = require("..");
 var Writable = require("stream").Writable;
 
-function rfsh(filename, options) {
-	var ret = rfs(filename, options);
+function rfsh(options) {
+	var ret = rfs(function(time, index) { if(time) return index + "-test.log"; return "test.log"; }, options);
 
 	ret.ev = { single: 0, multi: 0, rotation: 0, rotated: [] };
 	ret.on("rotation", function() { ret.ev.rotation++; });
@@ -33,7 +33,7 @@ function rfsh(filename, options) {
 describe("write", function() {
 	describe("single write", function() {
 		before(function(done) {
-			this.rfs = rfsh("test.log");
+			this.rfs = rfsh();
 			this.rfs.end("test\n");
 			this.rfs.on("finish", done);
 		});
@@ -65,7 +65,7 @@ describe("write", function() {
 
 	describe("double write", function() {
 		before(function(done) {
-			this.rfs = rfsh("test.log");
+			this.rfs = rfsh();
 			this.rfs.write("test\n");
 			this.rfs.write("test\n");
 			this.rfs.end("test\n");
@@ -105,6 +105,43 @@ describe("write", function() {
 
 		it("file content", function() {
 			assert.equal(fs.readFileSync("test.log"), "test\ntest\ntest\ntest\n");
+		});
+	});
+
+	describe("initial rotation", function() {
+		before(function(done) {
+			this.rfs = rfsh({ size: "10B" });
+			this.rfs.end("test\n");
+			this.rfs.on("finish", done);
+		});
+
+		it("no error", function() {
+			assert.ifError(this.rfs.ev.err);
+		});
+
+		it("1 rotation", function() {
+			assert.equal(this.rfs.ev.rotation, 0);
+		});
+
+		it("1 rotated", function() {
+			assert.equal(this.rfs.ev.rotated.length, 1);
+			assert.equal(this.rfs.ev.rotated[0], "1-test.log");
+		});
+
+		it("1 single write", function() {
+			assert.equal(this.rfs.ev.single, 1);
+		});
+
+		it("0 multi write", function() {
+			assert.equal(this.rfs.ev.multi, 0);
+		});
+
+		it("file content", function() {
+			assert.equal(fs.readFileSync("test.log"), "test\n");
+		});
+
+		it("rotated file content", function() {
+			assert.equal(fs.readFileSync("1-test.log"), "test\ntest\ntest\ntest\n");
 		});
 	});
 });

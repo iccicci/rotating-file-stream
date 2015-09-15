@@ -3,7 +3,7 @@
   "version": "0.0.1",
   "description": "Opens a stream.Writable to a file rotated by interval and/or size. A logrotate alternative.",
   "scripts": {
-    "test": "echo '.jshintrc\\n.gitignore\\n.travis.yml\\ntest\\nsleep.js' > .npmignore ; cat .gitignore >> .npmignore\n  ./node_modules/.bin/jshint index.js test || exit 1\n  ./node_modules/.bin/istanbul cover ./node_modules/.bin/_mocha -- --recursive test"
+    "test": "rm -rf *log ; echo '.jshintrc\\n.gitignore\\n.travis.yml\\ntest\\nsleep.js' > .npmignore ; cat .gitignore >> .npmignore\n  ./node_modules/.bin/jshint index.js test || exit 1\n  ./node_modules/.bin/istanbul cover ./node_modules/.bin/_mocha -- --recursive test"
   },
   "bugs": "https://github.com/iccicci/rotating-file-stream/issues",
   "repository": "https://github.com/iccicci/rotating-file-stream",
