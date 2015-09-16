@@ -214,7 +214,7 @@ I decided to _throw_ an __Unexpected.Error__ if code runs through one of these c
 that you catch one of these, please make me aware of that as soon as possible in order to handle the
 case.
 
-<p style="text-align:right">The author</p>
+<p style="right:0px">The author</p>
 
 ### Compatibility
 
