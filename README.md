@@ -210,13 +210,13 @@ times for each rotation job.
 ### Unexpected
 
 ```
-If I understood correctly, there are some case which should never happen.
+If  I understood correctly,  there are some case which should never happen.
 Anyway I want to be sure, so I decided to throw an Unexpected.Error if code
 runs through one of these cases.
-If it happen that you catch one of these, please make me aware of that as
+If  it happen that you catch one of these,  please make me aware of that as
 soon as possible in order to handle the case.
 
-                                             The author
+                                                    The author
 ```
 
 ### Compatibility
