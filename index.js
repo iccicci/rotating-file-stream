@@ -397,6 +397,7 @@ RotatingFileStream.prototype.open = function(callback) {
 };
 
 RotatingFileStream.prototype.rotate = function(callback) {
+	this.size = 0;
 	this.rotation = new Date();
 	this.emit("rotation");
 
