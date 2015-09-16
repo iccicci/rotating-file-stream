@@ -170,11 +170,6 @@ function RotatingFileStream(filename, options) {
 	this.generator = generator;
 	this.options   = options;
 	this.size      = 0;
-	this.superEnd  = this.end;
-	this.end       = function(data, encoding, callback) {
-		this.ending = true;
-		this.write(data, encoding, callback);
-	};
 
 	this.firstOpen();
 }
@@ -183,22 +178,30 @@ util.inherits(RotatingFileStream, Writable);
 
 RotatingFileStream.prototype._write = function(chunk, encoding, callback) {
 	if(this.err)
-		return process.nextTick(callback);
+		return process.nextTick(callback.bind(null, this.err));
 
 	if(! this.stream) {
-		this.buffer += chunk;
+		if(this.callback)
+			throw new Error("Multi double callback");
 
-		return process.nextTick(callback);
+		this.buffer += chunk;
+		this.callback = callback;
+
+		return;
 	}
 
+	var self = this;
+
 	this.size += chunk.length;
-	this.stream.write(chunk, callback);
+	this.stream.write(chunk, function(err) {
+		if(err)
+			return self.error(err, callback.bind(null, err));
 
-	if(this.ending && ! chunk.length)
-		return this.superEnd();
+		if(self.options.size && self.size >= self.options.size)
+			return self.rotate(callback);
 
-	if(this.size >= this.options.size)
-		this.rotate();
+		callback();
+	});
 };
 
 RotatingFileStream.prototype._writev = function(chunks, callback) {
@@ -208,14 +211,20 @@ RotatingFileStream.prototype._writev = function(chunks, callback) {
 	var i;
 
 	if(! this.stream) {
+		if(this.callback)
+			throw new Error("Multi double callback");
+
 		for(i in chunks)
 			this.buffer += chunks[i].chunk;
 
-		return process.nextTick(callback);
+		this.callback = callback;
+
+		return;
 	}
 
 	var buffer = "";
 	var enough = true;
+	var self = this;
 
 	for(i = 0; i < chunks.length && enough; ++i) {
 		buffer += chunks[i].chunk;
@@ -225,24 +234,26 @@ RotatingFileStream.prototype._writev = function(chunks, callback) {
 	}
 
 	this.size += buffer.length;
-	this.stream.write(buffer, callback);
+	this.stream.write(buffer, function(err) {
+		if(err)
+			return self.error(err, callback);
 
-	if(enough) {
-		if(this.ending)
-			this.superEnd();
+		if(enough)
+			return callback();
 
-		return;
-	}
+		for(0; i < chunks.length; ++i)
+			self.buffer += chunks[i].chunk;
 
-	for(0; i < chunks.length; ++i)
-		this.buffer += chunks[i].chunk;
-
-	this.rotate();
+		self.rotate(callback);
+	});
 };
 
-RotatingFileStream.prototype.error = function(err) {
+RotatingFileStream.prototype.error = function(err, callback) {
 	this.err = err;
 	this.emit("error", err);
+
+	if(callback)
+		callback(err);
 };
 
 RotatingFileStream.prototype.firstOpen = function() {
@@ -282,12 +293,12 @@ RotatingFileStream.prototype.firstRotation = function() {
 	if((! this.options.size) || stats.size < this.options.size)
 		return true;
 
-	this.rotate();
+	process.nextTick(this.rotate.bind(this));
 
 	return false;
 };
 
-RotatingFileStream.prototype.move = function(attempts) {
+RotatingFileStream.prototype.move = function(callback, attempts) {
 	if(! attempts)
 		attempts = {};
 
@@ -297,7 +308,7 @@ RotatingFileStream.prototype.move = function(attempts) {
 		count += attempts[i];
 
 	if(count >= 1000) {
-		this.error(new Error("Too many destination file attempts"));
+		this.error(new Error("Too many destination file attempts"), callback);
 		this.err.attempts = attempts;
 
 		return;
@@ -316,7 +327,7 @@ RotatingFileStream.prototype.move = function(attempts) {
 			else
 				attempts[name] = 1;
 
-			return self.move(attempts);
+			return self.move(callback, attempts);
 		}
 
 		if(self.options.compress)
@@ -324,16 +335,32 @@ RotatingFileStream.prototype.move = function(attempts) {
 
 		fs.rename(self.name, name, function(err) {
 			if(err)
-				return self.error(err);
+				return self.error(err, callback);
 
 			self.emit("rotated", name);
-			self.open();
+			self.open(callback);
 		});
 	});
 };
 
-RotatingFileStream.prototype.open = function() {
+RotatingFileStream.prototype.open = function(callback) {
 	var fd;
+
+	if(this.callback) {
+		if(callback) {
+			var cb1 = this.callback;
+			var cb2 = callback;
+
+			callback = function(err) {
+				cb1(err);
+				cb2(err);
+			};
+		}
+		else
+			callback = this.callback;
+
+		this.callback = null;
+	}
 
 	try {
 		var options = { flags: "a" };
@@ -348,26 +375,38 @@ RotatingFileStream.prototype.open = function() {
 		throw e;
 	}
 
-	this.stream.on("open", this.write.bind(this, ""));
+	if(! this.buffer.length) {
+		if(callback)
+			callback();
 
-	if(this.buffer.length)
-		this.stream.write(this.buffer);
+		return;
+	}
+
+	var self = this;
+
+	this.stream.write(this.buffer, function(err) {
+		if(err)
+			return self.error(err, callback);
+
+		if(callback)
+			callback();
+	});
 
 	this.size += this.buffer.length;
 	this.buffer = "";
 };
 
-RotatingFileStream.prototype.rotate = function() {
+RotatingFileStream.prototype.rotate = function(callback) {
 	this.rotation = new Date();
 	this.emit("rotation");
 
 	if(this.stream) {
+		this.stream.on("finish", this.move.bind(this, callback));
 		this.stream.end();
-		this.stream.on("finish", this.move.bind(this));
 		this.stream = null;
 	}
 	else
-		this.move();
+		this.move(callback);
 };
 
 module.exports = RotatingFileStream;
