@@ -58,8 +58,8 @@ describe("write", function() {
 		});
 
 		if(process.version.match(/^v0.10/)) {
-			it("4 single write", function() {
-				assert.equal(this.rfs.ev.single, 4);
+			it("3 single write", function() {
+				assert.equal(this.rfs.ev.single, 3);
 			});
 
 			it("0 multi write", function() {
