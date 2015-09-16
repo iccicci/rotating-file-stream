@@ -25,7 +25,7 @@ var stream = rfs('file.log', {
 
 __This package is currently under development.__
 
-Please check the [TODO list](https://github.com/iccicci/rotating-file-stream#todo) to be aware of what is missing.
+Please check the [TODO list](#todo) to be aware of what is missing.
 
 ### Installation
 
@@ -118,6 +118,7 @@ Accepts a positive integer followed by one of these possible letters:
 
 Accepts a positive integer followed by one of these possible letters:
 
+* __s__: seconds. Accepts integer divider of 60.
 * __m__: minutes. Accepts integer divider of 60.
 * __h__: hours. Accepts integer divider of 24.
 * __d__: days
@@ -143,7 +144,6 @@ to not subtract more CPU power than expected to the system). This decision is le
 Following fixed strings are allowed to compress the files with internal libraries:
 * bzip
 * gzip
-* zip
 
 To enable external compression, a _function_ can be used or simple the _boolean_ __true__ value to use default
 external compression.
@@ -207,9 +207,19 @@ performed before going on. This is repeated until a not existing destination fil
 package is exhausted. For this reason the rotated file name generator function may be called several
 times for each rotation job.
 
+### Unexpected
+
+If I understood correctly, there are some case which should never happen. Anyway I want to be sure, so
+I decided to _throw_ an __Unexpected.Error__ if code runs through one of these cases. If it happen
+that you catch one of these, please make me aware of that as soon as possible in order to handle the
+case.
+
+<p style="text-align:right">The author</p>
+
 ### Compatibility
 
-This package is tested under following __Node.js__ versions:
+This package is written following  __Node.js 4.0__ specifications always taking care about backward
+compatibility. The package it tested under following versions:
 * 4.0
 * 0.12
 * 0.11
@@ -225,16 +235,16 @@ Do not hesitate to report any bug or inconsistency @[github](https://github.com/
 
 ### TODO
 
-* Write tests
-* Write code
+* Rotate by interval
 * Create missing path
 * External compression
 * Internal compression gzip
 * Internal compression bzip
-* Internal compression zip
 
 ### Changelog
 
+* 2015-09-?? - v0.0.2
+  * Rotation by size
 * 2015-09-14 - v0.0.1
   * README.md
 * 2015-09-10 - v0.0.0

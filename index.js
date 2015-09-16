@@ -23,7 +23,7 @@ RotatingFileStream.prototype._write = function(chunk, encoding, callback) {
 	this.size += chunk.length;
 	this.stream.write(chunk, function(err) {
 		if(err)
-			return self.error(err, callback.bind(null, err));
+			return self.error(err, callback);
 
 		if(self.options.size && self.size >= self.options.size)
 			return self.rotate(callback);
@@ -34,7 +34,7 @@ RotatingFileStream.prototype._write = function(chunk, encoding, callback) {
 
 RotatingFileStream.prototype._writev = function(chunks, callback) {
 	if(this.err)
-		return process.nextTick(callback);
+		return process.nextTick(callback.bind(null, this.err));
 
 	var i;
 

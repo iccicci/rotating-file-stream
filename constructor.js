@@ -27,9 +27,10 @@ function checkMeasure(v, what, units) {
 }
 
 var intervalUnits = {
-	m: true,
+	d: true,
 	h: true,
-	d: true
+	m: true,
+	s: true
 };
 
 function checkInterval(v) {
@@ -52,9 +53,9 @@ function checkInterval(v) {
 
 var sizeUnits = {
 	B: true,
+	G: true,
 	K: true,
-	M: true,
-	G: true
+	M: true
 };
 
 function checkSize(v) {
