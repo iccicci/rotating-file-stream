@@ -87,7 +87,7 @@ function checkOptions(options) {
 				options.compress = function(src, dst) { return "cat " + src + " | gzip -t9 > " + dst; };
 			else
 				if(typ == "string") {
-					if(val != "bzip" && val != "gzip" && val != "zip")
+					if(val != "bzip" && val != "gzip")
 						throw new Error("Don't know how to handle compression method: " + val);
 				}
 				else
@@ -145,6 +145,7 @@ function RotatingFileStream(filename, options) {
 
 	var generator;
 	var opt = {};
+	var self = this;
 
 	if(typeof filename == "function")
 		generator = filename;
@@ -171,6 +172,10 @@ function RotatingFileStream(filename, options) {
 	this.generator = generator;
 	this.options   = options;
 	this.size      = 0;
+
+	this.once("error", function(err) {
+		self.err = err;
+	});
 
 	this.firstOpen();
 }

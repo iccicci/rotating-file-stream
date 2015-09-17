@@ -53,7 +53,7 @@ otherwise a _Function_ which returns the rotated file name can be used.
 #### function filename(time, index)
 
 * time: {Date} If rotation by interval is enabled, the start time of rotation period, otherwise the time when rotation job started. If __null__, the not rotated file name must be returned.
-* index {Number} The progressive index of rotation by size in the same rotation period. Starts from 1.
+* index {Number} The progressive index of rotation by size in the same rotation period.
 
 An example of a complex rotated file name generator function could be:
 
@@ -210,13 +210,13 @@ times for each rotation job.
 ### Unexpected
 
 ```
-If  I understood correctly,  there are some case which should never happen.
-Anyway I want to be sure, so I decided to throw an Unexpected.Error if code
-runs through one of these cases.
-If  it happen that you catch one of these,  please make me aware of that as
+If I understood correctly, there are some case which should never happen.
+Anyway  I want to be sure,  so I  decided to throw an  Error if code runs
+through one of these cases.
+If it happen that you catch one of these, please make me aware of that as
 soon as possible in order to handle the case.
 
-                                                    The author
+                                                            The author
 ```
 
 ### Compatibility
@@ -239,14 +239,15 @@ Do not hesitate to report any bug or inconsistency @[github](https://github.com/
 ### TODO
 
 * Rotate by interval
-* Create missing path
+* Create missing directories in paths
 * External compression
 * Internal compression gzip
 * Internal compression bzip
+* Test all error case handling
 
 ### Changelog
 
-* 2015-09-?? - v0.0.2
+* 2015-09-17 - v0.0.2
   * Rotation by size
 * 2015-09-14 - v0.0.1
   * README.md
