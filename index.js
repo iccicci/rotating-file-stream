@@ -16,7 +16,7 @@ RotatingFileStream.prototype._write = function(chunk, encoding, callback) {
 		unexpected("_write before callback");
 
 	if(! this.stream) {
-		this.buffer += chunk;
+		this.buffer = Buffer.concat([this.buffer, chunk]);
 		this.callback = callback;
 
 		return;
@@ -46,17 +46,10 @@ RotatingFileStream.prototype._writev = function(chunks, callback) {
 	if(! this.stream)
 		unexpected("_writev while initial rotation");
 
-	var buffer = "";
-	var enough = true;
-	var i;
 	var self = this;
 
-	for(i = 0; i < chunks.length && enough; ++i) {
-		buffer += chunks[i].chunk;
-
-		if(this.options.size && (buffer.length + this.size >= this.options.size))
-			enough = false;
-	}
+	var buffer = Buffer.concat(chunks.map(function(i) { return i.chunk; }));
+	var enough =  !(this.options.size && (buffer.length + this.size >= this.options.size));
 
 	this.size += buffer.length;
 	this.stream.write(buffer, function(err) {
@@ -66,8 +59,7 @@ RotatingFileStream.prototype._writev = function(chunks, callback) {
 		if(enough)
 			return callback();
 
-		for(0; i < chunks.length; ++i)
-			self.buffer += chunks[i].chunk;
+		self.buffer = Buffer.concat([self.buffer, buffer]);
 
 		self.rotate(callback);
 	});
@@ -200,8 +192,8 @@ RotatingFileStream.prototype.open = function() {
 		callback();
 	});
 
-	this.size  += this.buffer.length;
-	this.buffer = "";
+	this.size += this.buffer.length;
+	this.buffer = new Buffer(0);
 };
 
 RotatingFileStream.prototype.rotate = function(callback) {
