@@ -46,6 +46,11 @@ function checkInterval(v) {
 		if(parseInt(24 / ret.num) * ret.num != 24)
 			throw new Error("An integer divider of 24 is expected as hours for 'options.interval'");
 		break;
+
+	case "s":
+		if(parseInt(60 / ret.num) * ret.num != 60)
+			throw new Error("An integer divider of 60 is expected as seconds for 'options.interval'");
+		break;
 	}
 
 	return ret;
@@ -169,6 +174,7 @@ function RotatingFileStream(filename, options) {
 	Writable.call(this);
 
 	this.buffer    = "";
+	this.callback  = this._callback;
 	this.generator = generator;
 	this.options   = options;
 	this.size      = 0;
@@ -181,5 +187,9 @@ function RotatingFileStream(filename, options) {
 }
 
 util.inherits(RotatingFileStream, Writable);
+
+RotatingFileStream.prototype.checkOptions = checkOptions;
+
+RotatingFileStream.prototype._callback = function(err) { if(err) this.emit("error", err); };
 
 module.exports = RotatingFileStream;

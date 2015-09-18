@@ -12,7 +12,7 @@ RotatingFileStream.prototype._write = function(chunk, encoding, callback) {
 	if(this.err)
 		unexpected("_write after error");
 
-	if(this.callback)
+	if(this.callback && this.callback != this._callback)
 		unexpected("_write before callback");
 
 	if(! this.stream) {
@@ -40,7 +40,7 @@ RotatingFileStream.prototype._writev = function(chunks, callback) {
 	if(this.err)
 		unexpected("_writev after error");
 
-	if(this.callback)
+	if(this.callback && this.callback != this._callback)
 		unexpected("_writev before callback");
 
 	if(! this.stream)
@@ -71,18 +71,6 @@ RotatingFileStream.prototype._writev = function(chunks, callback) {
 
 		self.rotate(callback);
 	});
-};
-
-RotatingFileStream.prototype.error = function(err, callback) {
-	if(this.callback)
-		callback = this.callback;
-
-	this.callback = null;
-
-	if(callback)
-		return callback(err);
-
-	this.emit("error", err);
 };
 
 RotatingFileStream.prototype.firstOpen = function() {
@@ -141,7 +129,7 @@ RotatingFileStream.prototype.move = function(attempts) {
 
 		err.attempts = attempts;
 
-		return this.error(err, this.callback);
+		return this.callback(err);
 	}
 
 	if(this.options.interval)
@@ -212,7 +200,7 @@ RotatingFileStream.prototype.open = function() {
 		callback();
 	});
 
-	this.size += this.buffer.length;
+	this.size  += this.buffer.length;
 	this.buffer = "";
 };
 
@@ -220,7 +208,7 @@ RotatingFileStream.prototype.rotate = function(callback) {
 	if(callback)
 		this.callback = callback;
 
-	this.size = 0;
+	this.size     = 0;
 	this.rotation = new Date();
 	this.emit("rotation");
 

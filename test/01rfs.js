@@ -238,6 +238,23 @@ describe("rfs", function() {
 		});
 	});
 
+	describe("wrong interval secons number", function() {
+		before(function(done) {
+			try {
+				this.rfs = rfs("test.log", { interval: "23s" });
+			}
+			catch(e) {
+				this.err = e;
+			}
+			done();
+		});
+
+		it("error", function() {
+			assert.equal(this.err.message, "An integer divider of 60 is expected as seconds for 'options.interval'");
+		});
+	});
+
+
 	describe("wrong interval minutes number", function() {
 		before(function(done) {
 			try {

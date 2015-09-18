@@ -2,8 +2,8 @@
 
 var rfs = require("..");
 
-module.exports = function(done, options) {
-	var ret = rfs(function(time, index) { if(time) return index + "-test.log"; return "test.log"; }, options);
+module.exports = function(done, options, generator) {
+	var ret = rfs(generator || function(time, index) { if(time) return index + "-test.log"; return "test.log"; }, options);
 
 	ret.ev = { single: 0, multi: 0, rotation: 0, rotated: [] };
 	ret.on("rotation", function() { ret.ev.rotation++; });
