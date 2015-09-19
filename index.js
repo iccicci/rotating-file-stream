@@ -8,6 +8,18 @@ function unexpected(msg) {
 	throw new Error("Unexpected case ( https://www.npmjs.com/package/rotating-file-stream#unexpected ): " + msg);
 }
 
+if (!Buffer.prototype.indexOf) {
+	Buffer.prototype.indexOf = function(value, startAt) {
+		if (value.length > 1) { throw new Error("Not yet supported"); }
+		value = value instanceof Buffer ? value : new Buffer(value);
+
+		startAt = startAt || 0;
+		for(var i = startAt; i < this.length; i++) {
+				if (this[i] === value[0]) { return i; }
+		}
+	};
+}
+
 RotatingFileStream.prototype._write = function(chunk, encoding, callback) {
 	if(this.err)
 		unexpected("_write after error");
@@ -16,7 +28,7 @@ RotatingFileStream.prototype._write = function(chunk, encoding, callback) {
 		unexpected("_write before callback");
 
 	if(! this.stream) {
-		this.buffer += chunk;
+		this.buffer = Buffer.concat([this.buffer, chunk]);
 		this.callback = callback;
 
 		return;
@@ -46,28 +58,26 @@ RotatingFileStream.prototype._writev = function(chunks, callback) {
 	if(! this.stream)
 		unexpected("_writev while initial rotation");
 
-	var buffer = "";
-	var enough = true;
-	var i;
-	var self = this;
-
-	for(i = 0; i < chunks.length && enough; ++i) {
-		buffer += chunks[i].chunk;
-
-		if(this.options.size && (buffer.length + this.size >= this.options.size))
-			enough = false;
+	var buffer = Buffer.concat(chunks.map(function(chunk) { return chunk.chunk; }));
+	var remainingBuffer = new Buffer(0);
+	var remainingBytes = this.options.size - this.size;
+	if (this.options.size && remainingBytes < buffer.length) {
+		var index = buffer.indexOf("\n", remainingBytes - 1) + 1;
+		remainingBuffer = buffer.slice(index);
+		buffer = buffer.slice(0, index);
+		// if (remainingBuffer.length > this.options.size) problems: split remaing into small chunks
 	}
 
+	var self = this;
 	this.size += buffer.length;
 	this.stream.write(buffer, function(err) {
 		if(err)
 			return self.error(err, callback);
 
-		if(enough)
+		if(!remainingBuffer.length)
 			return callback();
 
-		for(0; i < chunks.length; ++i)
-			self.buffer += chunks[i].chunk;
+		self.buffer = remainingBuffer;
 
 		self.rotate(callback);
 	});
@@ -200,8 +210,8 @@ RotatingFileStream.prototype.open = function() {
 		callback();
 	});
 
-	this.size  += this.buffer.length;
-	this.buffer = "";
+	this.size += this.buffer.length;
+	this.buffer = new Buffer(0);
 };
 
 RotatingFileStream.prototype.rotate = function(callback) {
