@@ -194,6 +194,20 @@ stream.on('rotated', function(filename) {
 });
 ```
 
+### Rotation logic
+
+Regardless of when and why rotation happens, the content of a single __stream.write__ will never be
+split among two files.
+
+#### by size
+
+Once the no rotated file is opened first time, its size is checked and if it is greater or equal to
+size limit, a first rotation happens. After each __stream.write__, the same check is performed.
+
+#### by interval
+
+The package sets a _Timeout_ to start a rotation job at the right moment.
+
 ### Under the hood
 
 Logs should be handled so carefully, so this package tries to never overwrite files.

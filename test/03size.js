@@ -126,4 +126,53 @@ describe("size", function() {
 			assert.equal(fs.readFileSync("3-test.log"), "test\ntest\n");
 		});
 	});
+
+	describe("one write one file", function() {
+		before(function(done) {
+			this.rfs = rfs(done, { size: "15B" });
+			this.rfs.write("test\n");
+			this.rfs.write("test\ntest\n");
+			this.rfs.end("test\n");
+		});
+
+		it("no error", function() {
+			assert.ifError(this.rfs.ev.err);
+		});
+
+		it("1 rotation", function() {
+			assert.equal(this.rfs.ev.rotation, 1);
+		});
+
+		it("1 rotated", function() {
+			assert.equal(this.rfs.ev.rotated.length, 1);
+			assert.equal(this.rfs.ev.rotated[0], "4-test.log");
+		});
+
+		if(process.version.match(/^v0.10/)) {
+			it("3 single write", function() {
+				assert.equal(this.rfs.ev.single, 3);
+			});
+
+			it("0 multi write", function() {
+				assert.equal(this.rfs.ev.multi, 0);
+			});
+		}
+		else {
+			it("1 single write", function() {
+				assert.equal(this.rfs.ev.single, 1);
+			});
+
+			it("1 multi write", function() {
+				assert.equal(this.rfs.ev.multi, 1);
+			});
+		}
+
+		it("file content", function() {
+			assert.equal(fs.readFileSync("test.log"), "test\n");
+		});
+
+		it("rotated file content", function() {
+			assert.equal(fs.readFileSync("4-test.log"), "test\ntest\ntest\ntest\n");
+		});
+	});
 });
