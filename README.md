@@ -59,7 +59,7 @@ An example of a complex rotated file name generator function could be:
 
 ```javascript
 function pad(num) {
-    return (num + "").length == 1 ? "0" + num : num;
+    return (num > 9 ? "" : "0") + num;
 }
 
 function generator(time, index) {
@@ -111,7 +111,7 @@ Accepts a positive integer followed by one of these possible letters:
 ```
 
 ```javascript
-  size: '1G', // rotates the file when its size exceeds a GigaBytes
+  size: '1G', // rotates the file when its size exceeds a GigaByte
 ```
 
 #### interval
@@ -239,14 +239,16 @@ Do not hesitate to report any bug or inconsistency @[github](https://github.com/
 ### TODO
 
 * Rotate by interval
-* Create missing directories in paths
 * External compression
 * Internal compression gzip
 * Internal compression bzip
+* Create missing directories in paths
 * Test all error case handling
 
 ### Changelog
 
+* 2015-??-?? - v0.0.3
+  * Buffer optimization and refactorization (thanks to [allevo](https://www.npmjs.com/~allevo))
 * 2015-09-17 - v0.0.2
   * Rotation by size
 * 2015-09-14 - v0.0.1

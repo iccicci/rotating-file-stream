@@ -125,6 +125,29 @@ RotatingFileStream.prototype.firstRotation = function() {
 	return false;
 };
 
+RotatingFileStream.prototype.interval = function() {
+	if(! this.options.interval)
+		return;
+
+	var period = 1000 * this.options.interval.num;
+
+	switch(this.options.interval.unit) {
+	case "d":
+		period *= 24;
+	case "h":
+		period *= 60;
+	case "m":
+		period *= 60;
+	}
+
+	var now  = new Date().getTime();
+	var prev = parseInt(now / period) * period;
+
+	this.prev  = prev;
+	this.timer = setTimeout(this.rotate.bind(this), prev + period - now);
+	this.timer.unref();
+};
+
 RotatingFileStream.prototype.move = function(attempts) {
 	if(! attempts)
 		attempts = {};
@@ -142,10 +165,7 @@ RotatingFileStream.prototype.move = function(attempts) {
 		return this.callback(err);
 	}
 
-	if(this.options.interval)
-		throw new Error("not implemented yet");
-
-	var name = this.generator(this.rotation, count + 1);
+	var name = this.generator(this.options.interval ? new Date(this.prev) : this.rotation, count + 1);
 	var self = this;
 
 	fs.stat(name, function(err) {
@@ -178,14 +198,11 @@ RotatingFileStream.prototype.open = function() {
 	var callback = function(err) {
 		var cb = self.callback;
 
-		if(cb) {
-			self.callback = null;
+		self.callback = self._callback;
+		cb(err);
 
-			return cb(err);
-		}
-
-		if(err)
-			throw err;
+		if(! err)
+			self.interval();
 	};
 
 	try {
@@ -210,13 +227,18 @@ RotatingFileStream.prototype.open = function() {
 		callback();
 	});
 
-	this.size += this.buffer.length;
+	this.size   = this.buffer.length;
 	this.buffer = new Buffer(0);
 };
 
 RotatingFileStream.prototype.rotate = function(callback) {
 	if(callback)
 		this.callback = callback;
+
+	if(this.timer) {
+		clearTimeout(this.timer);
+		this.timer = null;
+	}
 
 	this.size     = 0;
 	this.rotation = new Date();

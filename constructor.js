@@ -127,7 +127,7 @@ function checkOptions(options) {
 }
 
 function pad(num) {
-		return (num + "").length == 1 ? "0" + num : num;
+	return (num > 9 ? "" : "0") + num;
 }
 
 function createGenerator(filename) {
@@ -171,7 +171,7 @@ function RotatingFileStream(filename, options) {
 	if(options.highWaterMark)
 		opt.highWaterMark = options.highWaterMark;
 
-	Writable.call(this);
+	Writable.call(this, opt);
 
 	this.callback  = this._callback;
 	this.buffer    = new Buffer(0);
