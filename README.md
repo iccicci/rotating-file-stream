@@ -223,6 +223,7 @@ soon as possible in order to handle the case.
 
 This package is written following  __Node.js 4.0__ specifications always taking care about backward
 compatibility. The package it tested under following versions:
+* 4.1
 * 4.0
 * 0.12
 * 0.11

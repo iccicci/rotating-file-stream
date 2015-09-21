@@ -134,8 +134,10 @@ RotatingFileStream.prototype.interval = function() {
 	switch(this.options.interval.unit) {
 	case "d":
 		period *= 24;
+		/* falls through */
 	case "h":
 		period *= 60;
+		/* falls through */
 	case "m":
 		period *= 60;
 	}
