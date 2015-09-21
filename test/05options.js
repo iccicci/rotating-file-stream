@@ -41,8 +41,19 @@ describe("options", function() {
 
 	describe("interval minutes", function() {
 		before(function(done) {
-			this.rfs = rfs(done, { interval: "3m" });
-			this.rfs.end();
+			var self = this;
+			var doIt = function() {
+				self.rfs = rfs(done, { interval: "3m" });
+				self.rfs.end();
+			};
+
+			var now = new Date().getTime();
+			var sec = parseInt(now / 1000) * 1000;
+
+			if(now - sec < 900)
+				return doIt();
+
+			setTimeout(doIt, 101);
 		});
 
 		it("3'", function() {
@@ -53,8 +64,19 @@ describe("options", function() {
 
 	describe("interval hours", function() {
 		before(function(done) {
-			this.rfs = rfs(done, { interval: "3h" });
-			this.rfs.end();
+			var self = this;
+			var doIt = function() {
+				self.rfs = rfs(done, { interval: "3h" });
+				self.rfs.end();
+			};
+
+			var now = new Date().getTime();
+			var sec = parseInt(now / 1000) * 1000;
+
+			if(now - sec < 900)
+				return doIt();
+
+			setTimeout(doIt, 101);
 		});
 
 		it("3h", function() {
@@ -65,8 +87,19 @@ describe("options", function() {
 
 	describe("interval days", function() {
 		before(function(done) {
-			this.rfs = rfs(done, { interval: "3d" });
-			this.rfs.end();
+			var self = this;
+			var doIt = function() {
+				self.rfs = rfs(done, { interval: "3d" });
+				self.rfs.end();
+			};
+
+			var now = new Date().getTime();
+			var sec = parseInt(now / 1000) * 1000;
+
+			if(now - sec < 900)
+				return doIt();
+
+			setTimeout(doIt, 101);
 		});
 
 		it("3d", function() {
