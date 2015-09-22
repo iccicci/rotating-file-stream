@@ -149,7 +149,7 @@ function RotatingFileStream(filename, options) {
 		return new RotatingFileStream(filename, options);
 
 	var generator;
-	var opt = {};
+	var opt  = {};
 	var self = this;
 
 	if(typeof filename == "function")
@@ -173,23 +173,29 @@ function RotatingFileStream(filename, options) {
 
 	Writable.call(this, opt);
 
-	this.callback  = this._callback;
 	this.buffer    = new Buffer(0);
 	this.generator = generator;
 	this.options   = options;
 	this.size      = 0;
 
 	this.once("error", function(err) {
+		var finish = true;
+
 		self.err = err;
+		self.once("finish", function() { finish = false; });
+		self.end();
+
+		setTimeout(function() { if(finish) self.emit("finish"); }, 100);
+	});
+
+	this.once("finish", function() {
+		if(this.timer)
+			clearTimeout(this.timer);
 	});
 
 	this.firstOpen();
 }
 
 util.inherits(RotatingFileStream, Writable);
-
-RotatingFileStream.prototype.checkOptions = checkOptions;
-
-RotatingFileStream.prototype._callback = function(err) { if(err) this.emit("error", err); };
 
 module.exports = RotatingFileStream;

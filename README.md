@@ -207,18 +207,6 @@ performed before going on. This is repeated until a not existing destination fil
 package is exhausted. For this reason the rotated file name generator function may be called several
 times for each rotation job.
 
-### Unexpected
-
-```
-If I understood correctly, there are some case which should never happen.
-Anyway  I want to be sure,  so I  decided to throw an  Error if code runs
-through one of these cases.
-If it happen that you catch one of these, please make me aware of that as
-soon as possible in order to handle the case.
-
-                                                            The author
-```
-
 ### Compatibility
 
 This package is written following  __Node.js 4.0__ specifications always taking care about backward
