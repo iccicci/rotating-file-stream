@@ -247,7 +247,7 @@ Do not hesitate to report any bug or inconsistency @[github](https://github.com/
 
 * 2015-??-?? - v0.0.3
   * Rotation by interval
-  * __Buffer__s optimization (thanks to [allevo](https://www.npmjs.com/~allevo))
+  * __Buffer__ optimization (thanks to [allevo](https://www.npmjs.com/~allevo))
 * 2015-09-17 - v0.0.2
   * Rotation by size
 * 2015-09-14 - v0.0.1
