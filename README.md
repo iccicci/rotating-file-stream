@@ -217,6 +217,8 @@ performed before going on. This is repeated until a not existing destination fil
 package is exhausted. For this reason the rotated file name generator function may be called several
 times for each rotation job.
 
+Once an __error__ _event_ is emitted, nothing more can be done: the stream is closed as well.
+
 ### Compatibility
 
 This package is written following  __Node.js 4.0__ specifications always taking care about backward
@@ -243,7 +245,7 @@ Do not hesitate to report any bug or inconsistency @[github](https://github.com/
 * Create missing directories in paths
 * Test all error case handling
 
-### Changelog
+### ChangeLog
 
 * 2015-??-?? - v0.0.3
   * Rotation by interval
