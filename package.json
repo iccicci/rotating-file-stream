@@ -13,6 +13,7 @@
     "logrotate"
   ],
   "author": "Daniele Ricci <daniele.icc@gmail.com> (https://github.com/iccicci)",
+  "contributors": ["allevo"],
   "license": "MIT",
   "readmeFilename": "README.md",
   "devDependencies": {

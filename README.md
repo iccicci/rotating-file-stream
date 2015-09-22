@@ -103,6 +103,11 @@ Accepts a positive integer followed by one of these possible letters:
 * __G__: GigaBytes
 
 ```javascript
+  size: '300B', // rotates the file when its size exceeds 300 Bytes
+                // useful for tests
+```
+
+```javascript
   size: '300K', // rotates the file when its size exceeds 300 KiloBytes
 ```
 
@@ -122,6 +127,11 @@ Accepts a positive integer followed by one of these possible letters:
 * __m__: minutes. Accepts integer divider of 60.
 * __h__: hours. Accepts integer divider of 24.
 * __d__: days
+
+```javascript
+  interval: '5s', // rotates the file at seconds 0, 5, 10, 15 and so on
+                  // useful for tests
+```
 
 ```javascript
   interval: '5m', // rotates the file at minutes 0, 5, 10, 15 and so on
@@ -227,7 +237,6 @@ Do not hesitate to report any bug or inconsistency @[github](https://github.com/
 
 ### TODO
 
-* Rotate by interval
 * External compression
 * Internal compression gzip
 * Internal compression bzip
@@ -237,7 +246,8 @@ Do not hesitate to report any bug or inconsistency @[github](https://github.com/
 ### Changelog
 
 * 2015-??-?? - v0.0.3
-  * Buffer optimization and refactorization (thanks to [allevo](https://www.npmjs.com/~allevo))
+  * Rotation by interval
+  * __Buffer__s optimization (thanks to [allevo](https://www.npmjs.com/~allevo))
 * 2015-09-17 - v0.0.2
   * Rotation by size
 * 2015-09-14 - v0.0.1
