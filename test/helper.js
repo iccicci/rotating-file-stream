@@ -1,8 +1,20 @@
 "use strict";
 
+var child_process = require("child_process");
 var rfs = require("..");
 
-module.exports = function(done, options, generator) {
+function exec(done, cmd, cb) {
+	child_process.exec(cmd, function(error, stdout, stderr) {
+		if(error) {
+			console.log(error, stdout, stderr);
+			return done();
+		}
+
+		cb();
+	});
+}
+
+function _rfs(done, options, generator) {
 	var ret = rfs(generator || function(time, index) { if(time) return index + "-test.log"; return "test.log"; }, options);
 
 	ret.ev = { single: 0, multi: 0, rotation: 0, rotated: [] };
@@ -25,4 +37,9 @@ module.exports = function(done, options, generator) {
 	};
 
 	return ret;
+}
+
+module.exports = {
+	exec: exec,
+	rfs:  _rfs
 };

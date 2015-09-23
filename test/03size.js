@@ -2,14 +2,18 @@
 "use strict";
 
 var assert = require("assert");
+var exec = require("./helper").exec;
 var fs = require("fs");
-var rfs = require("./helper");
+var rfs = require("./helper").rfs;
 
 describe("size", function() {
 	describe("initial rotation", function() {
 		before(function(done) {
-			this.rfs = rfs(done, { size: "10B" });
-			this.rfs.end("test\n");
+			var self = this;
+			exec(done, "rm -rf *log ; echo test > test.log ; echo test >> test.log ; echo test >> test.log ; echo test >> test.log", function() {
+				self.rfs = rfs(done, { size: "10B" });
+				self.rfs.end("test\n");
+			});
 		});
 
 		it("no error", function() {
@@ -44,8 +48,11 @@ describe("size", function() {
 
 	describe("single write rotation by size", function() {
 		before(function(done) {
-			this.rfs = rfs(done, { size: "10B" });
-			this.rfs.end("test\n");
+			var self = this;
+			exec(done, "rm -rf *log ; echo test > test.log", function() {
+				self.rfs = rfs(done, { size: "10B" });
+				self.rfs.end("test\n");
+			});
 		});
 
 		it("no error", function() {
@@ -58,7 +65,7 @@ describe("size", function() {
 
 		it("1 rotated", function() {
 			assert.equal(this.rfs.ev.rotated.length, 1);
-			assert.equal(this.rfs.ev.rotated[0], "2-test.log");
+			assert.equal(this.rfs.ev.rotated[0], "1-test.log");
 		});
 
 		it("1 single write", function() {
@@ -74,16 +81,19 @@ describe("size", function() {
 		});
 
 		it("rotated file content", function() {
-			assert.equal(fs.readFileSync("2-test.log"), "test\ntest\n");
+			assert.equal(fs.readFileSync("1-test.log"), "test\ntest\n");
 		});
 	});
 
 	describe("multi write rotation by size", function() {
 		before(function(done) {
-			this.rfs = rfs(done, { size: "10B" });
-			this.rfs.write("test\n");
-			this.rfs.write("test\n");
-			this.rfs.end("test\n");
+			var self = this;
+			exec(done, "rm -rf *log", function() {
+				self.rfs = rfs(done, { size: "10B" });
+				self.rfs.write("test\n");
+				self.rfs.write("test\n");
+				self.rfs.end("test\n");
+			});
 		});
 
 		it("no error", function() {
@@ -96,7 +106,7 @@ describe("size", function() {
 
 		it("1 rotated", function() {
 			assert.equal(this.rfs.ev.rotated.length, 1);
-			assert.equal(this.rfs.ev.rotated[0], "3-test.log");
+			assert.equal(this.rfs.ev.rotated[0], "1-test.log");
 		});
 
 		if(process.version.match(/^v0.10/)) {
@@ -123,7 +133,7 @@ describe("size", function() {
 		});
 
 		it("rotated file content", function() {
-			assert.equal(fs.readFileSync("3-test.log"), "test\ntest\n");
+			assert.equal(fs.readFileSync("1-test.log"), "test\ntest\n");
 		});
 	});
 });

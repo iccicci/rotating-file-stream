@@ -3,7 +3,7 @@
 
 var assert = require("assert");
 var fs = require("fs");
-var rfs = require("./helper");
+var rfs = require("./helper").rfs;
 
 describe("options", function() {
 	describe("size KiloBytes", function() {

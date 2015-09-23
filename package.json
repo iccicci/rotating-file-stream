@@ -7,7 +7,7 @@
     "jshint": "./node_modules/.bin/jshint *.js test",
     "npmignore": "echo '.jshintrc\\n.gitignore\\n.travis.yml\\ntest\\nsleep.js' > .npmignore ; cat .gitignore >> .npmignore",
     "t": "./node_modules/.bin/_mocha test",
-    "test": "rm -rf *log && npm run npmignore && npm run jshint && npm run coverage"
+    "test": "npm run npmignore && npm run jshint && npm run coverage"
   },
   "bugs": "https://github.com/iccicci/rotating-file-stream/issues",
   "repository": "https://github.com/iccicci/rotating-file-stream",

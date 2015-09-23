@@ -2,14 +2,18 @@
 "use strict";
 
 var assert = require("assert");
+var exec = require("./helper").exec;
 var fs = require("fs");
-var rfs = require("./helper");
+var rfs = require("./helper").rfs;
 
 describe("unexpected", function() {
 	describe("no rotated file available", function() {
 		before(function(done) {
-			this.rfs = rfs(done, { size: "5B" }, function(time, index) { return "test.log"; });
-			this.rfs.end("test\n");
+			var self = this;
+			exec(done, "rm -rf *log ; echo test > test.log", function() {
+				self.rfs = rfs(done, { size: "5B" }, function(time, index) { return "test.log"; });
+				self.rfs.end("test\n");
+			});
 		});
 
 		it("Error", function() {
@@ -40,7 +44,10 @@ describe("unexpected", function() {
 
 	describe("no rotated file available (initial rotation)", function() {
 		before(function(done) {
-			this.rfs = rfs(done, { size: "5B" }, function(time, index) { return "test.log"; });
+			var self = this;
+			exec(done, "rm -rf *log ; echo test > test.log", function() {
+				self.rfs = rfs(done, { size: "5B" }, function(time, index) { return "test.log"; });
+			});
 		});
 
 		it("Error", function() {
