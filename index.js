@@ -17,6 +17,7 @@ if (!Buffer.prototype.indexOf) {
 }
 
 RotatingFileStream.prototype._callback = function(err) {
+	console.log("cb", this.callback);
 	if(err) {
 		setTimeout(this.end.bind(this), 100);
 
@@ -55,6 +56,7 @@ RotatingFileStream.prototype._rotate = function() {
 };
 
 RotatingFileStream.prototype._write = function(chunk, encoding, callback) {
+	console.log("write");
 	if(this.err)
 		return callback(this.err);
 
@@ -170,6 +172,10 @@ RotatingFileStream.prototype.interval = function() {
 	var now  = new Date().getTime();
 	var prev = parseInt(now / period) * period;
 
+	if(this.closed)
+		return;
+	console.log("risetto");
+
 	this.prev  = prev;
 	this.timer = setTimeout(this._rotate.bind(this), prev + period - now);
 	this.timer.unref();
@@ -256,6 +262,7 @@ RotatingFileStream.prototype.open = function() {
 };
 
 RotatingFileStream.prototype.rotate = function() {
+	console.log("rotation");
 	if(this.timer) {
 		clearTimeout(this.timer);
 		this.timer = null;

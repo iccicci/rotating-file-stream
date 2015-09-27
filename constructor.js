@@ -189,8 +189,12 @@ function RotatingFileStream(filename, options) {
 	});
 
 	this.once("finish", function() {
-		if(this.timer)
-			clearTimeout(this.timer);
+		self.closed = true;
+
+		if(self.timer)
+			clearTimeout(self.timer);
+
+		self.timer = null;
 	});
 
 	this.firstOpen();
