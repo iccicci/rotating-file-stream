@@ -173,7 +173,6 @@ function RotatingFileStream(filename, options) {
 
 	Writable.call(this, opt);
 
-	this.buffer    = new Buffer(0);
 	this.generator = generator;
 	this.options   = options;
 	this.size      = 0;
@@ -189,8 +188,6 @@ function RotatingFileStream(filename, options) {
 	});
 
 	this.once("finish", function() {
-		self.closed = true;
-
 		if(self.timer)
 			clearTimeout(self.timer);
 
@@ -221,10 +218,7 @@ RotatingFileStream.prototype._callback = function(err) {
 	if(err)
 		process.nextTick(this.callback.bind(null, err));
 	else
-		if(this.chunks)
-			process.nextTick(this._rewrite.bind(this, this.chunks, this.index, this.callback));
-		else
-			process.nextTick(this.callback);
+		process.nextTick(this._rewrite.bind(this, this.chunks, this.index, this.callback));
 
 	this.callback = null;
 	this.chunks   = null;
@@ -253,27 +247,28 @@ RotatingFileStream.prototype._rewrite = function(chunks, index, callback, err) {
 		return callback();
 
 	var buffer = new Buffer(0);
+	var chunk;
 
-	while(index < chunks.length && ((! this.options.size) || this.size < this.options.size)) {
-		var chunk  = chunks[index++].chunk;
+	if(index + 1 == chunks.length) {
+		chunk      = chunks[index++].chunk;
 		this.size += chunk.length;
-		buffer     = Buffer.concat([buffer, chunk], buffer.length + chunk.length);
+		buffer     = chunk;
 	}
+	else
+		while(index < chunks.length && ((! this.options.size) || this.size < this.options.size)) {
+			chunk      = chunks[index++].chunk;
+			this.size += chunk.length;
+			buffer     = Buffer.concat([buffer, chunk], buffer.length + chunk.length);
+		}
 
 	this.stream.write(buffer, this._rewrite.bind(this, chunks, index, callback));
 };
 
 RotatingFileStream.prototype._write = function(chunk, encoding, callback) {
-	if(this.err)
-		return callback(this.err);
-
 	this._rewrite([{ chunk: chunk }], 0, callback);
 };
 
 RotatingFileStream.prototype._writev = function(chunks, callback) {
-	if(this.err)
-		return callback(this.err);
-
 	this._rewrite(chunks, 0, callback);
 };
 
@@ -321,9 +316,6 @@ RotatingFileStream.prototype.firstRotation = function() {
 
 RotatingFileStream.prototype.interval = function() {
 	if(! this.options.interval)
-		return;
-
-	if(this.closed)
 		return;
 
 	var period = 1000 * this.options.interval.num;
