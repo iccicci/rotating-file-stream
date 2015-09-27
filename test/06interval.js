@@ -6,7 +6,7 @@ var exec = require("./helper").exec;
 var fs = require("fs");
 var rfs = require("./helper").rfs;
 
-xdescribe("interval", function() {
+describe("interval", function() {
 	describe("_write while rotation", function() {
 		before(function(done) {
 			var self = this;
@@ -14,12 +14,8 @@ xdescribe("interval", function() {
 				var now  = new Date().getTime();
 				var sec  = parseInt(now / 1000) * 1000;
 				var open = sec + (sec + 900 > now ? 900 : 1900);
-				console.log(new Date().getTime());
 				setTimeout(function() {
-					console.log(new Date().getTime());
 					self.rfs = rfs(done, { interval: "1s" });
-					self.rfs.on("rotation", function() {console.log(new Date().getTime());});
-					self.rfs.on("finish", function() {console.log("finish");});
 					self.rfs.on("rotation", self.rfs.end.bind(self.rfs, "test\n"));
 				}, open - now);
 			});

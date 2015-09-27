@@ -10,7 +10,7 @@ describe("unexpected", function() {
 	describe("no rotated file available", function() {
 		before(function(done) {
 			var self = this;
-			exec(done, "rm -rf *log ; echo test > test.log", function() {
+			exec(done, "rm -rf *log", function() {
 				self.rfs = rfs(done, { size: "5B" }, function(time, index) { return "test.log"; });
 				self.rfs.end("test\n");
 			});

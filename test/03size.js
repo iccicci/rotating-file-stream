@@ -10,7 +10,7 @@ describe("size", function() {
 	describe("initial rotation", function() {
 		before(function(done) {
 			var self = this;
-			exec(done, "rm -rf *log ; echo test > test.log ; echo test >> test.log ; echo test >> test.log ; echo test >> test.log", function() {
+			exec(done, "rm -rf *log ; echo test > test.log ; echo test >> test.log", function() {
 				self.rfs = rfs(done, { size: "10B" });
 				self.rfs.end("test\n");
 			});
@@ -42,7 +42,7 @@ describe("size", function() {
 		});
 
 		it("rotated file content", function() {
-			assert.equal(fs.readFileSync("1-test.log"), "test\ntest\ntest\ntest\n");
+			assert.equal(fs.readFileSync("1-test.log"), "test\ntest\n");
 		});
 	});
 
