@@ -230,45 +230,34 @@ RotatingFileStream.prototype._callback = function(err) {
 	this.chunks   = null;
 };
 
+RotatingFileStream.prototype._postrewrite = function(chunks, index, callback, next) {
+	this.callback = callback;
+	this.chunks   = chunks;
+	this.index    = index;
+
+	if(next)
+		next();
+};
+
 RotatingFileStream.prototype._rewrite = function(chunks, index, callback, err) {
 	if(err)
 		return callback(err);
 
-	if(! this.stream) {
-		this.callback = callback;
-		this.chunks   = chunks;
-		this.index    = index;
+	if(! this.stream)
+		return this._postrewrite(chunks, index, callback);
 
-		return;
-	}
-
-	if(this.options.size && this.size >= this.options.size) {
-		this.callback = callback;
-		this.chunks   = chunks;
-		this.index    = index;
-
-		return this.rotate();
-	}
+	if(this.options.size && this.size >= this.options.size)
+		return this._postrewrite(chunks, index, callback, this.rotate.bind(this));
 
 	if(chunks.length == index)
 		return callback();
 
-	var buffer;
-	var chunk;
+	var buffer = new Buffer(0);
 
-	if(chunks.length - index == 1) {
-		chunk      = chunks[index++].chunk;
+	while(index < chunks.length && ((! this.options.size) || this.size < this.options.size)) {
+		var chunk  = chunks[index++].chunk;
 		this.size += chunk.length;
-		buffer     = chunk;
-	}
-	else {
-		buffer = new Buffer(0);
-
-		while(index < chunks.length && ((! this.options.size) || this.size < this.options.size)) {
-			chunk      = chunks[index++].chunk;
-			this.size += chunk.length;
-			buffer     = Buffer.concat([buffer, chunk], buffer.length + chunk.length);
-		}
+		buffer     = Buffer.concat([buffer, chunk], buffer.length + chunk.length);
 	}
 
 	this.stream.write(buffer, this._rewrite.bind(this, chunks, index, callback));
