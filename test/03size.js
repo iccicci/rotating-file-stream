@@ -139,10 +139,13 @@ describe("size", function() {
 
 	describe("one write one file", function() {
 		before(function(done) {
-			this.rfs = rfs(done, { size: "15B" });
-			this.rfs.write("test\n");
-			this.rfs.write("test\ntest\n");
-			this.rfs.end("test\n");
+			var self = this;
+			exec(done, "rm -rf *log ; echo test > test.log", function() {
+				self.rfs = rfs(done, { size: "15B" });
+				self.rfs.write("test\n");
+				self.rfs.write("test\ntest\n");
+				self.rfs.end("test\n");
+			});
 		});
 
 		it("no error", function() {
@@ -155,7 +158,7 @@ describe("size", function() {
 
 		it("1 rotated", function() {
 			assert.equal(this.rfs.ev.rotated.length, 1);
-			assert.equal(this.rfs.ev.rotated[0], "4-test.log");
+			assert.equal(this.rfs.ev.rotated[0], "1-test.log");
 		});
 
 		if(process.version.match(/^v0.10/)) {
@@ -182,7 +185,7 @@ describe("size", function() {
 		});
 
 		it("rotated file content", function() {
-			assert.equal(fs.readFileSync("4-test.log"), "test\ntest\ntest\ntest\n");
+			assert.equal(fs.readFileSync("1-test.log"), "test\ntest\ntest\ntest\n");
 		});
 	});
 });

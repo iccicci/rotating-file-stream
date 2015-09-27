@@ -6,7 +6,7 @@ var exec = require("./helper").exec;
 var fs = require("fs");
 var rfs = require("./helper").rfs;
 
-describe("interval", function() {
+xdescribe("interval", function() {
 	describe("_write while rotation", function() {
 		before(function(done) {
 			var self = this;
