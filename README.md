@@ -59,7 +59,7 @@ An example of a complex rotated file name generator function could be:
 
 ```javascript
 function pad(num) {
-    return (num + "").length == 1 ? "0" + num : num;
+    return (num > 9 ? "" : "0") + num;
 }
 
 function generator(time, index) {
@@ -103,6 +103,11 @@ Accepts a positive integer followed by one of these possible letters:
 * __G__: GigaBytes
 
 ```javascript
+  size: '300B', // rotates the file when its size exceeds 300 Bytes
+                // useful for tests
+```
+
+```javascript
   size: '300K', // rotates the file when its size exceeds 300 KiloBytes
 ```
 
@@ -111,7 +116,7 @@ Accepts a positive integer followed by one of these possible letters:
 ```
 
 ```javascript
-  size: '1G', // rotates the file when its size exceeds a GigaBytes
+  size: '1G', // rotates the file when its size exceeds a GigaByte
 ```
 
 #### interval
@@ -122,6 +127,11 @@ Accepts a positive integer followed by one of these possible letters:
 * __m__: minutes. Accepts integer divider of 60.
 * __h__: hours. Accepts integer divider of 24.
 * __d__: days
+
+```javascript
+  interval: '5s', // rotates the file at seconds 0, 5, 10, 15 and so on
+                  // useful for tests
+```
 
 ```javascript
   interval: '5m', // rotates the file at minutes 0, 5, 10, 15 and so on
@@ -221,22 +231,13 @@ performed before going on. This is repeated until a not existing destination fil
 package is exhausted. For this reason the rotated file name generator function may be called several
 times for each rotation job.
 
-### Unexpected
-
-```
-If I understood correctly, there are some case which should never happen.
-Anyway  I want to be sure,  so I  decided to throw an  Error if code runs
-through one of these cases.
-If it happen that you catch one of these, please make me aware of that as
-soon as possible in order to handle the case.
-
-                                                            The author
-```
+Once an __error__ _event_ is emitted, nothing more can be done: the stream is closed as well.
 
 ### Compatibility
 
 This package is written following  __Node.js 4.0__ specifications always taking care about backward
 compatibility. The package it tested under following versions:
+* 4.1
 * 4.0
 * 0.12
 * 0.11
@@ -252,15 +253,17 @@ Do not hesitate to report any bug or inconsistency @[github](https://github.com/
 
 ### TODO
 
-* Rotate by interval
-* Create missing directories in paths
 * External compression
 * Internal compression gzip
 * Internal compression bzip
+* Create missing directories in paths
 * Test all error case handling
 
-### Changelog
+### ChangeLog
 
+* 2015-??-?? - v0.0.3
+  * Rotation by interval
+  * __Buffer__ optimization (thanks to [allevo](https://www.npmjs.com/~allevo))
 * 2015-09-17 - v0.0.2
   * Rotation by size
 * 2015-09-14 - v0.0.1

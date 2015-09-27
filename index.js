@@ -4,10 +4,6 @@ var fs = require("fs");
 
 var RotatingFileStream = require("./constructor");
 
-function unexpected(msg) {
-	throw new Error("Unexpected case ( https://www.npmjs.com/package/rotating-file-stream#unexpected ): " + msg);
-}
-
 if (!Buffer.prototype.indexOf) {
 	Buffer.prototype.indexOf = function(value, startAt) {
 		if (value.length > 1) { throw new Error("Not yet supported"); }
@@ -20,43 +16,74 @@ if (!Buffer.prototype.indexOf) {
 	};
 }
 
-RotatingFileStream.prototype._write = function(chunk, encoding, callback) {
-	if(this.err)
-		unexpected("_write after error");
+RotatingFileStream.prototype._callback = function(err) {
+	console.log("cb", this.callback);
+	if(err) {
+		setTimeout(this.end.bind(this), 100);
 
-	if(this.callback && this.callback != this._callback)
-		unexpected("_write before callback");
-
-	if(! this.stream) {
-		this.buffer = Buffer.concat([this.buffer, chunk]);
-		this.callback = callback;
-
-		return;
+		if(this.timer) {
+			clearTimeout(this.timer);
+			this.timer = null;
+		}
 	}
+
+	if(this.callback) {
+		var callback = this.callback;
+
+		this.callback = null;
+
+		return callback(err);
+	}
+
+	if(err)
+		this.emit("error", err);
+};
+
+RotatingFileStream.prototype._rotate = function() {
+	if(! this.callback)
+		return this.rotate();
+
+	var prev = this.callback;
+	var self = this;
+
+	this.callback = function(err) {
+		if(err)
+			return prev(err);
+
+		self.callback = prev;
+		self.rotate();
+	};
+};
+
+RotatingFileStream.prototype._write = function(chunk, encoding, callback) {
+	console.log("write");
+	if(this.err)
+		return callback(this.err);
+
+	this.callback = callback;
+
+	if(! this.stream)
+		return (this.buffer = chunk);
 
 	var self = this;
 
 	this.size += chunk.length;
 	this.stream.write(chunk, function(err) {
 		if(err)
-			return callback(err);
+			return self._callback(err);
 
 		if(self.options.size && self.size >= self.options.size)
-			return self.rotate(callback);
+			return self.rotate();
 
-		callback();
+		self._callback();
 	});
 };
 
 RotatingFileStream.prototype._writev = function(chunks, callback) {
 	if(this.err)
-		unexpected("_writev after error");
+		return callback(this.err);
 
-	if(this.callback && this.callback != this._callback)
-		unexpected("_writev before callback");
-
-	if(! this.stream)
-		unexpected("_writev while initial rotation");
+	this.callback = callback;
 
 	var buffer = Buffer.concat(chunks.map(function(chunk) { return chunk.chunk; }));
 	var remainingBuffer = new Buffer(0);
@@ -72,14 +99,14 @@ RotatingFileStream.prototype._writev = function(chunks, callback) {
 	this.size += buffer.length;
 	this.stream.write(buffer, function(err) {
 		if(err)
-			return self.error(err, callback);
+			return self._callback(err);
 
 		if(!remainingBuffer.length)
-			return callback();
+			return self._callback();
 
 		self.buffer = remainingBuffer;
 
-		self.rotate(callback);
+		self.rotate();
 	});
 };
 
@@ -125,6 +152,35 @@ RotatingFileStream.prototype.firstRotation = function() {
 	return false;
 };
 
+RotatingFileStream.prototype.interval = function() {
+	if(! this.options.interval)
+		return;
+
+	var period = 1000 * this.options.interval.num;
+
+	switch(this.options.interval.unit) {
+	case "d":
+		period *= 24;
+		/* falls through */
+	case "h":
+		period *= 60;
+		/* falls through */
+	case "m":
+		period *= 60;
+	}
+
+	var now  = new Date().getTime();
+	var prev = parseInt(now / period) * period;
+
+	if(this.closed)
+		return;
+	console.log("risetto");
+
+	this.prev  = prev;
+	this.timer = setTimeout(this._rotate.bind(this), prev + period - now);
+	this.timer.unref();
+};
+
 RotatingFileStream.prototype.move = function(attempts) {
 	if(! attempts)
 		attempts = {};
@@ -139,13 +195,10 @@ RotatingFileStream.prototype.move = function(attempts) {
 
 		err.attempts = attempts;
 
-		return this.callback(err);
+		return this._callback(err);
 	}
 
-	if(this.options.interval)
-		throw new Error("not implemented yet");
-
-	var name = this.generator(this.rotation, count + 1);
+	var name = this.generator(this.options.interval ? new Date(this.prev) : this.rotation, count + 1);
 	var self = this;
 
 	fs.stat(name, function(err) {
@@ -163,7 +216,7 @@ RotatingFileStream.prototype.move = function(attempts) {
 
 		fs.rename(self.name, name, function(err) {
 			if(err)
-				return self.error(err, this.callback);
+				return self._callback(err);
 
 			self.emit("rotated", name);
 			self.open();
@@ -176,16 +229,10 @@ RotatingFileStream.prototype.open = function() {
 	var self = this;
 
 	var callback = function(err) {
-		var cb = self.callback;
+		self._callback(err);
 
-		if(cb) {
-			self.callback = null;
-
-			return cb(err);
-		}
-
-		if(err)
-			throw err;
+		if(! err)
+			self.interval();
 	};
 
 	try {
@@ -210,13 +257,16 @@ RotatingFileStream.prototype.open = function() {
 		callback();
 	});
 
-	this.size += this.buffer.length;
+	this.size   = this.buffer.length;
 	this.buffer = new Buffer(0);
 };
 
-RotatingFileStream.prototype.rotate = function(callback) {
-	if(callback)
-		this.callback = callback;
+RotatingFileStream.prototype.rotate = function() {
+	console.log("rotation");
+	if(this.timer) {
+		clearTimeout(this.timer);
+		this.timer = null;
+	}
 
 	this.size     = 0;
 	this.rotation = new Date();

@@ -127,7 +127,7 @@ function checkOptions(options) {
 }
 
 function pad(num) {
-		return (num + "").length == 1 ? "0" + num : num;
+	return (num > 9 ? "" : "0") + num;
 }
 
 function createGenerator(filename) {
@@ -149,7 +149,7 @@ function RotatingFileStream(filename, options) {
 		return new RotatingFileStream(filename, options);
 
 	var generator;
-	var opt = {};
+	var opt  = {};
 	var self = this;
 
 	if(typeof filename == "function")
@@ -171,25 +171,35 @@ function RotatingFileStream(filename, options) {
 	if(options.highWaterMark)
 		opt.highWaterMark = options.highWaterMark;
 
-	Writable.call(this);
+	Writable.call(this, opt);
 
-	this.callback  = this._callback;
 	this.buffer    = new Buffer(0);
 	this.generator = generator;
 	this.options   = options;
 	this.size      = 0;
 
 	this.once("error", function(err) {
+		var finish = true;
+
 		self.err = err;
+		self.once("finish", function() { finish = false; });
+		self.end();
+
+		setTimeout(function() { if(finish) self.emit("finish"); }, 100);
+	});
+
+	this.once("finish", function() {
+		self.closed = true;
+
+		if(self.timer)
+			clearTimeout(self.timer);
+
+		self.timer = null;
 	});
 
 	this.firstOpen();
 }
 
 util.inherits(RotatingFileStream, Writable);
-
-RotatingFileStream.prototype.checkOptions = checkOptions;
-
-RotatingFileStream.prototype._callback = function(err) { if(err) this.emit("error", err); };
 
 module.exports = RotatingFileStream;

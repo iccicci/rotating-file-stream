@@ -1,14 +1,26 @@
 "use strict";
 
+var child_process = require("child_process");
 var rfs = require("..");
 
-module.exports = function(done, options, generator) {
+function exec(done, cmd, cb) {
+	child_process.exec(cmd, function(error, stdout, stderr) {
+		if(error) {
+			console.log(error, stdout, stderr);
+			return done();
+		}
+
+		cb();
+	});
+}
+
+function _rfs(done, options, generator) {
 	var ret = rfs(generator || function(time, index) { if(time) return index + "-test.log"; return "test.log"; }, options);
 
 	ret.ev = { single: 0, multi: 0, rotation: 0, rotated: [] };
 	ret.on("rotation", function() { ret.ev.rotation++; });
 	ret.on("rotated", function(filename) { ret.ev.rotated.push(filename); });
-	ret.once("error", function(err) { ret.ev.err = err; done(); });
+	ret.once("error", function(err) { ret.ev.err = err; });
 	ret.on("finish", done);
 
 	var oldw = ret._write;
@@ -25,4 +37,9 @@ module.exports = function(done, options, generator) {
 	};
 
 	return ret;
+}
+
+module.exports = {
+	exec: exec,
+	rfs:  _rfs
 };

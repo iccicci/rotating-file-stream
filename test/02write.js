@@ -2,14 +2,18 @@
 "use strict";
 
 var assert = require("assert");
+var exec = require("./helper").exec;
 var fs = require("fs");
-var rfs = require("./helper");
+var rfs = require("./helper").rfs;
 
 describe("write", function() {
 	describe("single write", function() {
 		before(function(done) {
-			this.rfs = rfs(done);
-			this.rfs.end("test\n");
+			var self = this;
+			exec(done, "rm -rf *log", function() {
+				self.rfs = rfs(done);
+				self.rfs.end("test\n");
+			});
 		});
 
 		it("no error", function() {
@@ -39,10 +43,13 @@ describe("write", function() {
 
 	describe("multi write", function() {
 		before(function(done) {
-			this.rfs = rfs(done);
-			this.rfs.write("test\n");
-			this.rfs.write("test\n");
-			this.rfs.end("test\n");
+			var self = this;
+			exec(done, "rm -rf *log ; echo test > test.log", function() {
+				self.rfs = rfs(done);
+				self.rfs.write("test\n");
+				self.rfs.write("test\n");
+				self.rfs.end("test\n");
+			});
 		});
 
 		it("no error", function() {
