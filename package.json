@@ -21,9 +21,9 @@
   "license": "MIT",
   "readmeFilename": "README.md",
   "devDependencies": {
-    "istanbul": "0.3.19",
+    "istanbul": "0.3.21",
     "jshint": "2.8.0",
-    "mocha": "2.3.2",
+    "mocha": "2.3.3",
     "mocha-istanbul": "0.2.0"
   }
 }

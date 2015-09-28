@@ -75,4 +75,76 @@ describe("unexpected", function() {
 			assert.equal(fs.readFileSync("test.log"), "test\n");
 		});
 	});
+
+	describe("error while write", function() {
+		before(function(done) {
+			var self = this;
+			exec(done, "rm -rf *log", function() {
+				self.rfs = rfs(done, { interval: "10d" });
+				self.rfs.stream.write = function(buffer, callback) { process.nextTick(callback.bind(null, new Error("Test error"))); };
+				self.rfs.end("test\n");
+			});
+		});
+
+		it("Error", function() {
+			assert.equal(this.rfs.err.message, "Test error");
+		});
+
+		it("0 rotation", function() {
+			assert.equal(this.rfs.ev.rotation, 0);
+		});
+
+		it("0 rotated", function() {
+			assert.equal(this.rfs.ev.rotated.length, 0);
+		});
+
+		it("1 single write", function() {
+			assert.equal(this.rfs.ev.single, 1);
+		});
+
+		it("0 multi write", function() {
+			assert.equal(this.rfs.ev.multi, 0);
+		});
+
+		it("file content", function() {
+			assert.equal(fs.readFileSync("test.log"), "");
+		});
+	});
+
+	describe("error while rename", function() {
+		before(function(done) {
+			var self  = this;
+			var oldR  = fs.rename;
+			fs.rename = function(a, b, callback) { process.nextTick(callback.bind(null, new Error("Test error"))); };
+			exec(done, "rm -rf *log", function() {
+				self.rfs = rfs(function() { fs.rename = oldR; done(); }, { size: "5B" });
+				self.rfs.end("test\n");
+			});
+		});
+
+		it("Error", function() {
+			assert.equal(this.rfs.err.message, "Test error");
+		});
+
+		it("1 rotation", function() {
+			assert.equal(this.rfs.ev.rotation, 1);
+		});
+
+		it("0 rotated", function() {
+			assert.equal(this.rfs.ev.rotated.length, 0);
+		});
+
+		it("1 single write", function() {
+			assert.equal(this.rfs.ev.single, 1);
+		});
+
+		it("0 multi write", function() {
+			assert.equal(this.rfs.ev.multi, 0);
+		});
+
+		it("file content", function() {
+			assert.equal(fs.readFileSync("test.log"), "test\n");
+		});
+	});
+
 });
