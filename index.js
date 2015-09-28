@@ -38,15 +38,13 @@ util.inherits(RotatingFileStream, Writable);
 
 RotatingFileStream.prototype._callback = function(err) {
 	if(err) {
-		setTimeout(this.end.bind(this), 100);
-
 		if(this.timer) {
 			clearTimeout(this.timer);
 			this.timer = null;
 		}
 
 		if(! this.callback)
-			this.emit("error", err);
+			process.nextTick(this.emit.bind(this, "error", err));
 	}
 
 	if(! this.callback)

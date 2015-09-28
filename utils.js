@@ -150,6 +150,9 @@ function setEvents(self) {
 		self.once("finish", function() { finish = false; });
 		self.end();
 
+		if(self.stream)
+			self.stream.end();
+
 		process.nextTick(function() {
 			if(finish)
 				self.emit("finish");

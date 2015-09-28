@@ -147,4 +147,34 @@ describe("unexpected", function() {
 		});
 	});
 
+	describe("error on first open", function() {
+		before(function(done) {
+			var self = this;
+			var oldC = fs.createWriteStream;
+			fs.createWriteStream = function() { throw new Error("Test error"); };
+			exec(done, "rm -rf *log", function() {
+				self.rfs = rfs(function() { fs.createWriteStream = oldC; done(); }, { size: "5B" });
+			});
+		});
+
+		it("Error", function() {
+			assert.equal(this.rfs.err.message, "Test error");
+		});
+
+		it("0 rotation", function() {
+			assert.equal(this.rfs.ev.rotation, 0);
+		});
+
+		it("0 rotated", function() {
+			assert.equal(this.rfs.ev.rotated.length, 0);
+		});
+
+		it("0 single write", function() {
+			assert.equal(this.rfs.ev.single, 0);
+		});
+
+		it("0 multi write", function() {
+			assert.equal(this.rfs.ev.multi, 0);
+		});
+	});
 });
