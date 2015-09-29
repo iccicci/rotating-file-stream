@@ -149,28 +149,49 @@ RotatingFileStream.prototype.firstRotation = function() {
 	return false;
 };
 
+RotatingFileStream.prototype._interval = function(now) {
+	    now   = new Date(now);
+	var year  = now.getFullYear();
+	var month = now.getMonth();
+	var day   = now.getDate();
+	var hours = now.getHours();
+	var num   = this.options.interval.num;
+	var unit  = this.options.interval.unit;
+
+	if(unit == "d")
+		hours = 0;
+	else
+		hours = parseInt(hours / num) * num;
+
+	this.prev = new Date(year, month, day, hours, 0, 0, 0).getTime();
+
+	if(unit == "d")
+		this.next = new Date(year, month, day + num, hours, 0, 0, 0).getTime();
+	else
+		this.next = new Date(year, month, day, hours + num, 0, 0, 0).getTime();
+};
+
 RotatingFileStream.prototype.interval = function() {
 	if(! this.options.interval)
 		return;
 
-	var period = 1000 * this.options.interval.num;
+	var now  = new Date().getTime();
+	var unit = this.options.interval.unit;
 
-	switch(this.options.interval.unit) {
-	case "d":
-		period *= 24;
-		/* falls through */
-	case "h":
-		period *= 60;
-		/* falls through */
-	case "m":
-		period *= 60;
+	if(unit == "d" || unit == "h") {
+		this._interval(now);
+	}
+	else {
+		var period = 1000 * this.options.interval.num;
+
+		if(unit == "m")
+			period *= 60;
+
+		this.prev = parseInt(now / period) * period;
+		this.next = this.prev + period;
 	}
 
-	var now  = new Date().getTime();
-	var prev = parseInt(now / period) * period;
-
-	this.prev  = prev;
-	this.timer = setTimeout(this.rotate.bind(this), prev + period - now);
+	this.timer = setTimeout(this.rotate.bind(this), this.next - now);
 	this.timer.unref();
 };
 

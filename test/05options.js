@@ -65,9 +65,15 @@ describe("options", function() {
 	describe("interval hours", function() {
 		before(function(done) {
 			var self = this;
+			var tz   = process.env.TZ;
 			var doIt = function() {
 				self.rfs = rfs(done, { interval: "3h" });
-				self.rfs.end();
+				setTimeout(function() {
+					process.env.TZ = "Europe/Rome";
+					self.rfs._interval(new Date(2015, 2, 29, 1, 29, 23, 123).getTime());
+					process.env.TZ = tz;
+					self.rfs.end();
+				}, 30);
 			};
 
 			var now = new Date().getTime();
@@ -83,14 +89,24 @@ describe("options", function() {
 			assert.equal(this.rfs.options.interval.num, 3);
 			assert.equal(this.rfs.options.interval.unit, "h");
 		});
+
+		it("hours daylight saving", function() {
+			assert.equal(this.rfs.next - this.rfs.prev, 7200000);
+		});
 	});
 
 	describe("interval days", function() {
 		before(function(done) {
 			var self = this;
+			var tz   = process.env.TZ;
 			var doIt = function() {
 				self.rfs = rfs(done, { interval: "3d" });
-				self.rfs.end();
+				setTimeout(function() {
+					process.env.TZ = "Europe/Rome";
+					self.rfs._interval(new Date(2015, 2, 29, 1, 29, 23, 123).getTime());
+					process.env.TZ = tz;
+					self.rfs.end();
+				}, 30);
 			};
 
 			var now = new Date().getTime();
@@ -105,6 +121,10 @@ describe("options", function() {
 		it("3d", function() {
 			assert.equal(this.rfs.options.interval.num, 3);
 			assert.equal(this.rfs.options.interval.unit, "d");
+		});
+
+		it("days daylight saving", function() {
+			assert.equal(this.rfs.next - this.rfs.prev, 255600000);
 		});
 	});
 });
