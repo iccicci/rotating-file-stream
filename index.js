@@ -37,18 +37,12 @@ function RotatingFileStream(filename, options) {
 util.inherits(RotatingFileStream, Writable);
 
 RotatingFileStream.prototype._callback = function(err) {
-	if(err) {
-		if(this.timer) {
-			clearTimeout(this.timer);
-			this.timer = null;
-		}
-
-		if(! this.callback)
+	if(! this.callback) {
+		if(err)
 			process.nextTick(this.emit.bind(this, "error", err));
-	}
 
-	if(! this.callback)
 		return;
+	}
 
 	if(err)
 		process.nextTick(this.callback.bind(null, err));
@@ -56,7 +50,6 @@ RotatingFileStream.prototype._callback = function(err) {
 		process.nextTick(this._rewrite.bind(this, this.chunks, this.index, this.callback));
 
 	this.callback = null;
-	this.chunks   = null;
 };
 
 RotatingFileStream.prototype._postrewrite = function(chunks, index, callback, next) {
