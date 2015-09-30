@@ -1,12 +1,13 @@
 "use strict";
 
-var child_process = require("child_process");
+var cp  = require("child_process");
 var rfs = require("..");
 
 function exec(done, cmd, cb) {
-	child_process.exec(cmd, function(error, stdout, stderr) {
+	cp.exec(cmd, function(error, stdout, stderr) {
 		if(error) {
 			console.log(error, stdout, stderr);
+
 			return done();
 		}
 

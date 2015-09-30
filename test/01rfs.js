@@ -1,9 +1,9 @@
 /* jshint mocha: true */
 "use strict";
 
-var assert = require("assert");
-var fs = require("fs");
-var rfs = require("..");
+var assert   = require("assert");
+var fs       = require("fs");
+var rfs      = require("..");
 var Writable = require("stream").Writable;
 
 describe("rfs", function() {
@@ -155,6 +155,22 @@ describe("rfs", function() {
 
 		it("error", function() {
 			assert.equal(this.err.message, "Don't know how to handle 'options.interval' type: number");
+		});
+	});
+
+	describe("wrong path type", function() {
+		before(function(done) {
+			try {
+				this.rfs = rfs("test.log", { path: 23 });
+			}
+			catch(e) {
+				this.err = e;
+			}
+			done();
+		});
+
+		it("error", function() {
+			assert.equal(this.err.message, "Don't know how to handle 'options.path' type: number");
 		});
 	});
 

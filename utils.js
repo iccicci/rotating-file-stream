@@ -1,6 +1,7 @@
 "use strict";
 
-var fs = require("fs");
+var fs   = require("fs");
+var path = require("path");
 
 function checkMeasure(v, what, units) {
 	var ret = {};
@@ -111,6 +112,12 @@ function checkOptions(options) {
 		case "mode":
 			break;
 
+		case "path":
+			if(typ != "string")
+				throw new Error("Don't know how to handle 'options.path' type: " + typ);
+
+			break;
+
 		case "size":
 			if(typ != "string")
 				throw new Error("Don't know how to handle 'options.size' type: " + typ);
@@ -142,6 +149,21 @@ function createGenerator(filename) {
 	};
 }
 
+function makePath(name, err, callback) {
+	var dir = path.parse(name).dir;
+
+	fs.mkdir(dir, function(e) {
+		if(e) {
+			if(e.code == "ENOENT")
+				return makePath(dir, err, callback);
+
+			return callback(e);
+		}
+
+		callback();
+	});
+}
+
 function setEvents(self) {
 	self.once("error", function(err) {
 		var finish = true;
@@ -170,5 +192,6 @@ function setEvents(self) {
 module.exports = {
 	checkOptions:    checkOptions,
 	createGenerator: createGenerator,
+	makePath:        makePath,
 	setEvents:       setEvents,
 };

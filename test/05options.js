@@ -2,8 +2,9 @@
 "use strict";
 
 var assert = require("assert");
-var fs = require("fs");
-var rfs = require("./helper").rfs;
+var exec   = require("./helper").exec;
+var fs     = require("fs");
+var rfs    = require("./helper").rfs;
 
 describe("options", function() {
 	describe("size KiloBytes", function() {
@@ -125,6 +126,45 @@ describe("options", function() {
 
 		it("days daylight saving", function() {
 			assert.equal(this.rfs.next - this.rfs.prev, 255600000);
+		});
+	});
+
+	describe("path", function() {
+		before(function(done) {
+			var self = this;
+			exec(done, "rm -rf /tmp/test.log /tmp/1-test.log ; echo test > /tmp/test.log", function() {
+				self.rfs = rfs(done, { path: "/tmp", size: "10B" });
+				self.rfs.end("test\n");
+			});
+		});
+
+		it("no error", function() {
+			assert.ifError(this.rfs.ev.err);
+		});
+
+		it("1 rotation", function() {
+			assert.equal(this.rfs.ev.rotation, 1);
+		});
+
+		it("1 rotated", function() {
+			assert.equal(this.rfs.ev.rotated.length, 1);
+			assert.equal(this.rfs.ev.rotated[0], "/tmp/1-test.log");
+		});
+
+		it("1 single write", function() {
+			assert.equal(this.rfs.ev.single, 1);
+		});
+
+		it("0 multi write", function() {
+			assert.equal(this.rfs.ev.multi, 0);
+		});
+
+		it("file content", function() {
+			assert.equal(fs.readFileSync("/tmp/test.log"), "");
+		});
+
+		it("rotated file content", function() {
+			assert.equal(fs.readFileSync("/tmp/1-test.log"), "test\ntest\n");
 		});
 	});
 });

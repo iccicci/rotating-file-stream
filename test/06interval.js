@@ -2,9 +2,9 @@
 "use strict";
 
 var assert = require("assert");
-var exec = require("./helper").exec;
-var fs = require("fs");
-var rfs = require("./helper").rfs;
+var exec   = require("./helper").exec;
+var fs     = require("fs");
+var rfs    = require("./helper").rfs;
 
 describe("interval", function() {
 	describe("_write while rotation", function() {
@@ -60,14 +60,15 @@ describe("interval", function() {
 				var open = sec + (sec + 900 > now ? 900 : 1900);
 				setTimeout(function() {
 					self.rfs = rfs(done, { interval: "1s"});
+					self.rfs.once("ready", function() {
+						var prev = self.rfs.stream._write;
+						self.rfs.stream._write = function(chunk, encoding, callback) {
+							setTimeout(prev.bind(self.rfs.stream, chunk, encoding, callback), 200);
+						};
 
-					var prev = self.rfs.stream._write;
-					self.rfs.stream._write = function(chunk, encoding, callback) {
-						setTimeout(prev.bind(self.rfs.stream, chunk, encoding, callback), 200);
-					};
-
-					self.rfs.write("test\n");
-					self.rfs.end("test\n");
+						self.rfs.write("test\n");
+						self.rfs.end("test\n");
+					});
 				}, open - now);
 			});
 		});

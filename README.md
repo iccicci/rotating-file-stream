@@ -89,9 +89,14 @@ If part of returned destination path does not exists, the rotation job will try 
 
 * compress: {String} (default: null) Specifies compression method of rotated files.
 * interval: {String} (default: null) Specifies the time interval to rotate the file.
+* path: {String} (default: null) Specifies the base path for files.
 * size: {String} (default: null) Specifies the file size to rotate the file.
 * highWaterMark: {Number} (default: 16K) Proxied to [new stream.Writable](https://nodejs.org/api/stream.html#stream_new_stream_writable_options)
 * mode: {Integer} (default: 0o666) Proxied to [fs.open](https://nodejs.org/api/fs.html#fs_fs_open_path_flags_mode_callback)
+
+#### path
+
+If present, it is prepended to generated file names.
 
 #### size
 
@@ -195,6 +200,10 @@ stream.on('error', function(err) {
     // here are reported errors occurred while rotating as well write errors
 });
 
+stream.on('ready', function() {
+    // no rotated file is open and ready to be written
+});
+
 stream.on('rotation', function() {
     // rotation job started
 });
@@ -256,11 +265,12 @@ Do not hesitate to report any bug or inconsistency @[github](https://github.com/
 * External compression
 * Internal compression gzip
 * Internal compression bzip
-* Create missing directories in paths
-* Test all error case handling
 
 ### ChangeLog
 
+* 2015-??-?? - v0.0.4
+  * Added _path_ option
+  * Missing path creation
 * 2015-09-29 - v0.0.3
   * Rotation by interval
   * __Buffer__ optimization (thanks to [allevo](https://www.npmjs.com/~allevo))
