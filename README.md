@@ -269,7 +269,7 @@ Do not hesitate to report any bug or inconsistency @[github](https://github.com/
 
 ### ChangeLog
 
-* 2015-??-?? - v0.0.4
+* 2015-09-30 - v0.0.4
   * Added _path_ option
   * Missing path creation
 * 2015-09-29 - v0.0.3
