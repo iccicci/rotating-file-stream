@@ -77,57 +77,56 @@ function checkSize(v) {
 	return ret.num;
 }
 
+var checks = {
+	"compress": function(typ, options, val) {
+		if(! val)
+			throw new Error("A value for 'options.compress' must be specified");
+
+		if(typ == "boolean")
+			options.compress = function(src, dst) { return "cat " + src + " | gzip -t9 > " + dst; };
+		else
+			if(typ == "string") {
+				if(val != "bzip" && val != "gzip")
+					throw new Error("Don't know how to handle compression method: " + val);
+			}
+			else
+				if(typ != "function")
+					throw new Error("Don't know how to handle 'options.compress' type: " + typ);
+	},
+
+	"highWaterMark": function() {},
+
+	"interval": function(typ, options, val) {
+		if(typ != "string")
+			throw new Error("Don't know how to handle 'options.interval' type: " + typ);
+
+		options.interval = checkInterval(val);
+	},
+
+	"mode": function() {},
+
+	"path": function(typ) {
+		if(typ != "string")
+			throw new Error("Don't know how to handle 'options.path' type: " + typ);
+	},
+
+	"size": function(typ, options, val) {
+		if(typ != "string")
+			throw new Error("Don't know how to handle 'options.size' type: " + typ);
+
+		options.size = checkSize(val);
+	}
+};
+
 function checkOptions(options) {
 	for(var opt in options) {
 		var val = options[opt];
 		var typ = typeof val;
 
-		switch(opt) {
-		case "compress":
-			if(! val)
-				throw new Error("A value for 'options.compress' must be specified");
-
-			if(typ == "boolean")
-				options.compress = function(src, dst) { return "cat " + src + " | gzip -t9 > " + dst; };
-			else
-				if(typ == "string") {
-					if(val != "bzip" && val != "gzip")
-						throw new Error("Don't know how to handle compression method: " + val);
-				}
-				else
-					if(typ != "function")
-						throw new Error("Don't know how to handle 'options.compress' type: " + typ);
-			break;
-
-		case "highWaterMark":
-			break;
-
-		case "interval":
-			if(typ != "string")
-				throw new Error("Don't know how to handle 'options.interval' type: " + typ);
-
-			options.interval = checkInterval(val);
-			break;
-
-		case "mode":
-			break;
-
-		case "path":
-			if(typ != "string")
-				throw new Error("Don't know how to handle 'options.path' type: " + typ);
-
-			break;
-
-		case "size":
-			if(typ != "string")
-				throw new Error("Don't know how to handle 'options.size' type: " + typ);
-
-			options.size = checkSize(val);
-			break;
-
-		default:
+		if(! (opt in checks))
 			throw new Error("Unknown option: " + opt);
-		}
+
+		checks[opt](typ, options, val);
 	}
 }
 
