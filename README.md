@@ -250,7 +250,8 @@ compatibility. The package it tested under following versions:
 * 4.0
 * 0.12
 * 0.11
-* 0.10
+
+__Required: Node.js 0.11__
 
 ### Licence
 
