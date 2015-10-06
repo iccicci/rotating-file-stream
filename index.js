@@ -1,5 +1,6 @@
 "use strict";
 
+var cp       = require("child_process");
 var fs       = require("fs");
 var path     = require("path");
 var util     = require("util");
@@ -109,6 +110,82 @@ RotatingFileStream.prototype._writev = function(chunks, callback) {
 	this._rewrite(chunks, 0, callback);
 };
 
+RotatingFileStream.prototype.compress = function(callback, tmp) {
+	var self = this;
+
+	this.findName({}, false, function(err, name) {
+		if(err)
+			return callback(err);
+
+		self.touch(name, function(err) {
+			if(err)
+				return callback(name, err);
+
+			if(typeof self.options.compress == "function")
+				self.external(tmp, name, callback.bind(null, name));
+			else
+				throw new Error("Not implemented yet");
+		});
+	});
+};
+
+RotatingFileStream.prototype.external = function(src, dst, callback) {
+	var self = this;
+
+	require("tmp").file({ mode: parseInt("777", 8) }, function(err, path, fd, done) {
+		if(err)
+			return callback(err);
+
+		var cb = function(err) {
+			done();
+			callback(err);
+		};
+
+		fs.write(fd, self.options.compress(src, dst), function(err) {
+			if(err)
+				return cb(err);
+
+			fs.close(fd, function(err) {
+				if(err)
+					return cb(err);
+
+				cp.exec(path, cb);
+			});
+		});
+	});
+};
+
+RotatingFileStream.prototype.findName = function(attempts, tmp, callback) {
+	var count = 0;
+
+	for(var i in attempts)
+		count += attempts[i];
+
+	if(count >= 1000) {
+		var err = new Error("Too many destination file attempts");
+
+		err.attempts = attempts;
+
+		return callback(err);
+	}
+
+	var name = tmp ? this.name + "." + count + ".log": this.generator(this.options.interval ? new Date(this.prev) : this.rotation, count + 1);
+	var self = this;
+
+	fs.stat(name, function(err) {
+		if((! err) || err.code != "ENOENT" ) {
+			if(name in attempts)
+				attempts[name]++;
+			else
+				attempts[name] = 1;
+
+			return self.findName(attempts, tmp, callback);
+		}
+
+		callback(null, name);
+	});
+};
+
 RotatingFileStream.prototype.firstOpen = function() {
 	try {
 		this.name = this.generator(null);
@@ -197,47 +274,34 @@ RotatingFileStream.prototype.interval = function() {
 	this.timer.unref();
 };
 
-RotatingFileStream.prototype.move = function(attempts, retry) {
-	if(! attempts)
-		attempts = {};
-
-	var count = 0;
-
-	for(var i in attempts)
-		count += attempts[i];
-
-	if(count >= 1000) {
-		var err = new Error("Too many destination file attempts");
-
-		err.attempts = attempts;
-
-		return this._callback(err);
-	}
-
-	var name = this.generator(this.options.interval ? new Date(this.prev) : this.rotation, count + 1);
+RotatingFileStream.prototype.move = function(retry) {
+	var name;
 	var self = this;
 
 	var callback = function(err) {
 		if(err)
 			return self._callback(err);
 
-		self.emit("rotated", name);
 		self.open();
-		self.size = 0;
-	};
 
-	fs.stat(name, function(err) {
-		if((! err) || err.code != "ENOENT" ) {
-			if(name in attempts)
-				attempts[name]++;
+		var done = function(name, err) {
+			if(err)
+				self.emit("error",   err);
 			else
-				attempts[name] = 1;
-
-			return self.move(attempts);
-		}
+				self.emit("rotated", name);
+		};
 
 		if(self.options.compress)
-			throw new Error("not implemented yet");
+			self.compress(done, name);
+		else
+			done(name);
+	};
+
+	this.findName({}, self.options.compress, function(err, found) {
+		if(err)
+			return callback(err);
+
+		name = found;
 
 		fs.rename(self.name, name, function(err) {
 			if(err && err.code != "ENOENT" && ! retry)
@@ -250,7 +314,7 @@ RotatingFileStream.prototype.move = function(attempts, retry) {
 				if(err)
 					return callback(err);
 
-				self.move(attempts, true);
+				self.move(true);
 			});
 		});
 	});
@@ -315,6 +379,25 @@ RotatingFileStream.prototype.rotate = function() {
 	}
 	else
 		this.move();
+};
+
+RotatingFileStream.prototype.touch = function(name, callback, retry) {
+	var self = this;
+
+	fs.open(name, "a", function(err, fd) {
+		if(err && err.code != "ENOENT" && ! retry)
+			return callback(err);
+
+		if(! err)
+			return callback();
+
+		utils.makePath(name, err, function(err) {
+			if(err)
+				return callback(err);
+
+			self.touch(name, callback, true);
+		});
+	});
 };
 
 module.exports = RotatingFileStream;

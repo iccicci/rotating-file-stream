@@ -179,7 +179,7 @@ var rfs    = require('rotating-file-stream');
 var stream = rfs('file.log', {
     size:     '10M',
     compress: function(source, dest) {
-        return "cat " + source + " | gzip -t9 > " + dest;
+        return "cat " + source + " | gzip -c9 > " + dest;
     }
 });
 ```

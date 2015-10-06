@@ -83,7 +83,7 @@ var checks = {
 			throw new Error("A value for 'options.compress' must be specified");
 
 		if(typ == "boolean")
-			options.compress = function(src, dst) { return "cat " + src + " | gzip -t9 > " + dst; };
+			options.compress = function(src, dst) { return "cat " + src + " | gzip -c9 > " + dst; };
 		else
 			if(typ == "string") {
 				if(val != "bzip" && val != "gzip")
@@ -164,11 +164,10 @@ function makePath(name, err, callback) {
 }
 
 function setEvents(self) {
-	self.once("error", function(err) {
-		var finish = true;
+	var finish = true;
 
+	self.once("error", function(err) {
 		self.err = err;
-		self.once("finish", function() { finish = false; });
 		self.end();
 
 		if(self.stream)
@@ -181,6 +180,8 @@ function setEvents(self) {
 	});
 
 	self.once("finish", function() {
+		finish = false;
+
 		if(self.timer)
 			clearTimeout(self.timer);
 

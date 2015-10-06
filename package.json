@@ -25,6 +25,9 @@
   ],
   "license": "MIT",
   "readmeFilename": "README.md",
+  "dependencies": {
+    "tmp": "0.0.28"
+  },
   "devDependencies": {
     "istanbul": "0.3.21",
     "jshint": "2.8.0",
