@@ -265,7 +265,6 @@ describe("errors", function() {
 	describe("error creating missing path in rotation", function() {
 		before(function(done) {
 			var self = this;
-			this.timeout(10000);
 			exec(done, "rm -rf *log ; mkdir log ; chmod 555 log", function() {
 				self.rfs = rfs(done, { size: "5B" }, function(time) { if(time) return "log/t/test.log"; return "test.log"; });
 				self.rfs.end("test\n");
