@@ -269,7 +269,7 @@ Do not hesitate to report any bug or inconsistency @[github](https://github.com/
 ### ChangeLog
 
 * 2015-10-06 - v0.0.5
-  * External rotation
+  * External compression
 * 2015-09-30 - v0.0.4
   * Added _path_ option
   * Missing path creation
