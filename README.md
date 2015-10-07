@@ -21,12 +21,6 @@ var stream = rfs('file.log', {
 });
 ```
 
-# under development
-
-__This package is currently under development.__
-
-Please check the [TODO list](#todo) to be aware of what is missing.
-
 ### Installation
 
 With [npm](https://www.npmjs.com/package/rotating-file-stream):
@@ -157,7 +151,6 @@ by __Node.js__ to not subtract CPU power to our application) or with internal co
 to not subtract more CPU power than expected to the system). This decision is left to you.
 
 Following fixed strings are allowed to compress the files with internal libraries:
-* bzip
 * gzip
 
 To enable external compression, a _function_ can be used or simple the _boolean_ __true__ value to use default
@@ -261,13 +254,10 @@ __Required: Node.js 0.11__
 
 Do not hesitate to report any bug or inconsistency @[github](https://github.com/iccicci/rotating-file-stream/issues).
 
-### TODO
-
-* Internal compression gzip
-* Internal compression bzip
-
 ### ChangeLog
 
+* 2015-10-07 - v0.1.0
+  * Internal gzip compression
 * 2015-10-06 - v0.0.5
   * External compression
 * 2015-09-30 - v0.0.4

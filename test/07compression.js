@@ -97,6 +97,49 @@ describe("compression", function() {
 		});
 	});
 
+	describe("internal (gzip)", function() {
+		before(function(done) {
+			var self = this;
+			exec(done, "rm -rf *log", function() {
+				self.rfs = rfs(setTimeout.bind(null, done, 100), { size: "10B", compress: "gzip" });
+				self.rfs.write("test\n");
+				self.rfs.end("test\n");
+			});
+		});
+
+		it("no error", function() {
+			assert.ifError(this.rfs.ev.err);
+		});
+
+		it("1 rotation", function() {
+			assert.equal(this.rfs.ev.rotation, 1);
+		});
+
+		it("1 rotated", function() {
+			assert.equal(this.rfs.ev.rotated.length, 1);
+			assert.equal(this.rfs.ev.rotated[0], "1-test.log");
+		});
+
+		it("2 single write", function() {
+			assert.equal(this.rfs.ev.single, 2);
+		});
+
+		it("0 multi write", function() {
+			assert.equal(this.rfs.ev.multi, 0);
+		});
+
+		it("file content", function() {
+			assert.equal(fs.readFileSync("test.log"), "");
+		});
+
+		it("rotated file content", function(done) {
+			cp.exec("zcat " + this.rfs.ev.rotated[0], function(error, stdout, stderr) {
+				assert.equal(stdout, "test\ntest\n");
+				done();
+			});
+		});
+	});
+
 	describe("missing path", function() {
 		before(function(done) {
 			var self = this;

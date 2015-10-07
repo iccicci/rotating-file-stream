@@ -4,22 +4,36 @@ var cp    = require("child_process");
 var fs    = require("fs");
 var tmp   = require("tmp");
 var utils = require("./utils");
+var zlib  = require("zlib");
 
 function compress(callback, tmp) {
 	var self = this;
 
 	this.findName({}, false, function(err, name) {
 		if(err)
-			return callback(name, err);
+			return callback(null, err);
 
 		self.touch(name, function(err) {
 			if(err)
-				return callback(name, err);
+				return callback(null, err);
+
+			var done = function(err) {
+				if(err)
+					return callback(name, err);
+
+				fs.unlink(tmp, callback.bind(null, name));
+			};
 
 			if(typeof self.options.compress == "function")
-				self.external(tmp, name, callback.bind(null, name));
+				self.external(tmp, name, done);
 			else
-				throw new Error("Not implemented yet");
+				self.gzip(tmp, name, done);
+				/*
+				if(self.options.compress == "gzip")
+					self.gzip(tmp, name, done);
+				else
+					throw new Error("Not implemented yet");
+				*/
 		});
 	});
 }
@@ -82,6 +96,21 @@ function findName(attempts, tmp, callback) {
 	});
 }
 
+function gzip(src, dst, callback) {
+	var inp = fs.createReadStream(src);
+	var out = fs.createWriteStream(dst);
+	var zip = zlib.createGzip();
+
+	var files = [inp, out, zip];
+
+	for(var i in files)
+		files[i].once("error", callback);
+
+	out.once("finish", callback);
+
+	inp.pipe(zip).pipe(out);
+}
+
 function touch(name, callback, retry) {
 	var self = this;
 
@@ -105,5 +134,6 @@ module.exports = {
 	compress: compress,
 	external: external,
 	findName: findName,
+	gzip:     gzip,
 	touch:    touch
 };
