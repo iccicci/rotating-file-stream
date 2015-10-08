@@ -6,7 +6,7 @@ var exec   = require("./helper").exec;
 var fs     = require("fs");
 var rfs    = require("./helper").rfs;
 
-describe("write", function() {
+describe("write(s)", function() {
 	describe("single write", function() {
 		before(function(done) {
 			var self = this;

@@ -7,6 +7,143 @@ var fs     = require("fs");
 var rfs    = require("./helper").rfs;
 
 describe("errors", function() {
+	describe("wrong name generator (first time)", function() {
+		before(function(done) {
+			var self = this;
+			exec(done, "rm -rf *log", function() {
+				self.rfs = rfs(done, { size: "10B" }, function() { throw new Error("test"); });
+				self.rfs.end("test\n");
+			});
+		});
+
+		it("Error", function() {
+			assert.equal(this.rfs.err.message, "test");
+		});
+
+		it("0 rotation", function() {
+			assert.equal(this.rfs.ev.rotation, 0);
+		});
+
+		it("0 rotated", function() {
+			assert.equal(this.rfs.ev.rotated.length, 0);
+		});
+
+		it("1 single write", function() {
+			assert.equal(this.rfs.ev.single, 1);
+		});
+
+		it("0 multi write", function() {
+			assert.equal(this.rfs.ev.multi, 0);
+		});
+	});
+
+	describe("wrong name generator (rotation)", function() {
+		before(function(done) {
+			var self = this;
+			exec(done, "rm -rf *log", function() {
+				self.rfs = rfs(done, { size: "15B" }, function(time) { if(time) throw new Error("test"); return "test.log"; });
+				self.rfs.write("test\n");
+				self.rfs.write("test\n");
+				self.rfs.write("test\n");
+				self.rfs.write("test\n");
+				self.rfs.end("test\n");
+			});
+		});
+
+		it("Error", function() {
+			assert.equal(this.rfs.err.message, "test");
+		});
+
+		it("1 rotation", function() {
+			assert.equal(this.rfs.ev.rotation, 1);
+		});
+
+		it("0 rotated", function() {
+			assert.equal(this.rfs.ev.rotated.length, 0);
+		});
+
+		if(process.version.match(/^v0.10/)) {
+			it("5 single write", function() {
+				assert.equal(this.rfs.ev.single, 5);
+			});
+
+			it("0 multi write", function() {
+				assert.equal(this.rfs.ev.multi, 0);
+			});
+		}
+		else {
+			it("1 single write", function() {
+				assert.equal(this.rfs.ev.single, 1);
+			});
+
+			it("1 multi write", function() {
+				assert.equal(this.rfs.ev.multi, 1);
+			});
+		}
+
+		it("file content", function() {
+			assert.equal(fs.readFileSync("test.log"), "test\ntest\ntest\n");
+		});
+	});
+
+	describe("logging on directory", function() {
+		before(function(done) {
+			var self = this;
+			exec(done, "rm -rf *log", function() {
+				self.rfs = rfs(done, { size: "5B" }, "test");
+			});
+		});
+
+		it("Error", function() {
+			assert.equal(this.rfs.err.message, "Can't write on: test (it is not a file)");
+		});
+
+		it("0 rotation", function() {
+			assert.equal(this.rfs.ev.rotation, 0);
+		});
+
+		it("0 rotated", function() {
+			assert.equal(this.rfs.ev.rotated.length, 0);
+		});
+
+		it("0 single write", function() {
+			assert.equal(this.rfs.ev.single, 0);
+		});
+
+		it("0 multi write", function() {
+			assert.equal(this.rfs.ev.multi, 0);
+		});
+	});
+
+	describe("using file as directory", function() {
+		before(function(done) {
+			var self = this;
+			exec(done, "rm -rf *log", function() {
+				self.rfs = rfs(done, { size: "5B" }, "index.js/test.log");
+			});
+		});
+
+		it("Error", function() {
+			assert.equal(this.rfs.err.code, "ENOTDIR");
+		});
+
+		it("0 rotation", function() {
+			assert.equal(this.rfs.ev.rotation, 0);
+		});
+
+		it("0 rotated", function() {
+			assert.equal(this.rfs.ev.rotated.length, 0);
+		});
+
+		it("0 single write", function() {
+			assert.equal(this.rfs.ev.single, 0);
+		});
+
+		it("0 multi write", function() {
+			assert.equal(this.rfs.ev.multi, 0);
+		});
+	});
+
 	describe("no rotated file available", function() {
 		before(function(done) {
 			var self = this;
@@ -149,37 +286,6 @@ describe("errors", function() {
 		});
 	});
 
-	describe("error on first open", function() {
-		before(function(done) {
-			var self = this;
-			var oldC = fs.createWriteStream;
-			fs.createWriteStream = function() { throw new Error("Test error"); };
-			exec(done, "rm -rf *log", function() {
-				self.rfs = rfs(function() { fs.createWriteStream = oldC; done(); });
-			});
-		});
-
-		it("Error", function() {
-			assert.equal(this.rfs.err.message, "Test error");
-		});
-
-		it("0 rotation", function() {
-			assert.equal(this.rfs.ev.rotation, 0);
-		});
-
-		it("0 rotated", function() {
-			assert.equal(this.rfs.ev.rotated.length, 0);
-		});
-
-		it("0 single write", function() {
-			assert.equal(this.rfs.ev.single, 0);
-		});
-
-		it("0 multi write", function() {
-			assert.equal(this.rfs.ev.multi, 0);
-		});
-	});
-
 	describe("missing path creation", function() {
 		before(function(done) {
 			var self = this;
@@ -235,7 +341,6 @@ describe("errors", function() {
 	describe("error creating missing path in first open", function() {
 		before(function(done) {
 			var self = this;
-			this.timeout(10000);
 			exec(done, "rm -rf *log ; mkdir log ; chmod 555 log", function() {
 				self.rfs = rfs(done, {}, function() { return "log/t/test.log"; });
 			});
@@ -299,7 +404,7 @@ describe("errors", function() {
 			fs.createWriteStream = function() {
 				return { once: function(event, callback) {
 					if(event == "error")
-						setTimeout(callback.bind(null, { code: "TEST" }));
+						setTimeout(callback.bind(null, { code: "TEST" }), 50);
 				} };
 			};
 			exec(done, "rm -rf *log", function() {
@@ -321,6 +426,48 @@ describe("errors", function() {
 
 		it("0 single write", function() {
 			assert.equal(this.rfs.ev.single, 0);
+		});
+
+		it("0 multi write", function() {
+			assert.equal(this.rfs.ev.multi, 0);
+		});
+	});
+
+	describe("error unlinking file", function() {
+		before(function(done) {
+			var self = this;
+			var oldU = fs.unlink;
+			exec(done, "rm -rf *log", function() {
+				fs.unlink = function(path, callback) {
+					setTimeout(function() {
+						callback({ code: "TEST" });
+						fs.unlink = oldU;
+						setTimeout(done, 50);
+					}, 50);
+				};
+				self.rfs = rfs(function() {}, { size: "5B", compress: "gzip" });
+				self.rfs.end("test\n");
+			});
+		});
+
+		it("no error", function() {
+			assert.ifError(this.rfs.ev.err);
+		});
+
+		it("warning", function() {
+			assert.equal(this.rfs.ev.warn.code, "TEST");
+		});
+
+		it("1 rotation", function() {
+			assert.equal(this.rfs.ev.rotation, 1);
+		});
+
+		it("1 rotated", function() {
+			assert.equal(this.rfs.ev.rotated.length, 1);
+		});
+
+		it("1 single write", function() {
+			assert.equal(this.rfs.ev.single, 1);
 		});
 
 		it("0 multi write", function() {

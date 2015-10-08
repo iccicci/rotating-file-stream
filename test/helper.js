@@ -22,6 +22,7 @@ function _rfs(done, options, generator) {
 	ret.on("rotation", function() { ret.ev.rotation++; });
 	ret.on("rotated", function(filename) { ret.ev.rotated.push(filename); });
 	ret.once("error", function(err) { ret.ev.err = err; });
+	ret.once("warning", function(err) { ret.ev.warn = err; });
 	ret.on("finish", done);
 
 	var oldw = ret._write;

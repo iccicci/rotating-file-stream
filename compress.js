@@ -6,22 +6,27 @@ var tmp   = require("tmp");
 var utils = require("./utils");
 var zlib  = require("zlib");
 
-function compress(callback, tmp) {
+function compress(tmp) {
 	var self = this;
 
 	this.findName({}, false, function(err, name) {
 		if(err)
-			return callback(null, err);
+			return self.emit("error", err);
 
 		self.touch(name, function(err) {
 			if(err)
-				return callback(null, err);
+				return self.emit("error", err);
 
 			var done = function(err) {
 				if(err)
-					return callback(name, err);
+					return self.emit("error", err);
 
-				fs.unlink(tmp, callback.bind(null, name));
+				fs.unlink(tmp, function(err) {
+					if(err)
+						self.emit("warning", err);
+
+					self.emit("rotated", name);
+				});
 			};
 
 			if(typeof self.options.compress == "function")
@@ -79,8 +84,16 @@ function findName(attempts, tmp, callback) {
 		return callback(err);
 	}
 
-	var name = tmp ? this.name + "." + count + ".log": this.generator(this.options.interval ? new Date(this.prev) : this.rotation, count + 1);
+	var name = this.name + "." + count + ".log";
 	var self = this;
+
+	if(! tmp)
+		try {
+			name = this.generator(this.options.interval ? new Date(this.prev) : this.rotation, count + 1);
+		}
+		catch(err) {
+			return process.nextTick(callback.bind(null, err));
+		}
 
 	fs.stat(name, function(err) {
 		if((! err) || err.code != "ENOENT" ) {
@@ -97,10 +110,9 @@ function findName(attempts, tmp, callback) {
 }
 
 function gzip(src, dst, callback) {
-	var inp = fs.createReadStream(src);
-	var out = fs.createWriteStream(dst);
-	var zip = zlib.createGzip();
-
+	var inp   = fs.createReadStream(src);
+	var out   = fs.createWriteStream(dst);
+	var zip   = zlib.createGzip();
 	var files = [inp, out, zip];
 
 	for(var i in files)

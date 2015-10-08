@@ -270,7 +270,6 @@ describe("rfs", function() {
 		});
 	});
 
-
 	describe("wrong interval minutes number", function() {
 		before(function(done) {
 			try {
@@ -300,54 +299,6 @@ describe("rfs", function() {
 
 		it("error", function() {
 			assert.equal(this.err.message, "An integer divider of 24 is expected as hours for 'options.interval'");
-		});
-	});
-
-	describe("wrong name generator first time", function() {
-		before(function(done) {
-			try {
-				this.rfs = rfs(function() { throw new Error("test"); });
-			}
-			catch(e) {
-				this.err = e;
-			}
-			done();
-		});
-
-		it("error", function() {
-			assert.equal(this.err.message, "Executing file name generator first time: test");
-		});
-	});
-
-	describe("logging on directory", function() {
-		before(function(done) {
-			try {
-				this.rfs = rfs("test");
-			}
-			catch(e) {
-				this.err = e;
-			}
-			done();
-		});
-
-		it("error", function() {
-			assert.equal(this.err.message, "Can't write on: test (it is not a file)");
-		});
-	});
-
-	describe("using file as directory", function() {
-		before(function(done) {
-			try {
-				this.rfs = rfs("index.js/test.log");
-			}
-			catch(e) {
-				this.err = e;
-			}
-			done();
-		});
-
-		it("error", function() {
-			assert.equal("ENOTDIR", this.err.code);
 		});
 	});
 });

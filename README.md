@@ -191,6 +191,7 @@ var stream = rfs(...);
 
 stream.on('error', function(err) {
     // here are reported errors occurred while rotating as well write errors
+    // once this event is fired, the error can't be recovered and the stream will be closed
 });
 
 stream.on('open', function() {
@@ -203,6 +204,12 @@ stream.on('rotation', function() {
 
 stream.on('rotated', function(filename) {
     // rotation job completed with success and produced given filename
+});
+```
+
+stream.on('warning', function(err) {
+    // here are reported non blocking errors
+    // the only one possible at this version is error while unlinking file after compression
 });
 ```
 
@@ -256,6 +263,8 @@ Do not hesitate to report any bug or inconsistency @[github](https://github.com/
 
 ### ChangeLog
 
+* 2015-10-08 - v1.0.0
+  * Async error reporting refactory
 * 2015-10-07 - v0.1.0
   * Internal gzip compression
 * 2015-10-06 - v0.0.5

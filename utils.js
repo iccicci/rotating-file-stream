@@ -165,29 +165,21 @@ function makePath(name, callback) {
 }
 
 function setEvents(self) {
-	var finish = true;
-
 	self.once("error", function(err) {
 		self.err = err;
 		self.end();
-
-		if(self.stream)
-			self.stream.end();
-
-		process.nextTick(function() {
-			if(finish)
-				self.emit("finish");
-		});
 	});
 
-	self.once("finish", function() {
-		finish = false;
+	self.once("finish", self._clear.bind(self));
 
-		if(self.timer)
-			clearTimeout(self.timer);
+	self.end = function(chunk, encoding, callback) {
+		self.ending = true;
 
-		self.timer = null;
-	});
+		if(chunk)
+			self.write(chunk, encoding, callback);
+		else
+			self._rewrite();
+	};
 }
 
 module.exports = {
