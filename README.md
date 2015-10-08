@@ -262,6 +262,8 @@ Do not hesitate to report any bug or inconsistency @[github](https://github.com/
 
 ### ChangeLog
 
+* 2015-10-08 - v1.0.1
+  * README fix
 * 2015-10-08 - v1.0.0
   * Async error reporting refactory
 * 2015-10-07 - v0.1.0
