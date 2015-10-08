@@ -205,7 +205,6 @@ stream.on('rotation', function() {
 stream.on('rotated', function(filename) {
     // rotation job completed with success and produced given filename
 });
-```
 
 stream.on('warning', function(err) {
     // here are reported non blocking errors
