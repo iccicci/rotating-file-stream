@@ -193,8 +193,8 @@ stream.on('error', function(err) {
     // here are reported errors occurred while rotating as well write errors
 });
 
-stream.on('ready', function() {
-    // no rotated file is open and ready to be written
+stream.on('open', function() {
+    // no rotated file is open (fired after each rotation as well)
 });
 
 stream.on('rotation', function() {

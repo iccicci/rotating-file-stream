@@ -60,7 +60,7 @@ describe("interval", function() {
 				var open = sec + (sec + 900 > now ? 900 : 1900);
 				setTimeout(function() {
 					self.rfs = rfs(done, { interval: "1s"});
-					self.rfs.once("ready", function() {
+					self.rfs.once("open", function() {
 						var prev = self.rfs.stream._write;
 						self.rfs.stream._write = function(chunk, encoding, callback) {
 							setTimeout(prev.bind(self.rfs.stream, chunk, encoding, callback), 200);

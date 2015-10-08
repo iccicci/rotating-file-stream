@@ -81,7 +81,7 @@ describe("errors", function() {
 			var self = this;
 			exec(done, "rm -rf *log", function() {
 				self.rfs = rfs(done, { interval: "10d" });
-				self.rfs.once("ready", function() {
+				self.rfs.once("open", function() {
 					self.rfs.stream.write = function(buffer, callback) { process.nextTick(callback.bind(null, new Error("Test error"))); };
 					self.rfs.end("test\n");
 				});

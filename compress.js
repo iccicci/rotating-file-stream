@@ -121,7 +121,7 @@ function touch(name, callback, retry) {
 		if(! err)
 			return callback();
 
-		utils.makePath(name, err, function(err) {
+		utils.makePath(name, function(err) {
 			if(err)
 				return callback(err);
 

@@ -199,6 +199,9 @@ RotatingFileStream.prototype.interval = function() {
 };
 
 RotatingFileStream.prototype.move = function(retry) {
+	if(this.err)
+		return;
+
 	var name;
 	var self = this;
 
@@ -234,7 +237,7 @@ RotatingFileStream.prototype.move = function(retry) {
 			if(! err)
 				return callback();
 
-			utils.makePath(name, err, function(err) {
+			utils.makePath(name, function(err) {
 				if(err)
 					return callback(err);
 
@@ -266,14 +269,14 @@ RotatingFileStream.prototype.open = function(retry) {
 		stream.once("open", function() {
 			self.stream = stream;
 			callback();
-			self.emit("ready");
+			self.emit("open");
 		});
 
 		stream.once("error", function(err) {
 			if(err.code != "ENOENT" && ! retry)
 				return callback(err);
 
-			utils.makePath(self.name, err, function(err) {
+			utils.makePath(self.name, function(err) {
 				if(err)
 					return callback(err);
 

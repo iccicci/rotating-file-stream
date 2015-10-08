@@ -149,13 +149,13 @@ function createGenerator(filename) {
 	};
 }
 
-function makePath(name, err, callback) {
+function makePath(name, callback) {
 	var dir = path.parse(name).dir;
 
 	fs.mkdir(dir, function(e) {
 		if(e) {
 			if(e.code == "ENOENT")
-				return makePath(dir, err, callback);
+				return makePath(dir, callback);
 
 			return callback(e);
 		}
