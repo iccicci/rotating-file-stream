@@ -228,7 +228,9 @@ will never be split among two files.
 #### by size
 
 Once the _not-rotated_ file is opened first time, its size is checked and if it is greater or equal to
-size limit, a first rotation happens. After each __stream.write__, the same check is performed.
+size limit, a first rotation happens. After each
+[stream.write](https://nodejs.org/api/stream.html#stream_writable_write_chunk_encoding_callback),
+the same check is performed.
 
 #### by interval
 
