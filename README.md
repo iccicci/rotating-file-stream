@@ -30,9 +30,19 @@ npm install rotating-file-stream
 
 # API
 
-## rfs(filename, options)
+```javascript
+require('rotating-file-stream');
+```
+Returns __RotatingFileStream__ constructor.
 
-Returns a new [stream.Writable](https://nodejs.org/api/stream.html#stream_class_stream_writable) to _filename_ as
+## Class: RotatingFileStream
+Extends [stream.Writable](https://nodejs.org/api/stream.html#stream_class_stream_writable).
+
+## new RotatingFileStream(filename, options)
+or
+## RotatingFileStream(filename, options)
+
+Returns a new __RotatingFileStream__ to _filename_ as
 [fs.createWriteStream](https://nodejs.org/api/fs.html#fs_fs_createwritestream_path_options) does.
 The file is rotated following _options_ rules.
 
@@ -41,15 +51,15 @@ The file is rotated following _options_ rules.
 The most complex problem about file name is: "how to call the rotated file name?"
 
 The answer to this question may vary in many forms depending on application requirements and/or specifications.
-If there are no requirements, a _String_ can be used and default rotated file name generator will be used;
-otherwise a _Function_ which returns the rotated file name can be used.
+If there are no requirements, a _String_ can be used and _default rotated file name generator_ will be used;
+otherwise a _Function_ which returns the _rotated file name_ can be used.
 
 #### function filename(time, index)
 
-* time: {Date} If rotation by interval is enabled, the start time of rotation period, otherwise the time when rotation job started. If __null__, the not rotated file name must be returned.
+* time: {Date} If rotation by interval is enabled, the start time of rotation period, otherwise the time when rotation job started. If __null__, the _not-rotated file name_ must be returned.
 * index {Number} The progressive index of rotation by size in the same rotation period.
 
-An example of a complex rotated file name generator function could be:
+An example of a complex _rotated file name generator_ function could be:
 
 ```javascript
 function pad(num) {
@@ -81,12 +91,12 @@ If part of returned destination path does not exists, the rotation job will try 
 
 ### options {Object}
 
-* compress: {String} (default: null) Specifies compression method of rotated files.
+* compress: {String|Function|True} (default: null) Specifies compression method of rotated files.
 * interval: {String} (default: null) Specifies the time interval to rotate the file.
 * path: {String} (default: null) Specifies the base path for files.
 * size: {String} (default: null) Specifies the file size to rotate the file.
 * highWaterMark: {Number} (default: 16K) Proxied to [new stream.Writable](https://nodejs.org/api/stream.html#stream_new_stream_writable_options)
-* mode: {Integer} (default: 0o666) Proxied to [fs.open](https://nodejs.org/api/fs.html#fs_fs_open_path_flags_mode_callback)
+* mode: {Integer} (default: 0o666) Proxied to [fs.createWriteStream](https://nodejs.org/api/fs.html#fs_fs_createwritestream_path_options)
 
 #### path
 
@@ -147,16 +157,16 @@ Accepts a positive integer followed by one of these possible letters:
 #### compress
 
 Due the nature of __Node.js__ compression may be done with an external command (to use other CPUs than the one used
-by __Node.js__ to not subtract CPU power to our application) or with internal code (to use the CPU used by __Node.js__
-to not subtract more CPU power than expected to the system). This decision is left to you.
+by __Node.js__) or with internal code (to use the CPU used by __Node.js__). This decision is left to you.
 
 Following fixed strings are allowed to compress the files with internal libraries:
+* bzip2 (__not implemented yet__)
 * gzip
 
-To enable external compression, a _function_ can be used or simple the _boolean_ __true__ value to use default
+To enable external compression, a _function_ can be used or simply the _boolean_ __true__ value to use default
 external compression.
 The function should accept _source_ and _dest_ file names and must return the shell command to be executed to
-archive the file.
+compress the file.
 The two following code snippets have exactly the same effect:
 
 ```javascript
@@ -178,8 +188,8 @@ var stream = rfs('file.log', {
 ```
 
 __Note:__
-The shell command to archive the rotated file should not remove the source file, it will be removed by the package
-if archive job complete with success.
+The shell command to compress the rotated file should not remove the source file, it will be removed by the package
+if rotation job complete with success.
 
 ### Events
 
@@ -190,8 +200,8 @@ var rfs    = require('rotating-file-stream');
 var stream = rfs(...);
 
 stream.on('error', function(err) {
-    // here are reported errors occurred while rotating as well write errors
-    // once this event is fired, the error can't be recovered and the stream will be closed
+    // here are reported blocking errors
+    // once this event is fired, the stream will be closed as well
 });
 
 stream.on('open', function() {
@@ -208,18 +218,18 @@ stream.on('rotated', function(filename) {
 
 stream.on('warning', function(err) {
     // here are reported non blocking errors
-    // the only one possible at this version is error while unlinking file after compression
 });
 ```
 
 ### Rotation logic
 
-Regardless of when and why rotation happens, the content of a single __stream.write__ will never be
-split among two files.
+Regardless of when and why rotation happens, the content of a single
+[stream.write](https://nodejs.org/api/stream.html#stream_writable_write_chunk_encoding_callback)
+will never be split among two files.
 
 #### by size
 
-Once the no rotated file is opened first time, its size is checked and if it is greater or equal to
+Once the _not-rotated_ file is opened first time, its size is checked and if it is greater or equal to
 size limit, a first rotation happens. After each __stream.write__, the same check is performed.
 
 #### by interval
@@ -230,13 +240,13 @@ The package sets a _Timeout_ to start a rotation job at the right moment.
 
 Logs should be handled so carefully, so this package tries to never overwrite files.
 
-At stream creation, if the not rotated log file already exists and its size exceeds the rotation size,
+At stream creation, if the _not-rotated_ log file already exists and its size exceeds the rotation size,
 an initial rotation attempt is done.
 
 At each rotation attempt a check is done to verify that destination rotated file does not exists yet;
-if this is not the case a new destination rotated file name is generated and the same check is
+if this is not the case a new destination _rotated file name_ is generated and the same check is
 performed before going on. This is repeated until a not existing destination file name is found or the
-package is exhausted. For this reason the rotated file name generator function may be called several
+package is exhausted. For this reason the _rotated file name generator_ function may be called several
 times for each rotation job.
 
 Once an __error__ _event_ is emitted, nothing more can be done: the stream is closed as well.
@@ -262,6 +272,8 @@ Do not hesitate to report any bug or inconsistency @[github](https://github.com/
 
 ### ChangeLog
 
+* 2015-10-?? - v1.0.2
+  * README update
 * 2015-10-08 - v1.0.1
   * README fix
 * 2015-10-08 - v1.0.0
