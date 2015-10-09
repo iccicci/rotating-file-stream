@@ -234,7 +234,8 @@ the same check is performed.
 
 #### by interval
 
-The package sets a _Timeout_ to start a rotation job at the right moment.
+The package sets a [Timeout](https://nodejs.org/api/timers.html#timers_settimeout_callback_delay_arg)
+to start a rotation job at the right moment.
 
 ### Under the hood
 
