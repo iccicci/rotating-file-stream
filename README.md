@@ -38,9 +38,7 @@ Returns __RotatingFileStream__ constructor.
 ## Class: RotatingFileStream
 Extends [stream.Writable](https://nodejs.org/api/stream.html#stream_class_stream_writable).
 
-## new RotatingFileStream(filename, options)
-or
-## RotatingFileStream(filename, options)
+## [new] RotatingFileStream(filename, options)
 
 Returns a new __RotatingFileStream__ to _filename_ as
 [fs.createWriteStream](https://nodejs.org/api/fs.html#fs_fs_createwritestream_path_options) does.
