@@ -273,7 +273,7 @@ Do not hesitate to report any bug or inconsistency @[github](https://github.com/
 
 ### ChangeLog
 
-* 2015-10-?? - v1.0.2
+* 2015-10-09 - v1.0.2
   * README update
 * 2015-10-08 - v1.0.1
   * README fix
