@@ -8,8 +8,6 @@
 [![dependency status](https://david-dm.org/iccicci/rotating-file-stream.svg)](https://david-dm.org/iccicci/rotating-file-stream#info=dependencies)
 [![dev dependency status](https://david-dm.org/iccicci/rotating-file-stream/dev-status.svg)](https://david-dm.org/iccicci/rotating-file-stream#info=devDependencies)
 
-[![NPM](https://nodei.co/npm/rotating-file-stream.png?downloads=true&downloadRank=true&stars=true)](https://nodei.co/npm/rotating-file-stream/)
-
 ### Usage
 
 ```javascript
@@ -256,6 +254,7 @@ Once an __error__ _event_ is emitted, nothing more can be done: the stream is cl
 
 This package is written following  __Node.js 4.0__ specifications always taking care about backward
 compatibility. The package it tested under following versions:
+* 4.2
 * 4.1
 * 4.0
 * 0.12
@@ -273,6 +272,9 @@ Do not hesitate to report any bug or inconsistency @[github](https://github.com/
 
 ### ChangeLog
 
+* 2015-10-25 - v1.0.3
+  * Tested on node v4.2
+  * Dependencies update
 * 2015-10-09 - v1.0.2
   * README update
 * 2015-10-08 - v1.0.1
