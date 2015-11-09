@@ -13,9 +13,10 @@ describe("compression", function() {
 		before(function(done) {
 			var self = this;
 			exec(done, "rm -rf *log", function() {
-				self.rfs = rfs(setTimeout.bind(null, done, 100), { size: "10B", compress: true });
+				self.rfs = rfs(function() {}, { size: "10B", compress: true });
 				self.rfs.write("test\n");
 				self.rfs.end("test\n");
+				self.rfs.on("rotated", function() { done(); });
 			});
 		});
 

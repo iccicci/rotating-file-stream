@@ -150,9 +150,12 @@ RotatingFileStream.prototype.firstOpen = function() {
 		self.size = stats.size;
 
 		if((! self.options.size) || stats.size < self.options.size)
-			self.open();
-		else
-			self.rotate();
+			return self.open();
+
+		if(self.options.interval)
+			self._interval(self.now());
+
+		self.rotate();
 	});
 };
 
@@ -182,7 +185,7 @@ RotatingFileStream.prototype.interval = function() {
 	if(! this.options.interval)
 		return;
 
-	var now  = new Date().getTime();
+	var now  = this.now();
 	var unit = this.options.interval.unit;
 
 	if(unit == "d" || unit == "h") {
@@ -239,6 +242,10 @@ RotatingFileStream.prototype.move = function(retry) {
 			});
 		});
 	});
+};
+
+RotatingFileStream.prototype.now = function(retry) {
+	return new Date().getTime();
 };
 
 RotatingFileStream.prototype.open = function(retry) {

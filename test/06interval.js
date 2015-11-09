@@ -7,6 +7,46 @@ var fs     = require("fs");
 var rfs    = require("./helper").rfs;
 
 describe("interval", function() {
+	describe("initial rotation with interval", function() {
+		before(function(done) {
+			var self = this;
+			exec(done, "rm -rf *log ; echo test > test.log ; echo test >> test.log", function() {
+				self.rfs = rfs(done, { size: "10B", interval: "1d" }, "test.log");
+				self.rfs.now = function() { return new Date(2015, 2, 29, 1, 29, 23, 123).getTime(); };
+				self.rfs.end("test\n");
+			});
+		});
+
+		it("no error", function() {
+			assert.ifError(this.rfs.ev.err);
+		});
+
+		it("1 rotation", function() {
+			assert.equal(this.rfs.ev.rotation, 1);
+		});
+
+		it("1 rotated", function() {
+			assert.equal(this.rfs.ev.rotated.length, 1);
+			assert.equal(this.rfs.ev.rotated[0], "20150329-0000-01-test.log");
+		});
+
+		it("1 single write", function() {
+			assert.equal(this.rfs.ev.single, 1);
+		});
+
+		it("0 multi write", function() {
+			assert.equal(this.rfs.ev.multi, 0);
+		});
+
+		it("file content", function() {
+			assert.equal(fs.readFileSync("test.log"), "test\n");
+		});
+
+		it("rotated file content", function() {
+			assert.equal(fs.readFileSync("20150329-0000-01-test.log"), "test\ntest\n");
+		});
+	});
+
 	describe("_write while rotation", function() {
 		before(function(done) {
 			var self = this;
