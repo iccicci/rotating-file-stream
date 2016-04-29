@@ -1,6 +1,6 @@
 {
   "name": "rotating-file-stream",
-  "version": "1.0.4",
+  "version": "1.0.5",
   "description": "Opens a stream.Writable to a file rotated by interval and/or size. A logrotate alternative.",
   "engines": {
     "node": ">=0.11"
