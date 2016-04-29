@@ -26,6 +26,7 @@ function compress(tmp) {
 						self.emit("warning", err);
 
 					self.emit("rotated", name);
+					self.interval();
 				});
 			};
 

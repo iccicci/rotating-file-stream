@@ -254,6 +254,7 @@ Once an __error__ _event_ is emitted, nothing more can be done: the stream is cl
 
 This package is written following  __Node.js 4.0__ specifications always taking care about backward
 compatibility. The package it tested under following versions:
+* 6.0
 * 5.0
 * 4.2
 * 4.1
@@ -273,6 +274,9 @@ Do not hesitate to report any bug or inconsistency [@github](https://github.com/
 
 ### ChangeLog
 
+* 2016-04-29 - v1.0.5
+  * Tested on node v6.0
+  * Fixed a bug on rotation with interval and compression
 * 2015-11-09 - v1.0.4
   * Tested on node v5.0
   * Fixed bug on [initial rotation with interval](https://github.com/iccicci/rotating-file-stream/issues/2)

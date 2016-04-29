@@ -136,6 +136,8 @@ RotatingFileStream.prototype.firstOpen = function() {
 		});
 	}
 
+	this.once("open", this.interval.bind(this));
+
 	fs.stat(this.name, function(err, stats) {
 		if(err) {
 			if(err.code == "ENOENT")
@@ -217,8 +219,10 @@ RotatingFileStream.prototype.move = function(retry) {
 
 		if(self.options.compress)
 			self.compress(name);
-		else
+		else {
 			self.emit("rotated", name);
+			self.interval();
+		}
 	};
 
 	this.findName({}, self.options.compress, function(err, found) {
@@ -244,7 +248,7 @@ RotatingFileStream.prototype.move = function(retry) {
 	});
 };
 
-RotatingFileStream.prototype.now = function(retry) {
+RotatingFileStream.prototype.now = function() {
 	return new Date().getTime();
 };
 
@@ -267,7 +271,6 @@ RotatingFileStream.prototype.open = function(retry) {
 	stream.once("open", function() {
 		self.stream = stream;
 		self.emit("open");
-		self.interval();
 
 		callback();
 	});
