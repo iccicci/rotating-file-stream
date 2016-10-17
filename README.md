@@ -300,6 +300,9 @@ Do not hesitate to report any bug or inconsistency [@github](https://github.com/
 
 ### ChangeLog
 
+* 2016-10-18 - v1.1.0
+  * Added classical __UNIX logrotate__ tool behaviour.
+  * Dependencies update
 * 2016-04-29 - v1.0.5
   * Tested on node v6.0
   * Fixed a bug on rotation with interval and compression
