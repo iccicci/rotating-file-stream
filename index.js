@@ -11,19 +11,25 @@ function RotatingFileStream(filename, options) {
 	if(! (this instanceof RotatingFileStream))
 		return new RotatingFileStream(filename, options);
 
-	if(typeof filename == "function")
-		this.generator = filename;
-	else
-		if(typeof filename == "string")
-			this.generator = utils.createGenerator(filename);
-		else
-			throw new Error("Don't know how to handle 'filename' type: " + typeof filename);
-
 	if(! options)
 		options = {};
 	else
 		if(typeof options != "object")
 			throw new Error("Don't know how to handle 'options' type: " + typeof options);
+
+	utils.checkOptions(options);
+
+	if(typeof filename == "function")
+		this.generator = filename;
+	else
+		if(typeof filename == "string") {
+			if(options.rotate)
+				this.generator = utils.createClassical(filename);
+			else
+				this.generator = utils.createGenerator(filename);
+		}
+		else
+			throw new Error("Don't know how to handle 'filename' type: " + typeof filename);
 
 	if(options.path) {
 		var generator = this.generator;
@@ -33,8 +39,15 @@ function RotatingFileStream(filename, options) {
 		};
 	}
 
-	utils.checkOptions(options);
-	Writable.call(this, options.highWaterMark ? { highWaterMark: options.highWaterMark } : {} );
+	var opt = {};
+
+	if(options.highWaterMark)
+		opt.highWaterMark = options.highWaterMark;
+
+	if(options.mode)
+		opt.mode = options.mode;
+
+	Writable.call(this, opt);
 
 	this.chunks  = [];
 	this.options = options;
@@ -293,7 +306,7 @@ RotatingFileStream.prototype.rotate = function() {
 	this.rotation = new Date();
 
 	this._clear();
-	this._close(this.move.bind(this));
+	this._close(this.options.rotate ? this.classical.bind(this, this.options.rotate) : this.move.bind(this));
 	this.emit("rotation");
 };
 

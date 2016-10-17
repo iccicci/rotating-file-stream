@@ -6,6 +6,79 @@ var tmp   = require("tmp");
 var utils = require("./utils");
 var zlib  = require("zlib");
 
+
+function classical(count) {
+	var prevName = count == 1 ? this.name : this.generator(count - 1);
+	var thisName = this.generator(count);
+	var self     = this;
+
+	if(this.options.rotate == count)
+		delete this.rotatedName;
+
+	var callback = function(err) {
+		if(err)
+			return self.emit("error", err);
+
+		self.open();
+
+		if(self.options.compress)
+			self.compress(thisName);
+		else {
+			self.emit("rotated", self.rotatedName);
+			self.interval();
+		}
+	};
+
+	var doIt = function(done) {
+		fs.rename(prevName, thisName, function(err) {
+			if(err) {
+				if(err.code != "ENOENT")
+					return callback(err);
+
+				return utils.makePath(thisName, function(err) {
+					if(err)
+						return callback(err);
+
+					fs.rename(prevName, thisName, function(err) {
+						if(err)
+							return callback(err);
+
+						process.nextTick(done);
+					});
+				});
+			}
+
+			process.nextTick(done);
+		});
+	};
+
+	fs.stat(prevName, function(err) {
+		if(! err) {
+			if(! self.rotatedName)
+				self.rotatedName = thisName;
+
+			if(count != 1)
+				return doIt(self.classical.bind(self, count - 1));
+
+			if(self.options.compress)
+				return self.findName({}, true, function(err, name) {
+					if(err)
+						return callback(err);
+
+					thisName = name;
+					doIt(callback);
+				});
+
+			return doIt(callback);
+		}
+
+		if(err.code != "ENOENT")
+			return callback(err);
+
+		self.classical(count - 1);
+	});
+}
+
 function compress(tmp) {
 	var self = this;
 
@@ -25,7 +98,11 @@ function compress(tmp) {
 					if(err)
 						self.emit("warning", err);
 
-					self.emit("rotated", name);
+					if(self.options.rotate)
+						self.emit("rotated", self.rotatedName);
+					else
+						self.emit("rotated", name);
+
 					self.interval();
 				});
 			};
@@ -85,19 +162,28 @@ function findName(attempts, tmp, callback) {
 		return callback(err);
 	}
 
-	var name = this.name + "." + count + ".log";
+	var name = this.name + "." + count + ".rfs.tmp";
 	var self = this;
 
 	if(! tmp)
 		try {
-			name = this.generator(this.options.interval ? new Date(this.prev) : this.rotation, count + 1);
+			var pars = [count + 1];
+
+			if(! this.options.rotate) {
+				if(this.options.interval && ! this.options.rotationTime)
+					pars.unshift(new Date(this.prev));
+				else
+					pars.unshift(this.rotation);
+			}
+
+			name = this.generator.apply(this, pars);
 		}
 		catch(err) {
 			return process.nextTick(callback.bind(null, err));
 		}
 
 	fs.stat(name, function(err) {
-		if((! err) || err.code != "ENOENT" ) {
+		if((! err) || err.code != "ENOENT") {
 			if(name in attempts)
 				attempts[name]++;
 			else
@@ -119,7 +205,7 @@ function gzip(src, dst, callback) {
 	for(var i in files)
 		files[i].once("error", callback);
 
-	out.once("finish", callback);
+	out.once("finish", process.nextTick.bind(process, callback));
 
 	inp.pipe(zip).pipe(out);
 }
@@ -144,9 +230,10 @@ function touch(name, callback, retry) {
 }
 
 module.exports = {
-	compress: compress,
-	external: external,
-	findName: findName,
-	gzip:     gzip,
-	touch:    touch
+	classical: classical,
+	compress:  compress,
+	external:  external,
+	findName:  findName,
+	gzip:      gzip,
+	touch:     touch
 };

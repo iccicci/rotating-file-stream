@@ -8,6 +8,11 @@
 [![dependency status](https://david-dm.org/iccicci/rotating-file-stream.svg)](https://david-dm.org/iccicci/rotating-file-stream#info=dependencies)
 [![dev dependency status](https://david-dm.org/iccicci/rotating-file-stream/dev-status.svg)](https://david-dm.org/iccicci/rotating-file-stream#info=devDependencies)
 
+### Description
+
+Creates a [stream.Writable](https://nodejs.org/api/stream.html#stream_class_stream_writable) to a file which is rotated.
+Rotation behaviour can be deeply customized; optionally, classical UNIX __logrotate__ behaviour can be used.
+
 ### Usage
 
 ```javascript
@@ -83,6 +88,16 @@ var stream = rfs(generator, {
 ```
 
 __Note:__
+If both rotation by interval and rotation by time are used, returned _rotated file name_ __must__ be function of both parameters _time_ and _index_.
+Alternatively, __rotationTime__ _option_ can be used (to see below).
+
+#### function filename(index)
+
+* index {Number} The progressive index of rotation. If __null__, the _not-rotated file name_ must be returned.
+
+If classical __logrotate__ behaviour is enabled _rotated file name_ is only a function of _index_.
+
+__Note:__
 If part of returned destination path does not exists, the rotation job will try to create it.
 
 ### options {Object}
@@ -90,6 +105,8 @@ If part of returned destination path does not exists, the rotation job will try 
 * compress: {String|Function|True} (default: null) Specifies compression method of rotated files.
 * interval: {String} (default: null) Specifies the time interval to rotate the file.
 * path: {String} (default: null) Specifies the base path for files.
+* rotate: {Integer} (default: null) Enables the classical UNIX __logrotate__ behaviour.
+* rotationTime: {Boolean} (default: null) Makes rotated file name with time of rotation instead of start time of period.
 * size: {String} (default: null) Specifies the file size to rotate the file.
 * highWaterMark: {Number} (default: 16K) Proxied to [new stream.Writable](https://nodejs.org/api/stream.html#stream_new_stream_writable_options)
 * mode: {Integer} (default: 0o666) Proxied to [fs.createWriteStream](https://nodejs.org/api/fs.html#fs_fs_createwritestream_path_options)
@@ -186,6 +203,15 @@ var stream = rfs('file.log', {
 __Note:__
 The shell command to compress the rotated file should not remove the source file, it will be removed by the package
 if rotation job complete with success.
+
+#### rotationTime
+
+As specified above, if rotation by interval is enabled, the parameter _time_ passed to _rotatle name generator_ is the start time of
+rotation period. Setting this option to __true__, parameter _time_ passed is time when rotation job started.
+
+#### rotate
+
+If specified, classical UNIX __logrotate__ behaviour is enabled and the value of this option has same effect in _logrotate.conf_ file.
 
 ### Events
 

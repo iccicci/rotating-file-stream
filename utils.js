@@ -111,6 +111,15 @@ var checks = {
 			throw new Error("Don't know how to handle 'options.path' type: " + typ);
 	},
 
+	"rotate": function(typ, options, val) {
+		var rotate = parseInt(val);
+
+		if(rotate != val || rotate <= 0)
+			throw new Error("'rotate' option must be a positive integer number");
+	},
+
+	"rotationTime": function() {},
+
 	"size": function(typ, options, val) {
 		if(typ != "string")
 			throw new Error("Don't know how to handle 'options.size' type: " + typ);
@@ -133,6 +142,15 @@ function checkOptions(options) {
 
 function pad(num) {
 	return (num > 9 ? "" : "0") + num;
+}
+
+function createClassical(filename) {
+	return function(index) {
+		if(! index)
+			return filename;
+
+		return filename + "." + index;
+	};
 }
 
 function createGenerator(filename) {
@@ -184,6 +202,7 @@ function setEvents(self) {
 
 module.exports = {
 	checkOptions:    checkOptions,
+	createClassical: createClassical,
 	createGenerator: createGenerator,
 	makePath:        makePath,
 	setEvents:       setEvents,

@@ -301,4 +301,36 @@ describe("rfs", function() {
 			assert.equal(this.err.message, "An integer divider of 24 is expected as hours for 'options.interval'");
 		});
 	});
+
+	describe("string rotate value", function() {
+		before(function(done) {
+			try {
+				this.rfs = rfs("test.log", { rotate: "test" });
+			}
+			catch(e) {
+				this.err = e;
+			}
+			done();
+		});
+
+		it("error", function() {
+			assert.equal(this.err.message, "'rotate' option must be a positive integer number");
+		});
+	});
+
+	describe("negative rotate value", function() {
+		before(function(done) {
+			try {
+				this.rfs = rfs("test.log", { rotate: "-2" });
+			}
+			catch(e) {
+				this.err = e;
+			}
+			done();
+		});
+
+		it("error", function() {
+			assert.equal(this.err.message, "'rotate' option must be a positive integer number");
+		});
+	});
 });
