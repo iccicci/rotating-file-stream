@@ -300,6 +300,8 @@ Do not hesitate to report any bug or inconsistency [@github](https://github.com/
 
 ### ChangeLog
 
+* 2016-12-05 - v1.1.1
+  * Dependencies update
 * 2016-10-18 - v1.1.0
   * Added classical __UNIX logrotate__ tool behaviour.
   * Dependencies update

@@ -26,12 +26,12 @@
   "license": "MIT",
   "readmeFilename": "README.md",
   "dependencies": {
-    "tmp": "0.0.28"
+    "tmp": "0.0.31"
   },
   "devDependencies": {
     "istanbul": "0.4.5",
-    "jshint": "2.9.3",
-    "mocha": "3.1.2",
+    "jshint": "2.9.4",
+    "mocha": "3.2.0",
     "mocha-istanbul": "0.3.0"
   }
 }
