@@ -8,6 +8,8 @@
 [![dependency status](https://david-dm.org/iccicci/rotating-file-stream.svg)](https://david-dm.org/iccicci/rotating-file-stream)
 [![dev dependency status](https://david-dm.org/iccicci/rotating-file-stream/dev-status.svg)](https://david-dm.org/iccicci/rotating-file-stream?type=dev)
 
+[![NPM](https://nodei.co/npm/rotating-file-stream.png?downloads=true&downloadRank=true&stars=true)](https://nodei.co/npm/rotating-file-stream/)
+
 ### Description
 
 Creates a [stream.Writable](https://nodejs.org/api/stream.html#stream_class_stream_writable) to a file which is rotated.
