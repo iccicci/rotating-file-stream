@@ -9,6 +9,7 @@
 [![dev dependency status](https://david-dm.org/iccicci/rotating-file-stream/dev-status.svg)](https://david-dm.org/iccicci/rotating-file-stream?type=dev)
 
 [![NPM](https://nodei.co/npm/rotating-file-stream.png?downloads=true&downloadRank=true&stars=true)](https://nodei.co/npm/rotating-file-stream/)
+[![NPM](https://nodei.co/npm-dl/rotating-file-stream.png?height=3)](https://nodei.co/npm/rotating-file-stream/)
 
 ### Description
 
