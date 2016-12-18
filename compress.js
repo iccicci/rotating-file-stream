@@ -8,9 +8,9 @@ var zlib  = require("zlib");
 
 
 function classical(count) {
-	var prevName = count == 1 ? this.name : this.generator(count - 1);
-	var thisName = this.generator(count);
-	var self     = this;
+	var prevName;
+	var thisName;
+	var self = this;
 
 	if(this.options.rotate == count)
 		delete this.rotatedName;
@@ -28,6 +28,14 @@ function classical(count) {
 			self.interval();
 		}
 	};
+
+	try {
+		prevName = count == 1 ? this.name : this.generator(count - 1);
+		thisName = this.generator(count);
+	}
+	catch(e) {
+		return callback(e);
+	}
 
 	var doIt = function(done) {
 		fs.rename(prevName, thisName, function(err) {

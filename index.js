@@ -2,6 +2,7 @@
 
 var compress = require("./compress");
 var fs       = require("fs");
+var interval = require("./interval");
 var path     = require("path");
 var util     = require("util");
 var utils    = require("./utils");
@@ -60,13 +61,6 @@ function RotatingFileStream(filename, options) {
 
 util.inherits(RotatingFileStream, Writable);
 
-RotatingFileStream.prototype._clear = function(done) {
-	if(this.timer) {
-		clearTimeout(this.timer);
-		this.timer = null;
-	}
-};
-
 RotatingFileStream.prototype._close = function(done) {
 	if(this.stream) {
 		this.stream.on("finish", done);
@@ -94,7 +88,7 @@ RotatingFileStream.prototype._rewrite = function() {
 		return callback();
 	}
 
-	if(this.writing)
+	if(this.writing || this.rotation)
 		return;
 
 	if(this.options.size && this.size >= this.options.size)
@@ -172,52 +166,6 @@ RotatingFileStream.prototype.firstOpen = function() {
 
 		self.rotate();
 	});
-};
-
-RotatingFileStream.prototype._interval = function(now) {
-	    now   = new Date(now);
-	var year  = now.getFullYear();
-	var month = now.getMonth();
-	var day   = now.getDate();
-	var hours = now.getHours();
-	var num   = this.options.interval.num;
-	var unit  = this.options.interval.unit;
-
-	if(unit == "d")
-		hours = 0;
-	else
-		hours = parseInt(hours / num) * num;
-
-	this.prev = new Date(year, month, day, hours, 0, 0, 0).getTime();
-
-	if(unit == "d")
-		this.next = new Date(year, month, day + num, hours, 0, 0, 0).getTime();
-	else
-		this.next = new Date(year, month, day, hours + num, 0, 0, 0).getTime();
-};
-
-RotatingFileStream.prototype.interval = function() {
-	if(! this.options.interval)
-		return;
-
-	var now  = this.now();
-	var unit = this.options.interval.unit;
-
-	if(unit == "d" || unit == "h") {
-		this._interval(now);
-	}
-	else {
-		var period = 1000 * this.options.interval.num;
-
-		if(unit == "m")
-			period *= 60;
-
-		this.prev = parseInt(now / period) * period;
-		this.next = this.prev + period;
-	}
-
-	this.timer = setTimeout(this.rotate.bind(this), this.next - now);
-	this.timer.unref();
 };
 
 RotatingFileStream.prototype.move = function(retry) {
@@ -312,5 +260,8 @@ RotatingFileStream.prototype.rotate = function() {
 
 for(var i in compress)
 	RotatingFileStream.prototype[i] = compress[i];
+
+for(var i in interval)
+	RotatingFileStream.prototype[i] = interval[i];
 
 module.exports = RotatingFileStream;

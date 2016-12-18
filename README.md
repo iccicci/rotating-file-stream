@@ -302,8 +302,14 @@ __Required: Node.js 0.11__
 
 Do not hesitate to report any bug or inconsistency [@github](https://github.com/iccicci/rotating-file-stream/issues).
 
+### Known bugs
+
+* [end method wrong implementation](https://github.com/iccicci/rotating-file-stream/issues/9)
+
 ### ChangeLog
 
+* 2016-12-?? - v1.1.2
+  * Fixed bug: [Events cross over: rotate and rotated](https://github.com/iccicci/rotating-file-stream/issues/6)
 * 2016-12-05 - v1.1.1
   * Dependencies update
 * 2016-10-18 - v1.1.0

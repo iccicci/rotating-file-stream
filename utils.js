@@ -190,6 +190,11 @@ function setEvents(self) {
 
 	self.once("finish", self._clear.bind(self));
 
+	self.on("rotated", function() {
+		self.rotation = null;
+		self._rewrite();
+	});
+
 	self.end = function(chunk, encoding, callback) {
 		self.ending = true;
 
