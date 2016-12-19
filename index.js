@@ -14,9 +14,17 @@ function RotatingFileStream(filename, options) {
 
 	if(! options)
 		options = {};
-	else
+	else {
 		if(typeof options != "object")
 			throw new Error("Don't know how to handle 'options' type: " + typeof options);
+
+		var tmp = {};
+
+		for(var i in options)
+			tmp[i] = options[i];
+
+		options = tmp;
+	}
 
 	utils.checkOptions(options);
 

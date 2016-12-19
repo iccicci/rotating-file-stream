@@ -167,4 +167,24 @@ describe("options", function() {
 			assert.equal(fs.readFileSync("/tmp/1-test.log"), "test\ntest\n");
 		});
 	});
+
+	describe("safe options object", function() {
+		before(function(done) {
+			this.options = { size: "10M", interval: "30s", rotate: 5 };
+			this.rfs = rfs(done, this.options);
+			this.rfs.end();
+		});
+
+		it("10M", function() {
+			assert.equal(this.options.size, "10M");
+		});
+
+		it("30s", function() {
+			assert.equal(this.options.interval, "30s");
+		});
+
+		it("5 rotate", function() {
+			assert.equal(this.options.rotate, 5);
+		});
+	});
 });
