@@ -12,21 +12,7 @@ function RotatingFileStream(filename, options) {
 	if(! (this instanceof RotatingFileStream))
 		return new RotatingFileStream(filename, options);
 
-	if(! options)
-		options = {};
-	else {
-		if(typeof options != "object")
-			throw new Error("Don't know how to handle 'options' type: " + typeof options);
-
-		var tmp = {};
-
-		for(var i in options)
-			tmp[i] = options[i];
-
-		options = tmp;
-	}
-
-	utils.checkOptions(options);
+	options = utils.checkOptions(options);
 
 	if(typeof filename == "function")
 		this.generator = filename;
@@ -136,6 +122,30 @@ RotatingFileStream.prototype._writev = function(chunks, callback) {
 	chunks[chunks.length - 1].cb = callback;
 	this.chunks = this.chunks.concat(chunks);
 	this._rewrite();
+};
+
+RotatingFileStream.prototype.end = function() {
+	var args = [];
+
+	for(var i in arguments) {
+		if("function" == typeof arguments[i]) {
+			this.once("finish", arguments[i]);
+
+			break;
+		}
+
+		if(i > 1)
+			break;
+
+		args.push(arguments[i]);
+	}
+
+	this.ending = true;
+
+	if(args.length)
+		this.write.apply(this, args);
+	else
+		this._rewrite();
 };
 
 RotatingFileStream.prototype.firstOpen = function() {

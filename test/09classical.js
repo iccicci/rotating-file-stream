@@ -6,6 +6,7 @@ var cp     = require("child_process");
 var exec   = require("./helper").exec;
 var fs     = require("fs");
 var rfs    = require("./helper").rfs;
+var utils  = require("../utils");
 
 describe("classical", function() {
 	describe("initial rotation with interval", function() {
@@ -266,6 +267,124 @@ describe("classical", function() {
 				self.rfs.write("test\n");
 				self.rfs.end("test\n");
 			});
+		});
+
+		it("Error", function() {
+			assert.equal(this.rfs.err.message, "test");
+		});
+
+		it("1 rotation", function() {
+			assert.equal(this.rfs.ev.rotation, 1);
+		});
+
+		it("0 rotated", function() {
+			assert.equal(this.rfs.ev.rotated.length, 0);
+		});
+
+		it("2 single write", function() {
+			assert.equal(this.rfs.ev.single, 2);
+		});
+
+		it("0 multi write", function() {
+			assert.equal(this.rfs.ev.multi, 0);
+		});
+	});
+
+	describe("first rename error", function() {
+		var pre;
+
+		before(function(done) {
+			var self = this;
+			exec(done, "rm -rf *log", function() {
+				self.rfs = rfs(done, { rotate: 2, size: "5B" }, "test.log");
+				pre = fs.rename;
+				fs.rename = function(a, b, c) { if(a == "test.log" && b == "test.log.1") return c(Error("test")); pre.apply(fs, arguments); };
+				self.rfs.write("test\n");
+				self.rfs.end("test\n");
+			});
+		});
+
+		after(function() {
+			fs.rename = pre;
+		});
+
+		it("Error", function() {
+			assert.equal(this.rfs.err.message, "test");
+		});
+
+		it("1 rotation", function() {
+			assert.equal(this.rfs.ev.rotation, 1);
+		});
+
+		it("0 rotated", function() {
+			assert.equal(this.rfs.ev.rotated.length, 0);
+		});
+
+		it("2 single write", function() {
+			assert.equal(this.rfs.ev.single, 2);
+		});
+
+		it("0 multi write", function() {
+			assert.equal(this.rfs.ev.multi, 0);
+		});
+	});
+
+	describe("makePath", function() {
+		var pre;
+
+		before(function(done) {
+			var self = this;
+			exec(done, "rm -rf *log", function() {
+				self.rfs = rfs(done, { rotate: 2, size: "5B" }, function(count) { if(count) return "test2.log/test.log"; return "test.log"; });
+				pre = utils.makePath;
+				utils.makePath = function(a, c) { c(Error("test")); };
+				self.rfs.write("test\n");
+				self.rfs.end("test\n");
+			});
+		});
+
+		after(function() {
+			utils.makePath = pre;
+		});
+
+		it("Error", function() {
+			assert.equal(this.rfs.err.message, "test");
+		});
+
+		it("1 rotation", function() {
+			assert.equal(this.rfs.ev.rotation, 1);
+		});
+
+		it("0 rotated", function() {
+			assert.equal(this.rfs.ev.rotated.length, 0);
+		});
+
+		it("2 single write", function() {
+			assert.equal(this.rfs.ev.single, 2);
+		});
+
+		it("0 multi write", function() {
+			assert.equal(this.rfs.ev.multi, 0);
+		});
+	});
+
+	describe("second rename error", function() {
+		var pre;
+
+		before(function(done) {
+			var self = this;
+			var count = 0;
+			exec(done, "rm -rf *log", function() {
+				self.rfs = rfs(done, { rotate: 2, size: "5B" }, function(count) { if(count) return "test2.log/test.log"; return "test.log"; });
+				pre = fs.rename;
+				fs.rename = function(a, b, c) { if(a == "test.log" && b == "test2.log/test.log" && ++count == 2) return c(Error("test")); pre.apply(fs, arguments); };
+				self.rfs.write("test\n");
+				self.rfs.end("test\n");
+			});
+		});
+
+		after(function() {
+			fs.rename = pre;
 		});
 
 		it("Error", function() {

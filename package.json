@@ -8,7 +8,7 @@
   "scripts": {
     "coverage": "./node_modules/.bin/istanbul cover ./node_modules/.bin/_mocha -- --recursive test",
     "jshint": "./node_modules/.bin/jshint *.js test",
-    "npmignore": "echo '.jshintrc\\n.gitignore\\n.travis.yml\\ntest\\nsleep.js' > .npmignore ; cat .gitignore >> .npmignore",
+    "npmignore": "echo '.gitignore\\n.jshintrc\\n.travis.yml\\nsleep.js\\ntest' > .npmignore ; cat .gitignore >> .npmignore",
     "t": "./node_modules/.bin/_mocha test",
     "test": "npm run npmignore && npm run jshint && npm run coverage"
   },

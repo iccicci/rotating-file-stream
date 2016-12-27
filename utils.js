@@ -129,6 +129,14 @@ var checks = {
 };
 
 function checkOptions(options) {
+	if(! options)
+		return {};
+
+	if(typeof options != "object")
+		throw new Error("Don't know how to handle 'options' type: " + typeof options);
+
+	var ret = {};
+
 	for(var opt in options) {
 		var val = options[opt];
 		var typ = typeof val;
@@ -136,8 +144,11 @@ function checkOptions(options) {
 		if(! (opt in checks))
 			throw new Error("Unknown option: " + opt);
 
-		checks[opt](typ, options, val);
+		ret[opt] = options[opt];
+		checks[opt](typ, ret, val);
 	}
+
+	return ret;
 }
 
 function pad(num) {
@@ -194,15 +205,6 @@ function setEvents(self) {
 		self.rotation = null;
 		self._rewrite();
 	});
-
-	self.end = function(chunk, encoding, callback) {
-		self.ending = true;
-
-		if(chunk)
-			self.write(chunk, encoding, callback);
-		else
-			self._rewrite();
-	};
 }
 
 module.exports = {

@@ -1,11 +1,11 @@
 # rotating-file-stream
 
-[![NPM version](https://badge.fury.io/js/rotating-file-stream.svg)](https://www.npmjs.com/package/rotating-file-stream)
 [![Build Status](https://travis-ci.org/iccicci/rotating-file-stream.png)](https://travis-ci.org/iccicci/rotating-file-stream)
 [![Code Climate](https://codeclimate.com/github/iccicci/rotating-file-stream/badges/gpa.svg)](https://codeclimate.com/github/iccicci/rotating-file-stream)
 [![Test Coverage](https://codeclimate.com/github/iccicci/rotating-file-stream/badges/coverage.svg)](https://codeclimate.com/github/iccicci/rotating-file-stream/coverage)
-[![Donate](http://img.shields.io/bitcoin/donate.png?color=red)](https://www.coinbase.com/cicci)
+[![Donate](http://img.shields.io/bitcoin/donate.png?color=blue)](https://www.coinbase.com/cicci)
 
+[![NPM version](https://badge.fury.io/js/rotating-file-stream.svg)](https://www.npmjs.com/package/rotating-file-stream)
 [![dependency status](https://david-dm.org/iccicci/rotating-file-stream.svg)](https://david-dm.org/iccicci/rotating-file-stream)
 [![dev dependency status](https://david-dm.org/iccicci/rotating-file-stream/dev-status.svg)](https://david-dm.org/iccicci/rotating-file-stream?type=dev)
 
@@ -108,13 +108,13 @@ If part of returned destination path does not exists, the rotation job will try 
 ### options {Object}
 
 * compress: {String|Function|True} (default: null) Specifies compression method of rotated files.
+* highWaterMark: {Number} (default: null) Proxied to [new stream.Writable](https://nodejs.org/api/stream.html#stream_constructor_new_stream_writable_options)
 * interval: {String} (default: null) Specifies the time interval to rotate the file.
+* mode: {Integer} (default: null) Proxied to [fs.createWriteStream](https://nodejs.org/api/fs.html#fs_fs_createwritestream_path_options)
 * path: {String} (default: null) Specifies the base path for files.
 * rotate: {Integer} (default: null) Enables the classical UNIX __logrotate__ behaviour.
 * rotationTime: {Boolean} (default: null) Makes rotated file name with time of rotation instead of start time of period.
 * size: {String} (default: null) Specifies the file size to rotate the file.
-* highWaterMark: {Number} (default: 16K) Proxied to [new stream.Writable](https://nodejs.org/api/stream.html#stream_new_stream_writable_options)
-* mode: {Integer} (default: 0o666) Proxied to [fs.createWriteStream](https://nodejs.org/api/fs.html#fs_fs_createwritestream_path_options)
 
 #### path
 
@@ -284,14 +284,7 @@ Once an __error__ _event_ is emitted, nothing more can be done: the stream is cl
 ### Compatibility
 
 This package is written following  __Node.js 4.0__ specifications always taking care about backward
-compatibility. The package it tested under following versions:
-* 6.0
-* 5.0
-* 4.2
-* 4.1
-* 4.0
-* 0.12
-* 0.11
+compatibility. The package it tested under [several versions](https://travis-ci.org/iccicci/rotating-file-stream).
 
 __Required: Node.js 0.11__
 
@@ -299,16 +292,14 @@ __Required: Node.js 0.11__
 
 [MIT Licence](https://github.com/iccicci/rotating-file-stream/blob/master/LICENSE)
 
-### Known bugs
-
-* [end method wrong implementation](https://github.com/iccicci/rotating-file-stream/issues/9)
-
 ### Bugs
 
 Do not hesitate to report any bug or inconsistency [@github](https://github.com/iccicci/rotating-file-stream/issues).
 
 ### ChangeLog
 
+* 2016-12-27 - v1.1.3
+  * Fixed bug: [end method wrong implementation](https://github.com/iccicci/rotating-file-stream/issues/9)
 * 2016-12-19 - v1.1.2
   * Fixed bug: [unable to reuse configuration object](https://github.com/iccicci/rotating-file-stream/issues/10)
   * Fixed bug: [Events cross over: rotate and rotated](https://github.com/iccicci/rotating-file-stream/issues/6)

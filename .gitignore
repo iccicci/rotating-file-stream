@@ -1,8 +1,6 @@
 *gz
 *log
+*tmp
+.npmignore
 coverage
 node_modules
-test.log.*
-.npmignore
-.project
-.settings
