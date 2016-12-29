@@ -1,7 +1,9 @@
 # rotating-file-stream
 
-[![Build Status](https://travis-ci.org/iccicci/rotating-file-stream.png)](https://travis-ci.org/iccicci/rotating-file-stream)
-[![Code Climate](https://codeclimate.com/github/iccicci/rotating-file-stream/badges/gpa.svg)](https://codeclimate.com/github/iccicci/rotating-file-stream)
+[![Build Status](https://travis-ci.org/iccicci/rotating-file-stream.png)]
+(https://travis-ci.org/iccicci/rotating-file-stream)
+[![Code Climate](https://codeclimate.com/github/iccicci/rotating-file-stream/badges/gpa.svg)]
+(https://codeclimate.com/github/iccicci/rotating-file-stream)
 [![Test Coverage](https://codeclimate.com/github/iccicci/rotating-file-stream/badges/coverage.svg)](https://codeclimate.com/github/iccicci/rotating-file-stream/coverage)
 [![Donate](http://img.shields.io/bitcoin/donate.png?color=blue)](https://www.coinbase.com/cicci)
 
@@ -62,7 +64,9 @@ otherwise a _Function_ which returns the _rotated file name_ can be used.
 
 #### function filename(time, index)
 
-* time: {Date} If rotation by interval is enabled, the start time of rotation period, otherwise the time when rotation job started. If __null__, the _not-rotated file name_ must be returned.
+* time: {Date} If both rotation by interval is enabled and __options.rotationTime__ [(see below)](#rotationtime) is
+__false__, the start time of rotation period, otherwise the time when rotation job started. If __null__, the
+_not-rotated file name_ must be returned.
 * index {Number} The progressive index of rotation by size in the same rotation period.
 
 An example of a complex _rotated file name generator_ function could be:
@@ -82,19 +86,19 @@ function generator(time, index) {
     var minute = pad(time.getMinutes());
 
     return "/storage/" + month + "/" +
-        month + day + "-" + hour + minute + "-" + index + "-" + filename;
+        month + day + "-" + hour + minute + "-" + index + "-file.log";
 }
 
 var rfs    = require('rotating-file-stream');
 var stream = rfs(generator, {
     size:     '10M',
-    interval: '1d'
+    interval: '30m'
 });
 ```
 
 __Note:__
-If both rotation by interval and rotation by time are used, returned _rotated file name_ __must__ be function of both parameters _time_ and _index_.
-Alternatively, __rotationTime__ _option_ can be used (to see below).
+If both rotation by interval and rotation by time are used, returned _rotated file name_ __must__ be function of both
+parameters _time_ and _index_. Alternatively, __rotationTime__ _option_ can be used (to see below).
 
 #### function filename(index)
 
