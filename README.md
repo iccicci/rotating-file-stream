@@ -4,14 +4,18 @@
 (https://travis-ci.org/iccicci/rotating-file-stream)
 [![Code Climate](https://codeclimate.com/github/iccicci/rotating-file-stream/badges/gpa.svg)]
 (https://codeclimate.com/github/iccicci/rotating-file-stream)
-[![Test Coverage](https://codeclimate.com/github/iccicci/rotating-file-stream/badges/coverage.svg)](https://codeclimate.com/github/iccicci/rotating-file-stream/coverage)
+[![Test Coverage](https://codeclimate.com/github/iccicci/rotating-file-stream/badges/coverage.svg)]
+(https://codeclimate.com/github/iccicci/rotating-file-stream/coverage)
 [![Donate](http://img.shields.io/bitcoin/donate.png?color=blue)](https://www.coinbase.com/cicci)
 
 [![NPM version](https://badge.fury.io/js/rotating-file-stream.svg)](https://www.npmjs.com/package/rotating-file-stream)
-[![dependency status](https://david-dm.org/iccicci/rotating-file-stream.svg)](https://david-dm.org/iccicci/rotating-file-stream)
-[![dev dependency status](https://david-dm.org/iccicci/rotating-file-stream/dev-status.svg)](https://david-dm.org/iccicci/rotating-file-stream?type=dev)
+[![dependency status](https://david-dm.org/iccicci/rotating-file-stream.svg)]
+(https://david-dm.org/iccicci/rotating-file-stream)
+[![dev dependency status](https://david-dm.org/iccicci/rotating-file-stream/dev-status.svg)]
+(https://david-dm.org/iccicci/rotating-file-stream?type=dev)
 
-[![NPM](https://nodei.co/npm/rotating-file-stream.png?downloads=true&downloadRank=true&stars=true)](https://nodei.co/npm/rotating-file-stream/)
+[![NPM](https://nodei.co/npm/rotating-file-stream.png?downloads=true&downloadRank=true&stars=true)]
+(https://nodei.co/npm/rotating-file-stream/)
 
 [![NPM](https://nodei.co/npm-dl/rotating-file-stream.png?height=3)](https://nodei.co/npm/rotating-file-stream/)
 
@@ -112,12 +116,15 @@ If part of returned destination path does not exists, the rotation job will try 
 ### options {Object}
 
 * compress: {String|Function|True} (default: null) Specifies compression method of rotated files.
-* highWaterMark: {Number} (default: null) Proxied to [new stream.Writable](https://nodejs.org/api/stream.html#stream_constructor_new_stream_writable_options)
+* highWaterMark: {Number} (default: null) Proxied to [new stream.Writable]
+(https://nodejs.org/api/stream.html#stream_constructor_new_stream_writable_options)
 * interval: {String} (default: null) Specifies the time interval to rotate the file.
-* mode: {Integer} (default: null) Proxied to [fs.createWriteStream](https://nodejs.org/api/fs.html#fs_fs_createwritestream_path_options)
+* mode: {Integer} (default: null) Proxied to [fs.createWriteStream]
+(https://nodejs.org/api/fs.html#fs_fs_createwritestream_path_options)
 * path: {String} (default: null) Specifies the base path for files.
 * rotate: {Integer} (default: null) Enables the classical UNIX __logrotate__ behaviour.
-* rotationTime: {Boolean} (default: null) Makes rotated file name with time of rotation instead of start time of period.
+* rotationTime: {Boolean} (default: null) Makes rotated file name with time of rotation instead of start time of
+period.
 * size: {String} (default: null) Specifies the file size to rotate the file.
 
 #### path
@@ -215,12 +222,14 @@ if rotation job complete with success.
 
 #### rotationTime
 
-As specified above, if rotation by interval is enabled, the parameter _time_ passed to _rotatle name generator_ is the start time of
-rotation period. Setting this option to __true__, parameter _time_ passed is time when rotation job started.
+As specified above, if rotation by interval is enabled, the parameter _time_ passed to _rotatle name generator_ is the
+start time of rotation period. Setting this option to __true__, parameter _time_ passed is time when rotation job
+started.
 
 #### rotate
 
-If specified, classical UNIX __logrotate__ behaviour is enabled and the value of this option has same effect in _logrotate.conf_ file.
+If specified, classical UNIX __logrotate__ behaviour is enabled and the value of this option has same effect in
+_logrotate.conf_ file.
 
 ### Events
 
