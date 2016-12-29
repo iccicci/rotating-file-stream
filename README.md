@@ -241,11 +241,11 @@ var stream = rfs(...);
 
 stream.on('error', function(err) {
     // here are reported blocking errors
-    // once this event is fired, the stream will be closed as well
+    // once this event is emitted, the stream will be closed as well
 });
 
 stream.on('open', function() {
-    // no rotated file is open (fired after each rotation as well)
+    // no rotated file is open (emitted after each rotation as well)
 });
 
 stream.on('rotation', function() {
@@ -276,7 +276,7 @@ the same check is performed.
 
 #### by interval
 
-The package sets a [Timeout](https://nodejs.org/api/timers.html#timers_settimeout_callback_delay_arg)
+The package sets a [Timeout](https://nodejs.org/api/timers.html#timers_settimeout_callback_delay_args)
 to start a rotation job at the right moment.
 
 ### Under the hood
