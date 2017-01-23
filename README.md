@@ -306,6 +306,8 @@ Do not hesitate to report any bug or inconsistency [@github](https://github.com/
 
 ### ChangeLog
 
+* 2017-01-23 - v1.1.5
+  * README fix
 * 2017-01-23 - v1.1.4
   * Changed dependencies badges
 * 2016-12-27 - v1.1.3
