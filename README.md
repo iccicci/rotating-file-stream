@@ -9,8 +9,7 @@
 [![bitHound Dependencies](https://www.bithound.io/github/iccicci/rotating-file-stream/badges/dependencies.svg)](https://www.bithound.io/github/iccicci/rotating-file-stream/master/dependencies/npm)
 [![bitHound Dev Dependencies](https://www.bithound.io/github/iccicci/rotating-file-stream/badges/devDependencies.svg)](https://www.bithound.io/github/iccicci/rotating-file-stream/master/dependencies/npm)
 
-[![NPM](https://nodei.co/npm/rotating-file-stream.png?downloads=true&downloadRank=true&stars=true)]
-(https://nodei.co/npm/rotating-file-stream/)
+[![NPM](https://nodei.co/npm/rotating-file-stream.png?downloads=true&downloadRank=true&stars=true)](https://nodei.co/npm/rotating-file-stream/)
 
 [![NPM](https://nodei.co/npm-dl/rotating-file-stream.png?height=3)](https://nodei.co/npm/rotating-file-stream/)
 
