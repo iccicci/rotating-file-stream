@@ -1,21 +1,15 @@
 # rotating-file-stream
 
-[![Build Status](https://travis-ci.org/iccicci/rotating-file-stream.png)]
-(https://travis-ci.org/iccicci/rotating-file-stream)
-[![Code Climate](https://codeclimate.com/github/iccicci/rotating-file-stream/badges/gpa.svg)]
-(https://codeclimate.com/github/iccicci/rotating-file-stream)
-[![Test Coverage](https://codeclimate.com/github/iccicci/rotating-file-stream/badges/coverage.svg)]
-(https://codeclimate.com/github/iccicci/rotating-file-stream/coverage)
+[![Build Status](https://travis-ci.org/iccicci/rotating-file-stream.png)](https://travis-ci.org/iccicci/rotating-file-stream)
+[![Code Climate](https://codeclimate.com/github/iccicci/rotating-file-stream/badges/gpa.svg)](https://codeclimate.com/github/iccicci/rotating-file-stream)
+[![Test Coverage](https://codeclimate.com/github/iccicci/rotating-file-stream/badges/coverage.svg)](https://codeclimate.com/github/iccicci/rotating-file-stream/coverage)
 [![Donate](http://img.shields.io/bitcoin/donate.png?color=blue)](https://www.coinbase.com/cicci)
 
 [![NPM version](https://badge.fury.io/js/rotating-file-stream.svg)](https://www.npmjs.com/package/rotating-file-stream)
-[![dependency status](https://david-dm.org/iccicci/rotating-file-stream.svg)]
-(https://david-dm.org/iccicci/rotating-file-stream)
-[![dev dependency status](https://david-dm.org/iccicci/rotating-file-stream/dev-status.svg)]
-(https://david-dm.org/iccicci/rotating-file-stream?type=dev)
+[![bitHound Dependencies](https://www.bithound.io/github/iccicci/rotating-file-stream/badges/dependencies.svg)](https://www.bithound.io/github/iccicci/rotating-file-stream/master/dependencies/npm)
+[![bitHound Dev Dependencies](https://www.bithound.io/github/iccicci/rotating-file-stream/badges/devDependencies.svg)](https://www.bithound.io/github/iccicci/rotating-file-stream/master/dependencies/npm)
 
-[![NPM](https://nodei.co/npm/rotating-file-stream.png?downloads=true&downloadRank=true&stars=true)]
-(https://nodei.co/npm/rotating-file-stream/)
+[![NPM](https://nodei.co/npm/rotating-file-stream.png?downloads=true&downloadRank=true&stars=true)](https://nodei.co/npm/rotating-file-stream/)
 
 [![NPM](https://nodei.co/npm-dl/rotating-file-stream.png?height=3)](https://nodei.co/npm/rotating-file-stream/)
 
@@ -312,6 +306,10 @@ Do not hesitate to report any bug or inconsistency [@github](https://github.com/
 
 ### ChangeLog
 
+* 2017-01-23 - v1.1.5
+  * README fix
+* 2017-01-23 - v1.1.4
+  * Changed dependencies badges
 * 2016-12-27 - v1.1.3
   * Fixed bug: [end method wrong implementation](https://github.com/iccicci/rotating-file-stream/issues/9)
 * 2016-12-19 - v1.1.2
