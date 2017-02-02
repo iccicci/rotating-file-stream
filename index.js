@@ -100,9 +100,9 @@ RotatingFileStream.prototype._rewrite = function() {
 	this.size   += chunk.chunk.length;
 	this.writing = true;
 
-console.log('a');
+console.log("a");
 	this.stream.write(chunk.chunk, function(err) {
-console.log('b');
+console.log("b");
 		self.writing = false;
 
 		if(err)
