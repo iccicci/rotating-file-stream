@@ -270,11 +270,14 @@ RotatingFileStream.prototype.open = function(retry) {
 };
 
 RotatingFileStream.prototype.rotate = function() {
+console.log("c");
 	this.size     = 0;
 	this.rotation = new Date();
 
 	this._clear();
+console.log("c");
 	this._close(this.options.rotate ? this.classical.bind(this, this.options.rotate) : this.move.bind(this));
+console.log("c");
 	this.emit("rotation");
 };
 
