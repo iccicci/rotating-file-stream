@@ -1,4 +1,3 @@
-/* jshint mocha: true */
 "use strict";
 
 var assert = require("assert");
@@ -49,7 +48,7 @@ describe("options", function() {
 			};
 
 			var now = new Date().getTime();
-			var sec = parseInt(now / 1000) * 1000;
+			var sec = parseInt(now / 1000, 10) * 1000;
 
 			if(now - sec < 900)
 				return doIt();
@@ -78,7 +77,7 @@ describe("options", function() {
 			};
 
 			var now = new Date().getTime();
-			var sec = parseInt(now / 1000) * 1000;
+			var sec = parseInt(now / 1000, 10) * 1000;
 
 			if(now - sec < 900)
 				return doIt();
@@ -111,7 +110,7 @@ describe("options", function() {
 			};
 
 			var now = new Date().getTime();
-			var sec = parseInt(now / 1000) * 1000;
+			var sec = parseInt(now / 1000, 10) * 1000;
 
 			if(now - sec < 900)
 				return doIt();

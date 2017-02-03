@@ -2,36 +2,28 @@
   "name": "rotating-file-stream",
   "version": "1.1.5",
   "description": "Opens a stream.Writable to a file rotated by interval and/or size. A logrotate alternative.",
-  "engines": {
-    "node": ">=0.11"
-  },
   "scripts": {
+    "all": "npm run npmignore && npm run eslint && npm run coverage",
     "coverage": "./node_modules/.bin/istanbul cover ./node_modules/.bin/_mocha -- --recursive test",
-    "jshint": "./node_modules/.bin/jshint *.js test",
-    "npmignore": "echo '.gitignore\\n.jshintrc\\n.travis.yml\\nsleep.js\\ntest' > .npmignore ; cat .gitignore >> .npmignore",
-    "t": "./node_modules/.bin/_mocha test",
-    "test": "npm run npmignore && npm run jshint && npm run coverage"
+    "eslint": "./node_modules/.bin/eslint *.js test/*js",
+    "npmignore": "echo '.codeclimate.yml\\n.eslintrc\\n.gitignore\\n.travis.yml\\ntest' > .npmignore ; cat .gitignore >> .npmignore",
+    "test": "./node_modules/.bin/_mocha test"
   },
   "bugs": "https://github.com/iccicci/rotating-file-stream/issues",
   "repository": "https://github.com/iccicci/rotating-file-stream",
-  "keywords": [
-    "log",
-    "rotate",
-    "logrotate"
-  ],
+  "keywords": [ "log", "rotate", "logrotate" ],
+  "engines": { "node": ">=0.11" },
   "author": "Daniele Ricci <daniele.icc@gmail.com> (https://github.com/iccicci)",
-  "contributors": [
-    "allevo"
-  ],
+  "contributors": [ "allevo" ],
   "license": "MIT",
   "readmeFilename": "README.md",
   "dependencies": {
     "tmp": "0.0.31"
   },
   "devDependencies": {
+    "eslint": "3.14.1",
     "istanbul": "0.4.5",
-    "jshint": "2.9.4",
-    "mocha": "3.2.0",
-    "mocha-istanbul": "0.3.0"
+    "mocha-istanbul": "0.3.0",
+    "mocha": "3.2.0"
   }
 }

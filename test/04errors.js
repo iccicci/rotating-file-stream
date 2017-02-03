@@ -1,4 +1,3 @@
-/* jshint mocha: true */
 "use strict";
 
 var assert = require("assert");
@@ -403,7 +402,7 @@ describe("errors", function() {
 			var oldC = fs.createWriteStream;
 			fs.createWriteStream = function() {
 				return { once: function(event, callback) {
-					if(event == "error")
+					if(event === "error")
 						setTimeout(callback.bind(null, { code: "TEST" }), 50);
 				} };
 			};
@@ -440,9 +439,9 @@ describe("errors", function() {
 			exec(done, "rm -rf *log", function() {
 				fs.unlink = function(path, callback) {
 					setTimeout(function() {
-						callback({ code: "TEST" });
 						fs.unlink = oldU;
 						setTimeout(done, 50);
+						callback({ code: "TEST" });
 					}, 50);
 				};
 				self.rfs = rfs(function() {}, { size: "5B", compress: "gzip" });

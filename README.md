@@ -33,7 +33,7 @@ var stream = rfs('file.log', {
 
 With [npm](https://www.npmjs.com/package/rotating-file-stream):
 ```sh
-npm install rotating-file-stream
+$ npm install --save rotating-file-stream
 ```
 
 # API
@@ -110,11 +110,9 @@ If part of returned destination path does not exists, the rotation job will try 
 ### options {Object}
 
 * compress: {String|Function|True} (default: null) Specifies compression method of rotated files.
-* highWaterMark: {Number} (default: null) Proxied to [new stream.Writable]
-(https://nodejs.org/api/stream.html#stream_constructor_new_stream_writable_options)
+* highWaterMark: {Number} (default: null) Proxied to [new stream.Writable](https://nodejs.org/api/stream.html#stream_constructor_new_stream_writable_options)
 * interval: {String} (default: null) Specifies the time interval to rotate the file.
-* mode: {Integer} (default: null) Proxied to [fs.createWriteStream]
-(https://nodejs.org/api/fs.html#fs_fs_createwritestream_path_options)
+* mode: {Integer} (default: null) Proxied to [fs.createWriteStream](https://nodejs.org/api/fs.html#fs_fs_createwritestream_path_options)
 * path: {String} (default: null) Specifies the base path for files.
 * rotate: {Integer} (default: null) Enables the classical UNIX __logrotate__ behaviour.
 * rotationTime: {Boolean} (default: null) Makes rotated file name with time of rotation instead of start time of

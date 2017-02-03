@@ -57,9 +57,8 @@ util.inherits(RotatingFileStream, Writable);
 
 RotatingFileStream.prototype._close = function(done) {
 	if(this.stream) {
-console.log(typeof(done));
 		this.stream.on("finish", done);
-		this.stream.end(console.log.bind(console, "o"));
+		this.stream.end();
 		this.stream = null;
 	}
 	else
@@ -188,7 +187,6 @@ RotatingFileStream.prototype.firstOpen = function() {
 };
 
 RotatingFileStream.prototype.move = function(retry) {
-console.log("a");
 	var name;
 	var self = this;
 
@@ -270,14 +268,11 @@ RotatingFileStream.prototype.open = function(retry) {
 };
 
 RotatingFileStream.prototype.rotate = function() {
-console.log("c");
 	this.size     = 0;
 	this.rotation = new Date();
 
 	this._clear();
-console.log("c");
 	this._close(this.options.rotate ? this.classical.bind(this, this.options.rotate) : this.move.bind(this));
-console.log("c");
 	this.emit("rotation");
 };
 

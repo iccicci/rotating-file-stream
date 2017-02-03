@@ -1,4 +1,3 @@
-/* jshint mocha: true */
 "use strict";
 
 var assert = require("assert");
@@ -16,22 +15,22 @@ describe("use", function() {
 			var self = this;
 			exec(done, "rm -rf *log *gz", function() {
 				self.rfs = rfs(done, { size: "10B", compress: true, interval: "1d" }, function(time, index) {
-				if(! time)
-					return "test.log";
+					if(! time)
+						return "test.log";
 
-				var year  = time.getFullYear();
-				var month = pad(time.getMonth() + 1);
-				var day   = pad(time.getDate());
+					var year  = time.getFullYear();
+					var month = pad(time.getMonth() + 1);
+					var day   = pad(time.getDate());
 
-				return year + "-" + month + "-" + day + "-test-" + pad(index) + ".log.gz";
-			});
+					return year + "-" + month + "-" + day + "-test-" + pad(index) + ".log.gz";
+				});
 				var prev = self.rfs.now;
 				self.rfs.now = function() {
 					cnt++;
-					if(cnt == 1) return new Date(1976, 0, 23, 23, 59, 59, 700).getTime();
-					if(cnt == 2) return new Date(1976, 0, 24, 23, 59, 59, 100).getTime();
-					if(cnt == 3) return new Date(1976, 0, 24, 23, 59, 59, 200).getTime();
-					if(cnt == 4) return new Date(1976, 0, 25, 23, 59, 59, 100).getTime();
+					if(cnt === 1) return new Date(1976, 0, 23, 23, 59, 59, 700).getTime();
+					if(cnt === 2) return new Date(1976, 0, 24, 23, 59, 59, 100).getTime();
+					if(cnt === 3) return new Date(1976, 0, 24, 23, 59, 59, 200).getTime();
+					if(cnt === 4) return new Date(1976, 0, 25, 23, 59, 59, 100).getTime();
 				};
 				self.rfs.write("test\n");
 				self.rfs.once("rotated", function() {

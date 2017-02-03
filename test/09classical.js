@@ -1,4 +1,3 @@
-/* jshint mocha: true */
 "use strict";
 
 var assert = require("assert");
@@ -298,7 +297,7 @@ describe("classical", function() {
 			exec(done, "rm -rf *log", function() {
 				self.rfs = rfs(done, { rotate: 2, size: "5B" }, "test.log");
 				pre = fs.rename;
-				fs.rename = function(a, b, c) { if(a == "test.log" && b == "test.log.1") return c(Error("test")); pre.apply(fs, arguments); };
+				fs.rename = function(a, b, c) { if(a === "test.log" && b === "test.log.1") return c(Error("test")); pre.apply(fs, arguments); };
 				self.rfs.write("test\n");
 				self.rfs.end("test\n");
 			});
@@ -377,7 +376,7 @@ describe("classical", function() {
 			exec(done, "rm -rf *log", function() {
 				self.rfs = rfs(done, { rotate: 2, size: "5B" }, function(count) { if(count) return "test2.log/test.log"; return "test.log"; });
 				pre = fs.rename;
-				fs.rename = function(a, b, c) { if(a == "test.log" && b == "test2.log/test.log" && ++count == 2) return c(Error("test")); pre.apply(fs, arguments); };
+				fs.rename = function(a, b, c) { if(a === "test.log" && b === "test2.log/test.log" && ++count === 2) return c(Error("test")); pre.apply(fs, arguments); };
 				self.rfs.write("test\n");
 				self.rfs.end("test\n");
 			});

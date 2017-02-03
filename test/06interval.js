@@ -1,4 +1,3 @@
-/* jshint mocha: true */
 "use strict";
 
 var assert = require("assert");
@@ -97,7 +96,7 @@ describe("interval", function() {
 			var self = this;
 			exec(done, "rm -rf *log ; echo test > test.log", function() {
 				var now  = new Date().getTime();
-				var sec  = parseInt(now / 1000) * 1000;
+				var sec  = parseInt(now / 1000, 10) * 1000;
 				var open = sec + (sec + 900 > now ? 900 : 1900);
 				setTimeout(function() {
 					self.rfs = rfs(done, { interval: "1s" });
@@ -141,7 +140,7 @@ describe("interval", function() {
 			var self = this;
 			exec(done, "rm -rf *log ; echo test > test.log", function() {
 				var now  = new Date().getTime();
-				var sec  = parseInt(now / 1000) * 1000;
+				var sec  = parseInt(now / 1000, 10) * 1000;
 				var open = sec + (sec + 900 > now ? 900 : 1900);
 				setTimeout(function() {
 					self.rfs = rfs(done, { interval: "1s"});
