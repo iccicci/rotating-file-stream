@@ -14,10 +14,10 @@ function RotatingFileStream(filename, options) {
 
 	options = utils.checkOptions(options);
 
-	if(typeof filename == "function")
+	if(typeof filename === "function")
 		this.generator = filename;
 	else
-		if(typeof filename == "string") {
+		if(typeof filename === "string") {
 			if(options.rotate)
 				this.generator = utils.createClassical(filename);
 			else
@@ -128,7 +128,7 @@ RotatingFileStream.prototype.end = function() {
 	var args = [];
 
 	for(var i in arguments) {
-		if("function" == typeof arguments[i]) {
+		if("function" === typeof arguments[i]) {
 			this.once("finish", arguments[i]);
 
 			break;
@@ -165,7 +165,7 @@ RotatingFileStream.prototype.firstOpen = function() {
 
 	fs.stat(this.name, function(err, stats) {
 		if(err) {
-			if(err.code == "ENOENT")
+			if(err.code === "ENOENT")
 				return self.open();
 
 			return self.emit("error", err);
@@ -211,7 +211,7 @@ RotatingFileStream.prototype.move = function(retry) {
 		name = found;
 
 		fs.rename(self.name, name, function(err) {
-			if(err && err.code != "ENOENT" && ! retry)
+			if(err && err.code !== "ENOENT" && ! retry)
 				return callback(err);
 
 			if(! err)
@@ -255,7 +255,7 @@ RotatingFileStream.prototype.open = function(retry) {
 	});
 
 	stream.once("error", function(err) {
-		if(err.code != "ENOENT" && ! retry)
+		if(err.code !== "ENOENT" && ! retry)
 			return callback(err);
 
 		utils.makePath(self.name, function(err) {
@@ -279,7 +279,7 @@ RotatingFileStream.prototype.rotate = function() {
 for(var i in compress)
 	RotatingFileStream.prototype[i] = compress[i];
 
-for(var i in interval)
+for(i in interval)
 	RotatingFileStream.prototype[i] = interval[i];
 
 module.exports = RotatingFileStream;

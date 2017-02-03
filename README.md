@@ -304,6 +304,8 @@ Do not hesitate to report any bug or inconsistency [@github](https://github.com/
 
 ### ChangeLog
 
+* 2017-02-03 - v1.1.6
+  * eslint
 * 2017-01-23 - v1.1.5
   * README fix
 * 2017-01-23 - v1.1.4

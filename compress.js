@@ -12,7 +12,7 @@ function classical(count) {
 	var thisName;
 	var self = this;
 
-	if(this.options.rotate == count)
+	if(this.options.rotate === count)
 		delete this.rotatedName;
 
 	var callback = function(err) {
@@ -30,7 +30,7 @@ function classical(count) {
 	};
 
 	try {
-		prevName = count == 1 ? this.name : this.generator(count - 1);
+		prevName = count === 1 ? this.name : this.generator(count - 1);
 		thisName = this.generator(count);
 	}
 	catch(e) {
@@ -40,7 +40,7 @@ function classical(count) {
 	var doIt = function(done) {
 		fs.rename(prevName, thisName, function(err) {
 			if(err) {
-				if(err.code != "ENOENT")
+				if(err.code !== "ENOENT")
 					return callback(err);
 
 				return utils.makePath(thisName, function(err) {
@@ -65,7 +65,7 @@ function classical(count) {
 			if(! self.rotatedName)
 				self.rotatedName = thisName;
 
-			if(count != 1)
+			if(count !== 1)
 				return doIt(self.classical.bind(self, count - 1));
 
 			if(self.options.compress)
@@ -80,7 +80,7 @@ function classical(count) {
 			return doIt(callback);
 		}
 
-		if(err.code != "ENOENT")
+		if(err.code !== "ENOENT")
 			return callback(err);
 
 		self.classical(count - 1);
@@ -115,7 +115,7 @@ function compress(tmp) {
 				});
 			};
 
-			if(typeof self.options.compress == "function")
+			if(typeof self.options.compress === "function")
 				self.external(tmp, name, done);
 			else
 				self.gzip(tmp, name, done);
@@ -186,12 +186,12 @@ function findName(attempts, tmp, callback) {
 
 			name = this.generator.apply(this, pars);
 		}
-		catch(err) {
-			return process.nextTick(callback.bind(null, err));
+		catch(e) {
+			return process.nextTick(callback.bind(null, e));
 		}
 
 	fs.stat(name, function(err) {
-		if((! err) || err.code != "ENOENT") {
+		if((! err) || err.code !== "ENOENT") {
 			if(name in attempts)
 				attempts[name]++;
 			else
@@ -222,7 +222,7 @@ function touch(name, callback, retry) {
 	var self = this;
 
 	fs.open(name, "a", function(err, fd) {
-		if(err && err.code != "ENOENT" && ! retry)
+		if(err && err.code !== "ENOENT" && ! retry)
 			return callback(err);
 
 		if(! err)

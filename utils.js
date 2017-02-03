@@ -6,7 +6,7 @@ var path = require("path");
 function checkMeasure(v, what, units) {
 	var ret = {};
 
-	ret.num = parseInt(v);
+	ret.num = parseInt(v, 10);
 
 	if(isNaN(ret.num))
 		throw new Error("Unknown 'options." + what + "' format: " + v);
@@ -37,17 +37,17 @@ function checkInterval(v) {
 
 	switch(ret.unit) {
 	case "m":
-		if(parseInt(60 / ret.num) * ret.num != 60)
+		if(parseInt(60 / ret.num, 10) * ret.num !== 60)
 			throw new Error("An integer divider of 60 is expected as minutes for 'options.interval'");
 		break;
 
 	case "h":
-		if(parseInt(24 / ret.num) * ret.num != 24)
+		if(parseInt(24 / ret.num, 10) * ret.num !== 24)
 			throw new Error("An integer divider of 24 is expected as hours for 'options.interval'");
 		break;
 
 	case "s":
-		if(parseInt(60 / ret.num) * ret.num != 60)
+		if(parseInt(60 / ret.num, 10) * ret.num !== 60)
 			throw new Error("An integer divider of 60 is expected as seconds for 'options.interval'");
 		break;
 	}
@@ -65,13 +65,13 @@ var sizeUnits = {
 function checkSize(v) {
 	var ret = checkMeasure(v, "size", sizeUnits);
 
-	if(ret.unit == "K")
+	if(ret.unit === "K")
 		return ret.num * 1024;
 
-	if(ret.unit == "M")
+	if(ret.unit === "M")
 		return ret.num * 1048576;
 
-	if(ret.unit == "G")
+	if(ret.unit === "G")
 		return ret.num * 1073741824;
 
 	return ret.num;
@@ -82,23 +82,23 @@ var checks = {
 		if(! val)
 			throw new Error("A value for 'options.compress' must be specified");
 
-		if(typ == "boolean")
+		if(typ === "boolean")
 			options.compress = function(src, dst) { return "cat " + src + " | gzip -c9 > " + dst; };
 		else
-			if(typ == "string") {
+			if(typ === "string") {
 				//if(val != "bzip" && val != "gzip")
-				if(val != "gzip")
+				if(val !== "gzip")
 					throw new Error("Don't know how to handle compression method: " + val);
 			}
 			else
-				if(typ != "function")
+				if(typ !== "function")
 					throw new Error("Don't know how to handle 'options.compress' type: " + typ);
 	},
 
 	"highWaterMark": function() {},
 
 	"interval": function(typ, options, val) {
-		if(typ != "string")
+		if(typ !== "string")
 			throw new Error("Don't know how to handle 'options.interval' type: " + typ);
 
 		options.interval = checkInterval(val);
@@ -107,21 +107,21 @@ var checks = {
 	"mode": function() {},
 
 	"path": function(typ) {
-		if(typ != "string")
+		if(typ !== "string")
 			throw new Error("Don't know how to handle 'options.path' type: " + typ);
 	},
 
 	"rotate": function(typ, options, val) {
-		var rotate = parseInt(val);
+		var rotate = parseInt(val, 10);
 
-		if(rotate != val || rotate <= 0)
+		if(rotate !== val || rotate <= 0 || typ !== "number")
 			throw new Error("'rotate' option must be a positive integer number");
 	},
 
 	"rotationTime": function() {},
 
 	"size": function(typ, options, val) {
-		if(typ != "string")
+		if(typ !== "string")
 			throw new Error("Don't know how to handle 'options.size' type: " + typ);
 
 		options.size = checkSize(val);
@@ -132,7 +132,7 @@ function checkOptions(options) {
 	if(! options)
 		return {};
 
-	if(typeof options != "object")
+	if(typeof options !== "object")
 		throw new Error("Don't know how to handle 'options' type: " + typeof options);
 
 	var ret = {};
@@ -183,7 +183,7 @@ function makePath(name, callback) {
 
 	fs.mkdir(dir, function(e) {
 		if(e) {
-			if(e.code == "ENOENT")
+			if(e.code === "ENOENT")
 				return makePath(dir, callback);
 
 			return callback(e);

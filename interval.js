@@ -16,14 +16,14 @@ function _interval(now) {
 	var num   = this.options.interval.num;
 	var unit  = this.options.interval.unit;
 
-	if(unit == "d")
+	if(unit === "d")
 		hours = 0;
 	else
-		hours = parseInt(hours / num) * num;
+		hours = parseInt(hours / num, 10) * num;
 
 	this.prev = new Date(year, month, day, hours, 0, 0, 0).getTime();
 
-	if(unit == "d")
+	if(unit === "d")
 		this.next = new Date(year, month, day + num, hours, 0, 0, 0).getTime();
 	else
 		this.next = new Date(year, month, day, hours + num, 0, 0, 0).getTime();
@@ -36,16 +36,16 @@ function interval() {
 	var now  = this.now();
 	var unit = this.options.interval.unit;
 
-	if(unit == "d" || unit == "h") {
+	if(unit === "d" || unit === "h") {
 		this._interval(now);
 	}
 	else {
 		var period = 1000 * this.options.interval.num;
 
-		if(unit == "m")
+		if(unit === "m")
 			period *= 60;
 
-		this.prev = parseInt(now / period) * period;
+		this.prev = parseInt(now / period, 10) * period;
 		this.next = this.prev + period;
 	}
 
