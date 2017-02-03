@@ -59,7 +59,7 @@ RotatingFileStream.prototype._close = function(done) {
 	if(this.stream) {
 console.log(typeof(done));
 		this.stream.on("finish", done);
-		this.stream.end();
+		this.stream.end(console.log.bind(console, "o"));
 		this.stream = null;
 	}
 	else
