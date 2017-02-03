@@ -57,6 +57,7 @@ util.inherits(RotatingFileStream, Writable);
 
 RotatingFileStream.prototype._close = function(done) {
 	if(this.stream) {
+console.log(typeof(done));
 		this.stream.on("finish", done);
 		this.stream.end();
 		this.stream = null;
@@ -100,9 +101,7 @@ RotatingFileStream.prototype._rewrite = function() {
 	this.size   += chunk.chunk.length;
 	this.writing = true;
 
-console.log("a");
 	this.stream.write(chunk.chunk, function(err) {
-console.log("b");
 		self.writing = false;
 
 		if(err)
@@ -189,6 +188,7 @@ RotatingFileStream.prototype.firstOpen = function() {
 };
 
 RotatingFileStream.prototype.move = function(retry) {
+console.log("a");
 	var name;
 	var self = this;
 
