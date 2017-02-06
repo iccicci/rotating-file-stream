@@ -3,6 +3,15 @@
 var fs   = require("fs");
 var path = require("path");
 
+function buildStringCheck(field, check) {
+	return function(typ, options, val) {
+		if(typ !== "string")
+			throw new Error("Don't know how to handle 'options." + field + "' type: " + typ);
+
+		options[field] = check(val);
+	};
+}
+
 function checkMeasure(v, what, units) {
 	var ret = {};
 
@@ -32,23 +41,25 @@ var intervalUnits = {
 	s: true
 };
 
+function checkIntervalUnit(ret, unit, amount) {
+	if(parseInt(amount / ret.num, 10) * ret.num !== amount)
+		throw new Error("An integer divider of " + amount + " is expected as " + unit + " for 'options.interval'");
+}
+
 function checkInterval(v) {
 	var ret = checkMeasure(v, "interval", intervalUnits);
 
 	switch(ret.unit) {
-	case "m":
-		if(parseInt(60 / ret.num, 10) * ret.num !== 60)
-			throw new Error("An integer divider of 60 is expected as minutes for 'options.interval'");
+	case "h":
+		checkIntervalUnit(ret, "hours", 24);
 		break;
 
-	case "h":
-		if(parseInt(24 / ret.num, 10) * ret.num !== 24)
-			throw new Error("An integer divider of 24 is expected as hours for 'options.interval'");
+	case "m":
+		checkIntervalUnit(ret, "minutes", 60);
 		break;
 
 	case "s":
-		if(parseInt(60 / ret.num, 10) * ret.num !== 60)
-			throw new Error("An integer divider of 60 is expected as seconds for 'options.interval'");
+		checkIntervalUnit(ret, "seconds", 60);
 		break;
 	}
 
@@ -97,12 +108,7 @@ var checks = {
 
 	"highWaterMark": function() {},
 
-	"interval": function(typ, options, val) {
-		if(typ !== "string")
-			throw new Error("Don't know how to handle 'options.interval' type: " + typ);
-
-		options.interval = checkInterval(val);
-	},
+	"interval": buildStringCheck("interval", checkInterval),
 
 	"mode": function() {},
 
@@ -120,12 +126,7 @@ var checks = {
 
 	"rotationTime": function() {},
 
-	"size": function(typ, options, val) {
-		if(typ !== "string")
-			throw new Error("Don't know how to handle 'options.size' type: " + typ);
-
-		options.size = checkSize(val);
-	}
+	"size": buildStringCheck("size", checkSize)
 };
 
 function checkOptions(options) {
