@@ -132,7 +132,7 @@ function compress(tmp) {
 function external(src, dst, callback) {
 	var self = this;
 
-	tmp.file({ mode: parseInt("777", 8) }, function(err, path, fd, done) {
+	tmp.file({ keep: true, mode: parseInt("777", 8) }, function(err, path, fd, done) {
 		if(err)
 			return callback(err);
 
