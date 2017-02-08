@@ -132,11 +132,15 @@ function compress(tmp) {
 function external(src, dst, callback) {
 	var self = this;
 
-	tmp.file({ keep: true, mode: parseInt("777", 8) }, function(err, path, fd, done) {
+	tmp.file({ detachDescriptor: true, keep: true, mode: parseInt("777", 8) }, function(err, path, fd, done) {
 		if(err)
 			return callback(err);
 
-		var cb = function(err) {
+		var closed = false;
+		var cb     = function(err) {
+			if(! closed)
+				fs.closeSync(fd);
+
 			done();
 			callback(err);
 		};
@@ -146,6 +150,8 @@ function external(src, dst, callback) {
 				return cb(err);
 
 			fs.close(fd, function(err) {
+				closed = true;
+
 				if(err)
 					return cb(err);
 
