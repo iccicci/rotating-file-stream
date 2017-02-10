@@ -142,7 +142,7 @@ function external(src, dst, callback) {
 		if(err)
 			return callback(err);
 
-		fs.open(name, "w", fs.constants.S_IRWXU, function(err, fd) {
+		fs.open(name, "w", parseInt("777", 8), function(err, fd) {
 			if(err)
 				return callback(err);
 
