@@ -2,7 +2,7 @@
 
 var cp    = require("child_process");
 var fs    = require("fs");
-var tmp   = require("tmp");
+var path  = require("path");
 var utils = require("./utils");
 var zlib  = require("zlib");
 
@@ -130,8 +130,50 @@ function compress(tmp) {
 }
 
 function external(src, dst, callback) {
+	var att  = {};
+	var cont;
 	var self = this;
 
+	try { cont = self.options.compress(src, dst); }
+	catch(e) { process.nextTick(callback.bind(null, e)); }
+
+	att[dst] = 1;
+	self.findName(att, true, function(err, name) {
+		if(err)
+			return callback(err);
+
+		fs.open(name, "w", fs.constants.S_IRWXU, function(err, fd) {
+			if(err)
+				return callback(err);
+
+			var close  = fs.close.bind(fs, fd);
+			var unlink = fs.unlink.bind(fs, name, function(err) { if(err) self.emit("warning", err); });
+
+			fs.write(fd, cont, function(err) {
+				if(err) {
+					close(function(err) {
+						if(err)
+							self.emit("warning", err);
+
+						unlink();
+					});
+
+					return callback(err);
+				}
+
+				close(function(err) {
+					if(err)
+						return callback(err);
+
+					cp.exec("." + path.sep + name, function(err) {
+						unlink();
+						callback(err);
+					});
+				});
+			});
+		});
+	});
+	/*
 	tmp.file({ detachDescriptor: true, keep: true, mode: parseInt("777", 8) }, function(err, path, fd, done) {
 		if(err)
 			return callback(err);
@@ -159,6 +201,7 @@ function external(src, dst, callback) {
 			});
 		});
 	});
+	*/
 }
 
 function findName(attempts, tmp, callback) {
@@ -196,12 +239,15 @@ function findName(attempts, tmp, callback) {
 			return process.nextTick(callback.bind(null, e));
 		}
 
+	if(name in attempts) {
+		attempts[name]++;
+
+		return self.findName(attempts, tmp, callback);
+	}
+
 	fs.stat(name, function(err) {
 		if((! err) || err.code !== "ENOENT") {
-			if(name in attempts)
-				attempts[name]++;
-			else
-				attempts[name] = 1;
+			attempts[name] = 1;
 
 			return self.findName(attempts, tmp, callback);
 		}

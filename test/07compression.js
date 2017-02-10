@@ -287,7 +287,7 @@ describe("compression", function() {
 		});
 	});
 
-	describe("error creating tmp file", function() {
+	xdescribe("error creating tmp file", function() {
 		before(function(done) {
 			var self = this;
 			var preF = tmp.file;
