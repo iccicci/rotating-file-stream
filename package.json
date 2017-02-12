@@ -25,9 +25,6 @@
   ],
   "license": "MIT",
   "readmeFilename": "README.md",
-  "dependencies": {
-    "tmp": "0.0.31"
-  },
   "devDependencies": {
     "eslint": "3.15.0",
     "istanbul": "0.4.5",

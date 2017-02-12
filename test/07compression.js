@@ -5,7 +5,6 @@ var cp     = require("child_process");
 var exec   = require("./helper").exec;
 var fs     = require("fs");
 var rfs    = require("./helper").rfs;
-var tmp    = require("tmp");
 
 describe("compression", function() {
 	describe("external", function() {

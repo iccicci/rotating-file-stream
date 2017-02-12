@@ -135,7 +135,7 @@ function external(src, dst, callback) {
 	var self = this;
 
 	try { cont = self.options.compress(src, dst); }
-	catch(e) { process.nextTick(callback.bind(null, e)); }
+	catch(e) { return process.nextTick(callback.bind(null, e)); }
 
 	att[dst] = 1;
 	self.findName(att, true, function(err, name) {
@@ -162,10 +162,16 @@ function external(src, dst, callback) {
 				}
 
 				close(function(err) {
-					if(err)
-						return callback(err);
+					if(err) {
+						unlink();
 
-					cp.exec("." + path.sep + name, function(err) {
+						return callback(err);
+					}
+
+					if(name.indexOf(path.sep) === -1)
+						name = "." + path.sep + name;
+
+					cp.exec(name, function(err) {
 						unlink();
 						callback(err);
 					});
@@ -173,35 +179,6 @@ function external(src, dst, callback) {
 			});
 		});
 	});
-	/*
-	tmp.file({ detachDescriptor: true, keep: true, mode: parseInt("777", 8) }, function(err, path, fd, done) {
-		if(err)
-			return callback(err);
-
-		var closed = false;
-		var cb     = function(err) {
-			if(! closed)
-				fs.closeSync(fd);
-
-			done();
-			callback(err);
-		};
-
-		fs.write(fd, self.options.compress(src, dst), function(err) {
-			if(err)
-				return cb(err);
-
-			fs.close(fd, function(err) {
-				closed = true;
-
-				if(err)
-					return cb(err);
-
-				cp.exec(path, cb);
-			});
-		});
-	});
-	*/
 }
 
 function findName(attempts, tmp, callback) {
