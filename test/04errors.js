@@ -519,13 +519,13 @@ describe("errors", function() {
 		before(function(done) {
 			var self = this;
 			exec(done, "rm -rf *log", function() {
-				self.rfs = rfs(done, { size: "5B", compress: function() { throw new Error("TEST"); } });
+				self.rfs = rfs(done, { size: "5B", compress: function() { var e = new Error("test"); e.code = "TEST"; throw e; } });
 				self.rfs.write("test\n");
 			});
 		});
 
 		it("error", function() {
-			assert.equal(this.rfs.ev.err.message, "TEST");
+			assert.equal(this.rfs.err.code, "TEST");
 		});
 
 		it("no warning", function() {

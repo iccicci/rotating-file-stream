@@ -21,7 +21,6 @@ function _rfs(done, options, generator) {
 	ret.ev = { single: 0, multi: 0, rotation: 0, rotated: [] };
 	ret.on("rotation", function() { ret.ev.rotation++; });
 	ret.on("rotated", function(filename) { ret.ev.rotated.push(filename); });
-	ret.once("error", function(err) { ret.ev.err = err; });
 	ret.once("warning", function(err) { ret.ev.warn = err; });
 	ret.on("finish", done);
 

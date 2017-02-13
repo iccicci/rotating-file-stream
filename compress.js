@@ -150,16 +150,14 @@ function external(src, dst, callback) {
 			var unlink = fs.unlink.bind(fs, name, function(err) { if(err) self.emit("warning", err); });
 
 			fs.write(fd, cont, function(err) {
-				if(err) {
-					close(function(err) {
-						if(err)
-							self.emit("warning", err);
+				if(err)
+					return close(function(err2) {
+						if(err2)
+							self.emit("warning", err2);
 
 						unlink();
+						callback(err);
 					});
-
-					return callback(err);
-				}
 
 				close(function(err) {
 					if(err) {
