@@ -304,6 +304,8 @@ Do not hesitate to report any bug or inconsistency [@github](https://github.com/
 
 ### ChangeLog
 
+* 2017-02-13 - v1.1.8
+  * removed tmp dependecy due it was causing a strange instability now disappeared
 * 2017-02-07 - v1.1.7
   * fixed tmp.file call
 * 2017-02-03 - v1.1.6
