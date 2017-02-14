@@ -304,6 +304,8 @@ Do not hesitate to report any bug or inconsistency [@github](https://github.com/
 
 ### ChangeLog
 
+* 2017-02-14 - v1.1.9
+  * fixed warning events order in case of external compression errors
 * 2017-02-13 - v1.1.8
   * removed tmp dependecy due it was causing a strange instability now disappeared
 * 2017-02-07 - v1.1.7

@@ -146,33 +146,31 @@ function external(src, dst, callback) {
 			if(err)
 				return callback(err);
 
-			var close  = fs.close.bind(fs, fd);
-			var unlink = fs.unlink.bind(fs, name, function(err) { if(err) self.emit("warning", err); });
+			var unlink = function(err) {
+				fs.unlink(name, function(err2) {
+					if(err2)
+						self.emit("warning", err2);
+
+					callback(err);
+				});
+			};
 
 			fs.write(fd, cont, function(err) {
-				if(err)
-					return close(function(err2) {
+				fs.close(fd, function(err2) {
+					if(err) {
 						if(err2)
 							self.emit("warning", err2);
 
-						unlink();
-						callback(err);
-					});
-
-				close(function(err) {
-					if(err) {
-						unlink();
-
-						return callback(err);
+						return unlink(err);
 					}
+
+					if(err2)
+						return unlink(err2);
 
 					if(name.indexOf(path.sep) === -1)
 						name = "." + path.sep + name;
 
-					cp.exec(name, function(err) {
-						unlink();
-						callback(err);
-					});
+					cp.exec(name, unlink);
 				});
 			});
 		});
