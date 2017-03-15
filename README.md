@@ -83,8 +83,8 @@ function generator(time, index) {
     var hour   = pad(time.getHours());
     var minute = pad(time.getMinutes());
 
-    return "/storage/" + month + "/" +
-        month + day + "-" + hour + minute + "-" + index + "-file.log";
+    return "/storage/" + month + "/" + month +
+        day + "-" + hour + minute + "-" + index + "-file.log";
 }
 
 var rfs    = require('rotating-file-stream');
@@ -133,20 +133,20 @@ Accepts a positive integer followed by one of these possible letters:
 * __G__: GigaBytes
 
 ```javascript
-  size: '300B', // rotates the file when its size exceeds 300 Bytes
+  size: '300B', // rotates the file when size exceeds 300 Bytes
                 // useful for tests
 ```
 
 ```javascript
-  size: '300K', // rotates the file when its size exceeds 300 KiloBytes
+  size: '300K', // rotates the file when size exceeds 300 KiloBytes
 ```
 
 ```javascript
-  size: '100M', // rotates the file when its size exceeds 100 MegaBytes
+  size: '100M', // rotates the file when size exceeds 100 MegaBytes
 ```
 
 ```javascript
-  size: '1G', // rotates the file when its size exceeds a GigaByte
+  size: '1G', // rotates the file when size exceeds a GigaByte
 ```
 
 #### interval
@@ -159,20 +159,20 @@ Accepts a positive integer followed by one of these possible letters:
 * __d__: days
 
 ```javascript
-  interval: '5s', // rotates the file at seconds 0, 5, 10, 15 and so on
+  interval: '5s', // rotates at seconds 0, 5, 10, 15 and so on
                   // useful for tests
 ```
 
 ```javascript
-  interval: '5m', // rotates the file at minutes 0, 5, 10, 15 and so on
+  interval: '5m', // rotates at minutes 0, 5, 10, 15 and so on
 ```
 
 ```javascript
-  interval: '2h', // rotates the file at midnight, 02:00, 04:00 and so on
+  interval: '2h', // rotates at midnight, 02:00, 04:00 and so on
 ```
 
 ```javascript
-  interval: '1d', // rotates the file at every midnight
+  interval: '1d', // rotates at every midnight
 ```
 
 #### compress
@@ -245,7 +245,7 @@ stream.on('rotation', function() {
 });
 
 stream.on('rotated', function(filename) {
-    // rotation job completed with success and produced given filename
+    // rotation job completed with success producing given filename
 });
 
 stream.on('warning', function(err) {
