@@ -95,7 +95,7 @@ var stream = rfs(generator, {
 ```
 
 __Note:__
-If both rotation by interval and rotation by time are used, returned _rotated file name_ __must__ be function of both
+if both rotation by interval and rotation by time are used, returned _rotated file name_ __must__ be function of both
 parameters _time_ and _index_. Alternatively, __rotationTime__ _option_ can be used (to see below).
 
 #### function filename(index)
@@ -105,13 +105,16 @@ parameters _time_ and _index_. Alternatively, __rotationTime__ _option_ can be u
 If classical __logrotate__ behaviour is enabled _rotated file name_ is only a function of _index_.
 
 __Note:__
-If part of returned destination path does not exists, the rotation job will try to create it.
+if part of returned destination path does not exists, the rotation job will try to create it.
 
 ### options {Object}
 
 * compress: {String|Function|True} (default: null) Specifies compression method of rotated files.
 * highWaterMark: {Number} (default: null) Proxied to [new stream.Writable](https://nodejs.org/api/stream.html#stream_constructor_new_stream_writable_options)
+* history: {String} (default: null) Specifies the _history filename_.
 * interval: {String} (default: null) Specifies the time interval to rotate the file.
+* maxFiles: {Integer} (default: null) Specifies the maximum number of rotated files to keep.
+* maxSize: {String} (default: null) Specifies the maximum size of rotated files to keep.
 * mode: {Integer} (default: null) Proxied to [fs.createWriteStream](https://nodejs.org/api/fs.html#fs_fs_createwritestream_path_options)
 * path: {String} (default: null) Specifies the base path for files.
 * rotate: {Integer} (default: null) Enables the classical UNIX __logrotate__ behaviour.
@@ -121,7 +124,7 @@ period.
 
 #### path
 
-If present, it is prepended to generated file names.
+If present, it is prepended to generated file names as well as for history file.
 
 #### size
 
@@ -209,7 +212,7 @@ var stream = rfs('file.log', {
 ```
 
 __Note:__
-The shell command to compress the rotated file should not remove the source file, it will be removed by the package
+the shell command to compress the rotated file should not remove the source file, it will be removed by the package
 if rotation job complete with success.
 
 #### rotationTime
@@ -222,6 +225,25 @@ started.
 
 If specified, classical UNIX __logrotate__ behaviour is enabled and the value of this option has same effect in
 _logrotate.conf_ file.
+
+__Note:__
+following options are ignored if __rotate__ option is specified.
+
+#### history
+
+Due to the complexity that _rotated file names_ can have because of the _filename generator function_, if number or
+size of rotated files should not exceed a given limit, the package needs a file where to store this information. This
+option specifies the name of that file. This option takes effects only if at least one of __maxFiles__ or __maxSize__
+is used. If __null__, the _not rotated filename_ with the '.txt' suffix is used.
+
+#### maxFiles
+
+If specified, it's value is the maximum number of _rotated files_ to be kept.
+
+#### maxSize
+
+If specified, it's value must respect same syntax of [(size)](#size) option and is the maximum size of _rotated files_
+to be kept.
 
 ### Events
 
@@ -238,6 +260,12 @@ stream.on('error', function(err) {
 
 stream.on('open', function() {
     // no rotated file is open (emitted after each rotation as well)
+});
+
+stream.on('removed', function(filename, number) {
+    // rotation job removed the specified old rotated file
+    // number == true, the file was removed to not exceed maxFiles
+    // number == false, the file was removed to not exceed maxSize
 });
 
 stream.on('rotation', function() {
@@ -284,6 +312,14 @@ performed before going on. This is repeated until a not existing destination fil
 package is exhausted. For this reason the _rotated file name generator_ function may be called several
 times for each rotation job.
 
+If requested by __maxFiles__ or __maxSize__ options, at the end of a rotation job, a check is performed to ensure that
+given limits are respected. This means that __while rotation job is running both the limits could be not respected__,
+the same can happend (if __maxFiles__ or __maxSize__ are changed) till the end of first _rotation job_.
+The first check performed is the one against __maxFiles__, in case some files are removed, than the check against
+__maxSize__ is performed, finally other files can be removed. When __maxFiles__ or __maxSize__ are enabled for first
+time, an _history file_ can be created with one _rotated filename_ (as returned by _filename generator function_) at
+each line.
+
 Once an __error__ _event_ is emitted, nothing more can be done: the stream is closed as well.
 
 ### Compatibility
@@ -304,6 +340,8 @@ Do not hesitate to report any bug or inconsistency [@github](https://github.com/
 
 ### ChangeLog
 
+* to be released - v1.1.10
+  * __maxFiles__ and __maxSize__ options added
 * 2017-02-14 - v1.1.9
   * fixed warning events order in case of external compression errors
 * 2017-02-13 - v1.1.8
