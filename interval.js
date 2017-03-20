@@ -1,5 +1,8 @@
 "use strict";
 
+var fs   = require("fs");
+var util = require("util");
+
 function _clear(done) {
 	if(this.timer) {
 		clearTimeout(this.timer);
@@ -53,8 +56,105 @@ function interval() {
 	this.timer.unref();
 }
 
+function historyWrite(self, res) {
+	var files = [];
+
+	for(var i in res)
+		files.push(res[i].name);
+
+	fs.writeFile(self.options.history, files.join("\n"), "utf8", function(err) {
+		if(err)
+			self.emit("warning", err);
+	});
+}
+
+function historyCheckSize(self, res) {
+	if(! self.options.maxSize)
+		return historyWrite(self, res);
+
+	var size = 0;
+
+	for(var i in res)
+		size += res[i].size;
+
+	if(size <= self.options.maxSize)
+		return historyWrite(self, res);
+
+	var file = res.shift();
+
+	fs.unlink(file.name, function(err) {
+		if(err)
+			self.emit("warning", err);
+
+		historyCheckSize(self, res);
+	});
+}
+
+function historyCheckFiles(self, res) {
+	res.sort(function(a, b) { return a.time - b.time; });
+
+	if(! self.options.maxFiles || res.length <= self.options.maxFiles)
+		return historyCheckSize(self, res);
+
+	var file = res.shift();
+
+	fs.unlink(file.name, function(err) {
+		if(err)
+			self.emit("warning", err);
+
+		historyCheckFiles(self, res);
+	});
+}
+
+function historyGather(self, files, idx, res) {
+	if(idx == files.length)
+		return historyCheckFiles(self, res);
+
+	fs.stat(files[idx], function(err, stats) {
+		if(err) {
+			if(err.code != "ENOENT")
+				return self.emit("warning", err);
+		}
+		else
+			if(stats.isFile()) {
+				res.push({
+					name: files[idx],
+					size: stats.size,
+					time: stats.ctime.getTime()
+				});
+			}
+			else
+				self.emit("warning", "File '" + files[idx] + "' contained in history is not a regular file");
+
+		historyGather(self, files, idx + 1, res);
+	});
+}
+
+function history(lastfile) {
+	var filename = this.options.history;
+	var self     = this;
+
+	if(! filename)
+		this.options.history = filename = this.generator(null) + ".txt";
+
+	fs.readFile(filename, "utf8", function(err, data) {
+		if(err) {
+			if(err.code != "ENOENT")
+				return self.emit("warning", err);
+
+			return historyGather(self, [lastfile], 0, []);
+		}
+
+		var files = data.split("\n");
+
+		files.push(lastfile);
+		historyGather(self, files, 0, []);
+	});
+}
+
 module.exports = {
 	_clear:    _clear,
 	_interval: _interval,
+	history:   history,
 	interval:  interval,
 };

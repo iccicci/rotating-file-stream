@@ -332,4 +332,68 @@ describe("rfs", function() {
 			assert.equal(this.err.message, "'rotate' option must be a positive integer number");
 		});
 	});
+
+	describe("wrong history", function() {
+		before(function(done) {
+			try {
+				this.rfs = rfs("test.log", { history: {} });
+			}
+			catch(e) {
+				this.err = e;
+			}
+			done();
+		});
+
+		it("error", function() {
+			assert.equal(this.err.message, "Don't know how to handle 'options.history' type: object");
+		});
+	});
+
+	describe("wrong maxFiles", function() {
+		before(function(done) {
+			try {
+				this.rfs = rfs("test.log", { maxFiles: {} });
+			}
+			catch(e) {
+				this.err = e;
+			}
+			done();
+		});
+
+		it("error", function() {
+			assert.equal(this.err.message, "'maxFiles' option must be a positive integer number");
+		});
+	});
+
+	describe("bad maxFiles", function() {
+		before(function(done) {
+			try {
+				this.rfs = rfs("test.log", { maxFiles: -2 });
+			}
+			catch(e) {
+				this.err = e;
+			}
+			done();
+		});
+
+		it("error", function() {
+			assert.equal(this.err.message, "'maxFiles' option must be a positive integer number");
+		});
+	});
+
+	describe("wrong maxSize", function() {
+		before(function(done) {
+			try {
+				this.rfs = rfs("test.log", { maxSize: "-2" });
+			}
+			catch(e) {
+				this.err = e;
+			}
+			done();
+		});
+
+		it("error", function() {
+			assert.equal(this.err.message, "A positive integer number is expected for 'options.size'");
+		});
+	});
 });

@@ -108,7 +108,21 @@ var checks = {
 
 	"highWaterMark": function() {},
 
+	"history": function(typ) {
+		if(typ !== "string")
+			throw new Error("Don't know how to handle 'options.history' type: " + typ);
+	},
+
 	"interval": buildStringCheck("interval", checkInterval),
+
+	"maxFiles": function(typ, options, val) {
+		var files = parseInt(val, 10);
+
+		if(files !== val || files <= 0 || typ !== "number")
+			throw new Error("'maxFiles' option must be a positive integer number");
+	},
+
+	"maxSize": buildStringCheck("maxSize", checkSize),
 
 	"mode": function() {},
 
@@ -206,6 +220,9 @@ function setEvents(self) {
 		self.rotation = null;
 		self._rewrite();
 	});
+
+	if((self.options.maxFiles || self.options.maxSize) && ! self.options.rotate)
+		self.on("rotated", self.history.bind(self));
 }
 
 module.exports = {
