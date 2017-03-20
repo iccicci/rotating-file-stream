@@ -68,6 +68,19 @@ function historyWrite(self, res) {
 	});
 }
 
+function historyRemove(self, res, step) {
+	var file = res.shift();
+
+	fs.unlink(file.name, function(err) {
+		if(err)
+			self.emit("warning", err);
+		else
+			self.emit("removed", file.name);
+
+		step(self, res);
+	});
+}
+
 function historyCheckSize(self, res) {
 	if(! self.options.maxSize)
 		return historyWrite(self, res);
@@ -80,14 +93,7 @@ function historyCheckSize(self, res) {
 	if(size <= self.options.maxSize)
 		return historyWrite(self, res);
 
-	var file = res.shift();
-
-	fs.unlink(file.name, function(err) {
-		if(err)
-			self.emit("warning", err);
-
-		historyCheckSize(self, res);
-	});
+	historyRemove(self, res, historyCheckSize);
 }
 
 function historyCheckFiles(self, res) {
@@ -96,14 +102,7 @@ function historyCheckFiles(self, res) {
 	if(! self.options.maxFiles || res.length <= self.options.maxFiles)
 		return historyCheckSize(self, res);
 
-	var file = res.shift();
-
-	fs.unlink(file.name, function(err) {
-		if(err)
-			self.emit("warning", err);
-
-		historyCheckFiles(self, res);
-	});
+	historyRemove(self, res,historyCheckFiles);
 }
 
 function historyGather(self, files, idx, res) {
