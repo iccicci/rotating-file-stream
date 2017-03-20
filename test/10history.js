@@ -130,4 +130,118 @@ describe("history", function() {
 			assert.equal(fs.readFileSync("4-test.log"), "test\ntest\n");
 		});
 	});
+
+	describe("error reading history file", function() {
+		before(function(done) {
+			var self = this;
+			exec(done, "rm -rf *log *txt", function() {
+				self.rfs = rfs(setTimeout.bind(null, done, 50), { size: "10B", maxFiles: 1, "history": "test" });
+				self.rfs.on("removed", function(name) { self.removed = name; });
+				self.rfs.write("test\n");
+				self.rfs.write("test\n");
+				setTimeout(function() {
+					self.rfs.end("test\n");
+				}, 50);
+			});
+		});
+
+		it("no error", function() {
+			assert.ifError(this.rfs.ev.err);
+		});
+
+		it("warning", function() {
+			assert.equal(this.rfs.ev.warn.code, "EISDIR");
+		});
+	});
+
+	describe("error writing history file", function() {
+		before(function(done) {
+			var self = this;
+			var pre  = fs.writeFile;
+			fs.writeFile = function(a, b, c, d) { d("TEST"); };
+			exec(done, "rm -rf *log *txt", function() {
+				self.rfs = rfs(setTimeout.bind(null, done, 50), { size: "10B", maxFiles: 1 });
+				self.rfs.on("removed", function(name) { self.removed = name; });
+				self.rfs.write("test\n");
+				self.rfs.write("test\n");
+				setTimeout(function() {
+					self.rfs.end("test\n");
+					fs.writeFile = pre;
+				}, 50);
+			});
+		});
+
+		it("no error", function() {
+			assert.ifError(this.rfs.ev.err);
+		});
+
+		it("warning", function() {
+			assert.equal(this.rfs.ev.warn, "TEST");
+		});
+	});
+
+	describe("error removing file", function() {
+		before(function(done) {
+			var self = this;
+			var pre  = fs.unlink;
+			fs.unlink = function(a, b) { b("TEST"); };
+			exec(done, "rm -rf *log *txt", function() {
+				self.rfs = rfs(setTimeout.bind(null, done, 50), { size: "10B", maxFiles: 1 });
+				self.rfs.on("removed", function(name) { self.removed = name; });
+				self.rfs.write("test\n");
+				self.rfs.write("test\n");
+				setTimeout(function() {
+					self.rfs.write("test\n");
+					self.rfs.write("test\n");
+					setTimeout(function() {
+						self.rfs.end("test\n");
+						fs.unlink = pre;
+					}, 50);
+				}, 50);
+			});
+		});
+
+		it("no error", function() {
+			assert.ifError(this.rfs.ev.err);
+		});
+
+		it("warning", function() {
+			assert.equal(this.rfs.ev.warn, "TEST");
+		});
+	});
+
+	describe("error checking file", function() {
+		before(function(done) {
+			var self = this;
+			var preR = fs.readFile;
+			var preS = fs.stat;
+			exec(done, "rm -rf *log *txt", function() {
+				self.rfs = rfs(setTimeout.bind(null, done, 50), { size: "10B", maxFiles: 1 });
+				self.rfs.on("removed", function(name) { self.removed = name; });
+				self.rfs.write("test\n");
+				self.rfs.write("test\n");
+				setTimeout(function() {
+					fs.readFile = function(a, b, c) {
+						fs.stat     = function(a, b) { b("TEST"); };
+						fs.readFile = preR;
+						fs.readFile(a, b, c);
+					};
+					self.rfs.write("test\n");
+					self.rfs.write("test\n");
+					setTimeout(function() {
+						self.rfs.end("test\n");
+						fs.stat = preS;
+					}, 50);
+				}, 50);
+			});
+		});
+
+		it("no error", function() {
+			assert.ifError(this.rfs.ev.err);
+		});
+
+		it("warning", function() {
+			assert.equal(this.rfs.ev.warn, "TEST");
+		});
+	});
 });

@@ -3,6 +3,15 @@
 var fs   = require("fs");
 var path = require("path");
 
+function buildNumberCheck(field) {
+	return function(typ, options, val) {
+		var value = parseInt(val, 10);
+
+		if(value !== val || value <= 0 || typ !== "number")
+			throw new Error("'" + field + "' option must be a positive integer number");
+	};
+}
+
 function buildStringCheck(field, check) {
 	return function(typ, options, val) {
 		if(typ !== "string")
@@ -115,12 +124,7 @@ var checks = {
 
 	"interval": buildStringCheck("interval", checkInterval),
 
-	"maxFiles": function(typ, options, val) {
-		var files = parseInt(val, 10);
-
-		if(files !== val || files <= 0 || typ !== "number")
-			throw new Error("'maxFiles' option must be a positive integer number");
-	},
+	"maxFiles": buildNumberCheck("maxFiles"),
 
 	"maxSize": buildStringCheck("maxSize", checkSize),
 
@@ -131,12 +135,7 @@ var checks = {
 			throw new Error("Don't know how to handle 'options.path' type: " + typ);
 	},
 
-	"rotate": function(typ, options, val) {
-		var rotate = parseInt(val, 10);
-
-		if(rotate !== val || rotate <= 0 || typ !== "number")
-			throw new Error("'rotate' option must be a positive integer number");
-	},
+	"rotate": buildNumberCheck("rotate"),
 
 	"rotationTime": function() {},
 
