@@ -10,7 +10,7 @@ describe("history", function() {
 		before(function(done) {
 			var self = this;
 			exec(done, "rm -rf *log *txt ; echo none > test.log.txt ; echo -n test >> test.log.txt", function() {
-				self.rfs = rfs(setTimeout.bind(null, done, 50), { size: "10B", maxFiles: 3 });
+				self.rfs = rfs(setTimeout.bind(null, done, 100), { size: "10B", maxFiles: 3 });
 				self.rfs.on("removed", function(name) { self.removed = name; });
 				self.rfs.write("test\n");
 				self.rfs.write("test\n");
@@ -25,10 +25,10 @@ describe("history", function() {
 							self.rfs.write("test\n");
 							setTimeout(function() {
 								self.rfs.end("test\n");
-							}, 50);
-						}, 50);
-					}, 50);
-				}, 50);
+							}, 100);
+						}, 100);
+					}, 100);
+				}, 100);
 			});
 		});
 
@@ -77,7 +77,7 @@ describe("history", function() {
 		before(function(done) {
 			var self = this;
 			exec(done, "rm -rf *log", function() {
-				self.rfs = rfs(setTimeout.bind(null, done, 50), { size: "10B", maxSize: "35B", history: "history.log" });
+				self.rfs = rfs(setTimeout.bind(null, done, 100), { size: "10B", maxSize: "35B", history: "history.log" });
 				self.rfs.write("test\n");
 				self.rfs.write("test\n");
 				setTimeout(function() {
@@ -91,10 +91,10 @@ describe("history", function() {
 							self.rfs.write("test\n");
 							setTimeout(function() {
 								self.rfs.end("test\n");
-							}, 50);
-						}, 50);
-					}, 50);
-				}, 50);
+							}, 100);
+						}, 100);
+					}, 100);
+				}, 100);
 			});
 		});
 
@@ -135,13 +135,13 @@ describe("history", function() {
 		before(function(done) {
 			var self = this;
 			exec(done, "rm -rf *log *txt", function() {
-				self.rfs = rfs(setTimeout.bind(null, done, 50), { size: "10B", maxFiles: 1, "history": "test" });
+				self.rfs = rfs(setTimeout.bind(null, done, 100), { size: "10B", maxFiles: 1, "history": "test" });
 				self.rfs.on("removed", function(name) { self.removed = name; });
 				self.rfs.write("test\n");
 				self.rfs.write("test\n");
 				setTimeout(function() {
 					self.rfs.end("test\n");
-				}, 50);
+				}, 100);
 			});
 		});
 
@@ -160,14 +160,14 @@ describe("history", function() {
 			var pre  = fs.writeFile;
 			fs.writeFile = function(a, b, c, d) { d("TEST"); };
 			exec(done, "rm -rf *log *txt", function() {
-				self.rfs = rfs(setTimeout.bind(null, done, 50), { size: "10B", maxFiles: 1 });
+				self.rfs = rfs(setTimeout.bind(null, done, 100), { size: "10B", maxFiles: 1 });
 				self.rfs.on("removed", function(name) { self.removed = name; });
 				self.rfs.write("test\n");
 				self.rfs.write("test\n");
 				setTimeout(function() {
 					self.rfs.end("test\n");
 					fs.writeFile = pre;
-				}, 50);
+				}, 100);
 			});
 		});
 
@@ -186,7 +186,7 @@ describe("history", function() {
 			var pre  = fs.unlink;
 			fs.unlink = function(a, b) { b("TEST"); };
 			exec(done, "rm -rf *log *txt", function() {
-				self.rfs = rfs(setTimeout.bind(null, done, 50), { size: "10B", maxFiles: 1 });
+				self.rfs = rfs(setTimeout.bind(null, done, 100), { size: "10B", maxFiles: 1 });
 				self.rfs.on("removed", function(name) { self.removed = name; });
 				self.rfs.write("test\n");
 				self.rfs.write("test\n");
@@ -196,8 +196,8 @@ describe("history", function() {
 					setTimeout(function() {
 						self.rfs.end("test\n");
 						fs.unlink = pre;
-					}, 50);
-				}, 50);
+					}, 100);
+				}, 100);
 			});
 		});
 
@@ -216,7 +216,7 @@ describe("history", function() {
 			var preR = fs.readFile;
 			var preS = fs.stat;
 			exec(done, "rm -rf *log *txt", function() {
-				self.rfs = rfs(setTimeout.bind(null, done, 50), { size: "10B", maxFiles: 1 });
+				self.rfs = rfs(setTimeout.bind(null, done, 100), { size: "10B", maxFiles: 1 });
 				self.rfs.on("removed", function(name) { self.removed = name; });
 				self.rfs.write("test\n");
 				self.rfs.write("test\n");
@@ -231,8 +231,8 @@ describe("history", function() {
 					setTimeout(function() {
 						self.rfs.end("test\n");
 						fs.stat = preS;
-					}, 50);
-				}, 50);
+					}, 100);
+				}, 100);
 			});
 		});
 
