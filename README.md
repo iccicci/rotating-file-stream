@@ -340,7 +340,7 @@ Do not hesitate to report any bug or inconsistency [@github](https://github.com/
 
 ### ChangeLog
 
-* to be released - v1.1.10
+* 2017-03-20 - v1.2.0
   * __maxFiles__ and __maxSize__ options added
 * 2017-02-14 - v1.1.9
   * fixed warning events order in case of external compression errors
