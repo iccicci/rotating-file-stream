@@ -11,7 +11,7 @@ describe("history", function() {
 			var self = this;
 			exec(done, "rm -rf *log *txt ; echo none > test.log.txt ; echo -n test >> test.log.txt", function() {
 				self.rfs = rfs(setTimeout.bind(null, done, 100), { size: "10B", maxFiles: 3 });
-				self.rfs.on("removed", function(name) { self.removed = name; });
+				self.rfs.on("removed", function(name, number) { self.removed = name; self.number = number; });
 				self.rfs.write("test\n");
 				self.rfs.write("test\n");
 				setTimeout(function() {
@@ -54,6 +54,7 @@ describe("history", function() {
 
 		it("removed", function() {
 			assert.equal(this.removed, "1-test.log");
+			assert.equal(this.number, true);
 		});
 
 		it("removed first rotated file", function() {
@@ -78,6 +79,7 @@ describe("history", function() {
 			var self = this;
 			exec(done, "rm -rf *log", function() {
 				self.rfs = rfs(setTimeout.bind(null, done, 100), { size: "10B", maxSize: "35B", history: "history.log" });
+				self.rfs.on("removed", function(name, number) { self.removed = name; self.number = number; });
 				self.rfs.write("test\n");
 				self.rfs.write("test\n");
 				setTimeout(function() {
@@ -112,6 +114,11 @@ describe("history", function() {
 
 		it("file content", function() {
 			assert.equal(fs.readFileSync("test.log"), "test\n");
+		});
+
+		it("removed", function() {
+			assert.equal(this.removed, "1-test.log");
+			assert.equal(this.number, false);
 		});
 
 		it("removed first rotated file", function() {

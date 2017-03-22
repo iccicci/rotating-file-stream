@@ -3,7 +3,7 @@
 [![Build Status](https://travis-ci.org/iccicci/rotating-file-stream.png)](https://travis-ci.org/iccicci/rotating-file-stream)
 [![Code Climate](https://codeclimate.com/github/iccicci/rotating-file-stream/badges/gpa.svg)](https://codeclimate.com/github/iccicci/rotating-file-stream)
 [![Test Coverage](https://codeclimate.com/github/iccicci/rotating-file-stream/badges/coverage.svg)](https://codeclimate.com/github/iccicci/rotating-file-stream/coverage)
-[![Donate](http://img.shields.io/bitcoin/donate.png?color=blue)](https://www.coinbase.com/cicci)
+[![Donate](http://img.shields.io/donate/bitcoin.png?color=blue)](https://blockchain.info/address/12p1p5q7sK75tPyuesZmssiMYr4TKzpSCN)
 
 [![NPM version](https://badge.fury.io/js/rotating-file-stream.svg)](https://www.npmjs.com/package/rotating-file-stream)
 [![bitHound Dependencies](https://www.bithound.io/github/iccicci/rotating-file-stream/badges/dependencies.svg)](https://www.bithound.io/github/iccicci/rotating-file-stream/master/dependencies/npm)
@@ -245,7 +245,7 @@ If specified, it's value is the maximum number of _rotated files_ to be kept.
 If specified, it's value must respect same syntax of [(size)](#size) option and is the maximum size of _rotated files_
 to be kept.
 
-### Events
+## Events
 
 Custom _Events_ are emitted by the stream.
 
@@ -281,25 +281,25 @@ stream.on('warning', function(err) {
 });
 ```
 
-### Rotation logic
+## Rotation logic
 
 Regardless of when and why rotation happens, the content of a single
 [stream.write](https://nodejs.org/api/stream.html#stream_writable_write_chunk_encoding_callback)
 will never be split among two files.
 
-#### by size
+### by size
 
 Once the _not-rotated_ file is opened first time, its size is checked and if it is greater or equal to
 size limit, a first rotation happens. After each
 [stream.write](https://nodejs.org/api/stream.html#stream_writable_write_chunk_encoding_callback),
 the same check is performed.
 
-#### by interval
+### by interval
 
 The package sets a [Timeout](https://nodejs.org/api/timers.html#timers_settimeout_callback_delay_args)
 to start a rotation job at the right moment.
 
-### Under the hood
+## Under the hood
 
 Logs should be handled so carefully, so this package tries to never overwrite files.
 
@@ -322,7 +322,7 @@ each line.
 
 Once an __error__ _event_ is emitted, nothing more can be done: the stream is closed as well.
 
-### Compatibility
+## Compatibility
 
 This package is written following  __Node.js 4.0__ specifications always taking care about backward
 compatibility. The package it tested under
@@ -330,16 +330,18 @@ compatibility. The package it tested under
 
 __Required: Node.js 0.11__
 
-### Licence
+## Licence
 
 [MIT Licence](https://github.com/iccicci/rotating-file-stream/blob/master/LICENSE)
 
-### Bugs
+## Bugs
 
 Do not hesitate to report any bug or inconsistency [@github](https://github.com/iccicci/rotating-file-stream/issues).
 
-### ChangeLog
+## ChangeLog
 
+* 2017-03-22 - v1.2.1
+  * fixed removed event
 * 2017-03-20 - v1.2.0
   * __maxFiles__ and __maxSize__ options added
 * 2017-02-14 - v1.1.9
