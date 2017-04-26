@@ -338,8 +338,15 @@ __Required: Node.js 0.11__
 
 Do not hesitate to report any bug or inconsistency [@github](https://github.com/iccicci/rotating-file-stream/issues).
 
+## Donating
+
+If you find useful this package, please consider the opportunity to donate some satoshis to this bitcoin address:
+__12p1p5q7sK75tPyuesZmssiMYr4TKzpSCN__
+
 ## ChangeLog
 
+* 2017-04-26 - v1.2.2
+  * Fixed bug: [Handle does not close](https://github.com/iccicci/rotating-file-stream/issues/11)
 * 2017-03-22 - v1.2.1
   * fixed removed event
 * 2017-03-20 - v1.2.0

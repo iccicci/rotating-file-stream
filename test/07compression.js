@@ -380,7 +380,8 @@ describe("compression", function() {
 				self.rfs = rfs(done, { size: "10B", compress: true });
 				preT = self.rfs.touch;
 				self.rfs.touch = function(name, callback, retry) {
-					fs.close = function(a, b)    { fs.close = preC; b(e); };
+					var done = false;
+					fs.close = function(a, b)    { if(done) { fs.close = preC; b(e); } else { done = true; preC(a, b); } };
 					fs.write = function(a, b, c) { fs.write = preW; c(e); };
 					preT.call(this, name, callback, retry);
 				};
@@ -419,11 +420,14 @@ describe("compression", function() {
 			var self = this;
 			var preT;
 			var preC = fs.close;
+			var e    = new Error("test");
+			e.code   = "TEST";
 			exec(done, "rm -rf *log", function() {
 				self.rfs = rfs(done, { size: "10B", compress: true });
 				preT = self.rfs.touch;
 				self.rfs.touch = function(name, callback, retry) {
-					fs.close = function(a, c) { var e = new Error("test"); e.code = "TEST"; fs.close = preC; c(e); };
+					var done = false;
+					fs.close = function(a, b) { if(done) { fs.close = preC; b(e); } else { done = true; preC(a, b); } };
 					preT.call(this, name, callback, retry);
 				};
 				self.rfs.write("test\n");

@@ -106,12 +106,12 @@ function historyCheckFiles(self, res) {
 }
 
 function historyGather(self, files, idx, res) {
-	if(idx == files.length)
+	if(idx === files.length)
 		return historyCheckFiles(self, res);
 
 	fs.stat(files[idx], function(err, stats) {
 		if(err) {
-			if(err.code != "ENOENT")
+			if(err.code !== "ENOENT")
 				return self.emit("warning", err);
 		}
 		else
@@ -138,7 +138,7 @@ function history(lastfile) {
 
 	fs.readFile(filename, "utf8", function(err, data) {
 		if(err) {
-			if(err.code != "ENOENT")
+			if(err.code !== "ENOENT")
 				return self.emit("warning", err);
 
 			return historyGather(self, [lastfile], 0, []);
