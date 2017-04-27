@@ -9,7 +9,7 @@ describe("history", function() {
 	describe("maxFiles", function() {
 		before(function(done) {
 			var self = this;
-			exec(done, "rm -rf *log *txt ; echo none > test.log.txt ; echo -n test >> test.log.txt", function() {
+			exec(function() { setTimeout(done, 100); }, "rm -rf *log *txt ; echo none > test.log.txt ; echo -n test >> test.log.txt", function() {
 				self.rfs = rfs(setTimeout.bind(null, done, 100), { size: "10B", maxFiles: 3 });
 				self.rfs.on("removed", function(name, number) { self.removed = name; self.number = number; });
 				self.rfs.write("test\n");
@@ -77,7 +77,7 @@ describe("history", function() {
 	describe("maxSize", function() {
 		before(function(done) {
 			var self = this;
-			exec(done, "rm -rf *log", function() {
+			exec(function() { setTimeout(done, 100); }, "rm -rf *log", function() {
 				self.rfs = rfs(setTimeout.bind(null, done, 100), { size: "10B", maxSize: "35B", history: "history.log" });
 				self.rfs.on("removed", function(name, number) { self.removed = name; self.number = number; });
 				self.rfs.write("test\n");
