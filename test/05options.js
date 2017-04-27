@@ -65,13 +65,10 @@ describe("options", function() {
 	describe("interval hours", function() {
 		before(function(done) {
 			var self = this;
-			var tz   = process.env.TZ;
 			var doIt = function() {
 				self.rfs = rfs(done, { interval: "3h" });
 				setTimeout(function() {
-					process.env.TZ = "Europe/Rome";
 					self.rfs._interval(new Date(2015, 2, 29, 1, 29, 23, 123).getTime());
-					process.env.TZ = tz;
 					self.rfs.end();
 				}, 30);
 			};
@@ -98,13 +95,10 @@ describe("options", function() {
 	describe("interval days", function() {
 		before(function(done) {
 			var self = this;
-			var tz   = process.env.TZ;
 			var doIt = function() {
 				self.rfs = rfs(done, { interval: "3d" });
 				setTimeout(function() {
-					process.env.TZ = "Europe/Rome";
 					self.rfs._interval(new Date(2015, 2, 29, 1, 29, 23, 123).getTime());
-					process.env.TZ = tz;
 					self.rfs.end();
 				}, 30);
 			};
