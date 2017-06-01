@@ -60,6 +60,13 @@ The answer to this question may vary in many forms depending on application requ
 If there are no requirements, a _String_ can be used and _default rotated file name generator_ will be used;
 otherwise a _Function_ which returns the _rotated file name_ can be used.
 
+__Note:__
+If a _string_ is used it __must__ be only the _filename_, to specify a _path_ the appropriate option __must__ be used.
+```javascript
+rfs('path/to/file.log'); // wrong
+rfs('file.log', { path: 'path/to' }); // OK
+```
+
 #### function filename(time, index)
 
 * time: {Date} If both rotation by interval is enabled and __options.rotationTime__ [(see below)](#rotationtime) is
@@ -98,11 +105,11 @@ __Note:__
 if both rotation by interval and rotation by time are used, returned _rotated file name_ __must__ be function of both
 parameters _time_ and _index_. Alternatively, __rotationTime__ _option_ can be used (to see below).
 
+If classical __logrotate__ behaviour is enabled _rotated file name_ is only a function of _index_.
+
 #### function filename(index)
 
 * index {Number} The progressive index of rotation. If __null__, the _not-rotated file name_ must be returned.
-
-If classical __logrotate__ behaviour is enabled _rotated file name_ is only a function of _index_.
 
 __Note:__
 if part of returned destination path does not exists, the rotation job will try to create it.
