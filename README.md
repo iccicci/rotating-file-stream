@@ -249,7 +249,7 @@ If specified, it's value is the maximum number of _rotated files_ to be kept.
 
 #### maxSize
 
-If specified, it's value must respect same syntax of [(size)](#size) option and is the maximum size of _rotated files_
+If specified, it's value must respect same syntax of [size](#size) option and is the maximum size of _rotated files_
 to be kept.
 
 ## Events
@@ -332,7 +332,7 @@ Once an __error__ _event_ is emitted, nothing more can be done: the stream is cl
 ## Compatibility
 
 This package is written following  __Node.js 4.0__ specifications always taking care about backward
-compatibility. The package it tested under
+compatibility. The package is tested under
 [several Node.js versions](https://travis-ci.org/iccicci/rotating-file-stream).
 
 __Required: Node.js 0.11__
