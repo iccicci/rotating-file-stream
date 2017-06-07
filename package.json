@@ -29,6 +29,6 @@
     "eslint": "3.19.0",
     "istanbul": "0.4.5",
     "mocha-istanbul": "0.3.0",
-    "mocha": "3.3.0"
+    "mocha": "3.4.2"
   }
 }
