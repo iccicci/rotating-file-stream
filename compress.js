@@ -119,12 +119,12 @@ function compress(tmp) {
 				self.external(tmp, name, done);
 			else
 				self.gzip(tmp, name, done);
-				/*
-				if(self.options.compress == "gzip")
-					self.gzip(tmp, name, done);
-				else
-					throw new Error("Not implemented yet");
-				*/
+			/*
+			if(self.options.compress == "gzip")
+				self.gzip(tmp, name, done);
+			else
+				throw new Error("Not implemented yet");
+			*/
 		});
 	});
 }

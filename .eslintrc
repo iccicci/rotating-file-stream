@@ -156,7 +156,7 @@ rules:
   no-bitwise: 0
   no-continue: 0
   no-inline-comments: 0
-  no-lonely-if: 0
+  no-lonely-if: 2
   no-mixed-spaces-and-tabs: 0
   no-multiple-empty-lines: 0
   no-negated-condition: 0

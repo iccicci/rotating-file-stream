@@ -114,16 +114,15 @@ function historyGather(self, files, idx, res) {
 			if(err.code !== "ENOENT")
 				return self.emit("warning", err);
 		}
+		else if(stats.isFile()) {
+			res.push({
+				name: files[idx],
+				size: stats.size,
+				time: stats.ctime.getTime()
+			});
+		}
 		else
-			if(stats.isFile()) {
-				res.push({
-					name: files[idx],
-					size: stats.size,
-					time: stats.ctime.getTime()
-				});
-			}
-			else
-				self.emit("warning", "File '" + files[idx] + "' contained in history is not a regular file");
+			self.emit("warning", "File '" + files[idx] + "' contained in history is not a regular file");
 
 		historyGather(self, files, idx + 1, res);
 	});

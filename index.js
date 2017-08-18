@@ -16,15 +16,14 @@ function RotatingFileStream(filename, options) {
 
 	if(typeof filename === "function")
 		this.generator = filename;
-	else
-		if(typeof filename === "string") {
-			if(options.rotate)
-				this.generator = utils.createClassical(filename);
-			else
-				this.generator = utils.createGenerator(filename);
-		}
+	else if(typeof filename === "string") {
+		if(options.rotate)
+			this.generator = utils.createClassical(filename);
 		else
-			throw new Error("Don't know how to handle 'filename' type: " + typeof filename);
+			this.generator = utils.createGenerator(filename);
+	}
+	else
+		throw new Error("Don't know how to handle 'filename' type: " + typeof filename);
 
 	if(options.path) {
 		var generator = this.generator;

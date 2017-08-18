@@ -104,15 +104,13 @@ var checks = {
 
 		if(typ === "boolean")
 			options.compress = function(src, dst) { return "cat " + src + " | gzip -c9 > " + dst; };
-		else
-			if(typ === "string") {
-				//if(val != "bzip" && val != "gzip")
-				if(val !== "gzip")
-					throw new Error("Don't know how to handle compression method: " + val);
-			}
-			else
-				if(typ !== "function")
-					throw new Error("Don't know how to handle 'options.compress' type: " + typ);
+		else if(typ === "string") {
+			//if(val != "bzip" && val != "gzip")
+			if(val !== "gzip")
+				throw new Error("Don't know how to handle compression method: " + val);
+		}
+		else if(typ !== "function")
+			throw new Error("Don't know how to handle 'options.compress' type: " + typ);
 	},
 
 	"highWaterMark": function() {},
