@@ -60,13 +60,6 @@ The answer to this question may vary in many forms depending on application requ
 If there are no requirements, a _String_ can be used and _default rotated file name generator_ will be used;
 otherwise a _Function_ which returns the _rotated file name_ can be used.
 
-__Note:__
-If a _string_ is used it __must__ be only the _filename_, to specify a _path_ the appropriate option __must__ be used.
-```javascript
-rfs('path/to/file.log'); // wrong
-rfs('file.log', { path: 'path/to' }); // OK
-```
-
 #### function filename(time, index)
 
 * time: {Date} If both rotation by interval is enabled and __options.rotationTime__ [(see below)](#rotationtime) is
@@ -110,6 +103,13 @@ If classical __logrotate__ behaviour is enabled _rotated file name_ is only a fu
 #### function filename(index)
 
 * index {Number} The progressive index of rotation. If __null__, the _not-rotated file name_ must be returned.
+
+__Note:__
+The _not-rotated file name_ __must__ be only the _filename_, to specify a _path_ the appropriate option __must__ be used.
+```javascript
+rfs('path/to/file.log'); // wrong
+rfs('file.log', { path: 'path/to' }); // OK
+```
 
 __Note:__
 if part of returned destination path does not exists, the rotation job will try to create it.
@@ -345,69 +345,11 @@ __Required: Node.js 0.11__
 
 Do not hesitate to report any bug or inconsistency [@github](https://github.com/iccicci/rotating-file-stream/issues).
 
+## ChangeLog
+
+[ChangeLog](https://github.com/iccicci/rotating-file-stream/blob/master/CHANGELOG.md)
+
 ## Donating
 
 If you find useful this package, please consider the opportunity to donate some satoshis to this bitcoin address:
 __12p1p5q7sK75tPyuesZmssiMYr4TKzpSCN__
-
-## ChangeLog
-
-* 2017-04-26 - v1.2.2
-  * Fixed bug: [Handle does not close](https://github.com/iccicci/rotating-file-stream/issues/11)
-* 2017-03-22 - v1.2.1
-  * fixed removed event
-* 2017-03-20 - v1.2.0
-  * __maxFiles__ and __maxSize__ options added
-* 2017-02-14 - v1.1.9
-  * fixed warning events order in case of external compression errors
-* 2017-02-13 - v1.1.8
-  * removed tmp dependecy due it was causing a strange instability now disappeared
-* 2017-02-07 - v1.1.7
-  * fixed tmp.file call
-* 2017-02-03 - v1.1.6
-  * eslint
-* 2017-01-23 - v1.1.5
-  * README fix
-* 2017-01-23 - v1.1.4
-  * Changed dependencies badges
-* 2016-12-27 - v1.1.3
-  * Fixed bug: [end method wrong implementation](https://github.com/iccicci/rotating-file-stream/issues/9)
-* 2016-12-19 - v1.1.2
-  * Fixed bug: [unable to reuse configuration object](https://github.com/iccicci/rotating-file-stream/issues/10)
-  * Fixed bug: [Events cross over: rotate and rotated](https://github.com/iccicci/rotating-file-stream/issues/6)
-* 2016-12-05 - v1.1.1
-  * Dependencies update
-* 2016-10-18 - v1.1.0
-  * Added classical __UNIX logrotate__ tool behaviour.
-  * Dependencies update
-* 2016-04-29 - v1.0.5
-  * Tested on node v6.0
-  * Fixed a bug on rotation with interval and compression
-* 2015-11-09 - v1.0.4
-  * Tested on node v5.0
-  * Fixed bug on [initial rotation with interval](https://github.com/iccicci/rotating-file-stream/issues/2)
-* 2015-10-25 - v1.0.3
-  * Tested on node v4.2
-  * Dependencies update
-* 2015-10-09 - v1.0.2
-  * README update
-* 2015-10-08 - v1.0.1
-  * README fix
-* 2015-10-08 - v1.0.0
-  * Async error reporting refactory
-* 2015-10-07 - v0.1.0
-  * Internal gzip compression
-* 2015-10-06 - v0.0.5
-  * External compression
-* 2015-09-30 - v0.0.4
-  * Added _path_ option
-  * Missing path creation
-* 2015-09-29 - v0.0.3
-  * Rotation by interval
-  * __Buffer__ optimization (thanks to [allevo](https://www.npmjs.com/~allevo))
-* 2015-09-17 - v0.0.2
-  * Rotation by size
-* 2015-09-14 - v0.0.1
-  * README.md
-* 2015-09-10 - v0.0.0
-  * Embryonal stage
