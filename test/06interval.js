@@ -51,7 +51,7 @@ describe("interval", function() {
 		before(function(done) {
 			var self = this;
 			exec(done, "rm -rf *log ; echo test > test.log ; echo test >> test.log", function() {
-				self.rfs = rfs(done, { size: "10B", interval: "1d", rotationTime: true }, function(time, index) {
+				self.rfs = rfs(done, { size: "10B", interval: "1d", rotationTime: true, initialRotation: true }, function(time, index) {
 					self.time = time;
 					return utils.createGenerator("test.log")(time, index);
 				});
@@ -88,6 +88,79 @@ describe("interval", function() {
 
 		it("rotated file content", function() {
 			assert.equal(fs.readFileSync(this.name), "test\ntest\n");
+		});
+	});
+
+	describe("initialRotation option", function() {
+		before(function(done) {
+			var self = this;
+			exec(done, "rm -rf *log ; echo test > test.log ; touch -t 197601231500 test.log", function() {
+				self.rfs = rfs(done, { interval: "1m", initialRotation: true }, utils.createGenerator("test.log"));
+				self.rfs.end("test\n");
+			});
+		});
+
+		it("no error", function() {
+			assert.ifError(this.rfs.ev.err);
+		});
+
+		it("1 rotation", function() {
+			assert.equal(this.rfs.ev.rotation, 1);
+		});
+
+		it("1 rotated", function() {
+			assert.equal(this.rfs.ev.rotated.length, 1);
+			assert.equal(this.rfs.ev.rotated[0], "19760123-1500-01-test.log");
+		});
+
+		it("1 single write", function() {
+			assert.equal(this.rfs.ev.single, 1);
+		});
+
+		it("0 multi write", function() {
+			assert.equal(this.rfs.ev.multi, 0);
+		});
+
+		it("file content", function() {
+			assert.equal(fs.readFileSync("test.log"), "test\n");
+		});
+
+		it("rotated file content", function() {
+			assert.equal(fs.readFileSync("19760123-1500-01-test.log"), "test\n");
+		});
+	});
+
+	describe("initialRotation option but ok", function() {
+		before(function(done) {
+			var self = this;
+			exec(done, "rm -rf *log ; echo test > test.log", function() {
+				self.rfs = rfs(done, { interval: "1m", initialRotation: true }, utils.createGenerator("test.log"));
+				self.rfs.end("test\n");
+			});
+		});
+
+		it("no error", function() {
+			assert.ifError(this.rfs.ev.err);
+		});
+
+		it("0 rotation", function() {
+			assert.equal(this.rfs.ev.rotation, 0);
+		});
+
+		it("0 rotated", function() {
+			assert.equal(this.rfs.ev.rotated.length, 0);
+		});
+
+		it("1 single write", function() {
+			assert.equal(this.rfs.ev.single, 1);
+		});
+
+		it("0 multi write", function() {
+			assert.equal(this.rfs.ev.multi, 0);
+		});
+
+		it("file content", function() {
+			assert.equal(fs.readFileSync("test.log"), "test\ntest\n");
 		});
 	});
 

@@ -33,6 +33,9 @@ function RotatingFileStream(filename, options) {
 		};
 	}
 
+	if(options.rotationTime && options.initialRotation)
+		options.initialRotation = null;
+
 	var opt = {};
 
 	if(options.highWaterMark)
@@ -172,6 +175,17 @@ RotatingFileStream.prototype.firstOpen = function() {
 
 		if(! stats.isFile())
 			return self.emit("error", new Error("Can't write on: " + self.name + " (it is not a file)"));
+
+		if(self.options.interval && self.options.initialRotation) {
+			var prev;
+
+			self._interval(self.now());
+			prev = self.prev;
+			self._interval(stats.mtime.getTime());
+
+			if(prev !== self.prev)
+				return self.rotate();
+		}
 
 		self.size = stats.size;
 

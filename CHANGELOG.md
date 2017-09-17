@@ -1,4 +1,4 @@
-* 2017-09-?? - v1.3.0
+* 2017-09-17 - v1.3.0
   * __initialRotation__ option added
 * 2017-04-26 - v1.2.2
   * Fixed bug: [Handle does not close](https://github.com/iccicci/rotating-file-stream/issues/11)

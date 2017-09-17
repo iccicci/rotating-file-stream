@@ -120,6 +120,8 @@ var checks = {
 			throw new Error("Don't know how to handle 'options.history' type: " + typ);
 	},
 
+	"initialRotation": function() {},
+
 	"interval": buildStringCheck("interval", checkInterval),
 
 	"maxFiles": buildNumberCheck("maxFiles"),

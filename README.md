@@ -227,13 +227,12 @@ start time of rotation period. Setting this option to __true__, parameter _time_
 started.
 
 #### initialRotation
-When program stops in a rotation period then restart in a new rotation period, logs of differente rotation period will
+When program stops in a rotation period then restarts in a new rotation period, logs of differente rotation period will
 go in the next rotated file; in a few words: a rotation job is lost. If this option is set to __true__ an initial check
 is performed against the _not-rotated file_ timestamp and, if it falls in a previous rotation period, an initial
 rotation job is done as well.
 
 __Note:__
-__this option is under development__
 this option is ignored if __rotationTime__ is set to __true__.
 
 #### rotate
