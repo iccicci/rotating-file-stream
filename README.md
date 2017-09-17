@@ -11,8 +11,6 @@
 
 [![NPM](https://nodei.co/npm/rotating-file-stream.png?downloads=true&downloadRank=true&stars=true)](https://nodei.co/npm/rotating-file-stream/)
 
-[![NPM](https://nodei.co/npm-dl/rotating-file-stream.png?height=3)](https://nodei.co/npm/rotating-file-stream/)
-
 ### Description
 
 Creates a [stream.Writable](https://nodejs.org/api/stream.html#stream_class_stream_writable) to a file which is rotated.
@@ -119,14 +117,14 @@ if part of returned destination path does not exists, the rotation job will try 
 * compress: {String|Function|True} (default: null) Specifies compression method of rotated files.
 * highWaterMark: {Number} (default: null) Proxied to [new stream.Writable](https://nodejs.org/api/stream.html#stream_constructor_new_stream_writable_options)
 * history: {String} (default: null) Specifies the _history filename_.
+* initialRotation: {Boolean} (default: null) Eventually makes an initial rotation based on _not-rotated file_ timestamp.
 * interval: {String} (default: null) Specifies the time interval to rotate the file.
 * maxFiles: {Integer} (default: null) Specifies the maximum number of rotated files to keep.
 * maxSize: {String} (default: null) Specifies the maximum size of rotated files to keep.
 * mode: {Integer} (default: null) Proxied to [fs.createWriteStream](https://nodejs.org/api/fs.html#fs_fs_createwritestream_path_options)
 * path: {String} (default: null) Specifies the base path for files.
 * rotate: {Integer} (default: null) Enables the classical UNIX __logrotate__ behaviour.
-* rotationTime: {Boolean} (default: null) Makes rotated file name with time of rotation instead of start time of
-period.
+* rotationTime: {Boolean} (default: null) Makes rotated file name with time of rotation instead of start time of period.
 * size: {String} (default: null) Specifies the file size to rotate the file.
 
 #### path
@@ -227,6 +225,16 @@ if rotation job complete with success.
 As specified above, if rotation by interval is enabled, the parameter _time_ passed to _rotatle name generator_ is the
 start time of rotation period. Setting this option to __true__, parameter _time_ passed is time when rotation job
 started.
+
+#### initialRotation
+When program stops in a rotation period then restart in a new rotation period, logs of differente rotation period will
+go in the next rotated file; in a few words: a rotation job is lost. If this option is set to __true__ an initial check
+is performed against the _not-rotated file_ timestamp and, if it falls in a previous rotation period, an initial
+rotation job is done as well.
+
+__Note:__
+__this option is under development__
+this option is ignored if __rotationTime__ is set to __true__.
 
 #### rotate
 
