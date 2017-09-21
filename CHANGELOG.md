@@ -1,3 +1,5 @@
+* 2017-09-21 - v1.3.1
+  * devDependencies updated
 * 2017-09-17 - v1.3.0
   * __initialRotation__ option added
 * 2017-04-26 - v1.2.2
