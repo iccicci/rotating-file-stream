@@ -1,3 +1,5 @@
+* 2017-09-23 - v1.3.2
+  * devDependencies updated
 * 2017-09-21 - v1.3.1
   * devDependencies updated
 * 2017-09-17 - v1.3.0

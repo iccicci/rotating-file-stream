@@ -6,7 +6,7 @@
     "all": "npm install && npm run npmignore && npm run eslint && npm run coverage",
     "coverage": "TZ=\"Europe/Rome\" ./node_modules/.bin/istanbul cover ./node_modules/.bin/_mocha -- --recursive test",
     "eslint": "./node_modules/.bin/eslint *.js test/*js",
-    "npmignore": "echo '.codeclimate.yml\\n.eslintrc\\n.gitignore\\n.travis.yml\\nCHANGELOG.md\\ntest' > .npmignore ; cat .gitignore >> .npmignore",
+    "npmignore": "echo '.codeclimate.yml\\n.eslintrc\\n.gitignore\\n.travis.yml\\nCHANGELOG.md\\npackage-lock.json\\ntest' > .npmignore ; cat .gitignore >> .npmignore",
     "test": "TZ=\"Europe/Rome\" ./node_modules/.bin/_mocha test"
   },
   "bugs": "https://github.com/iccicci/rotating-file-stream/issues",
@@ -27,7 +27,7 @@
   "license": "MIT",
   "readmeFilename": "README.md",
   "devDependencies": {
-    "eslint": "4.7.1",
+    "eslint": "4.7.2",
     "istanbul": "0.4.5",
     "mocha-istanbul": "0.3.0",
     "mocha": "3.5.3"

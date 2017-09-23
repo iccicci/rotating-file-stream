@@ -6,8 +6,8 @@
 [![Donate](http://img.shields.io/donate/bitcoin.png?color=blue)](https://blockchain.info/address/12p1p5q7sK75tPyuesZmssiMYr4TKzpSCN)
 
 [![NPM version](https://badge.fury.io/js/rotating-file-stream.svg)](https://www.npmjs.com/package/rotating-file-stream)
-[![bitHound Dependencies](https://www.bithound.io/github/iccicci/rotating-file-stream/badges/dependencies.svg)](https://www.bithound.io/github/iccicci/rotating-file-stream/master/dependencies/npm)
-[![bitHound Dev Dependencies](https://www.bithound.io/github/iccicci/rotating-file-stream/badges/devDependencies.svg)](https://www.bithound.io/github/iccicci/rotating-file-stream/master/dependencies/npm)
+[![Dependencies](https://david-dm.org/iccicci/rotating-file-stream.svg)](https://david-dm.org/iccicci/rotating-file-stream)
+[![Dev Dependencies](https://david-dm.org/iccicci/rotating-file-stream/dev-status.svg)](https://david-dm.org/iccicci/rotating-file-stream?type=dev)
 
 [![NPM](https://nodei.co/npm/rotating-file-stream.png?downloads=true&downloadRank=true&stars=true)](https://nodei.co/npm/rotating-file-stream/)
 
