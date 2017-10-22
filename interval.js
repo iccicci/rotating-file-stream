@@ -65,6 +65,8 @@ function historyWrite(self, res) {
 	fs.writeFile(self.options.history, files.join("\n"), "utf8", function(err) {
 		if(err)
 			self.emit("warning", err);
+
+		self.emit("history");
 	});
 }
 

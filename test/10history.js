@@ -9,26 +9,27 @@ describe("history", function() {
 	describe("maxFiles", function() {
 		before(function(done) {
 			var self = this;
-			exec(function() { setTimeout(done, 100); }, "rm -rf *log *txt ; echo none > test.log.txt ; echo -n test >> test.log.txt", function() {
-				self.rfs = rfs(setTimeout.bind(null, done, 100), { size: "10B", maxFiles: 3 });
-				self.rfs.on("removed", function(name, number) { self.removed = name; self.number = number; });
+			var end  = doneN(done, 2);
+			exec(done, "rm -rf *log *txt ; echo none > test.log.txt ; echo -n test >> test.log.txt", function() {
+				self.rfs = rfs(end, { size: "10B", maxFiles: 3 });
+				self.rfs.on("removed", function(name, number) { self.removed = name; self.number = number; end(); });
 				self.rfs.write("test\n");
 				self.rfs.write("test\n");
-				setTimeout(function() {
+				self.rfs.once("history", function() {
 					self.rfs.write("test\n");
 					self.rfs.write("test\n");
-					setTimeout(function() {
+					self.rfs.once("history", function() {
 						self.rfs.write("test\n");
 						self.rfs.write("test\n");
-						setTimeout(function() {
+						self.rfs.once("history", function() {
 							self.rfs.write("test\n");
 							self.rfs.write("test\n");
-							setTimeout(function() {
+							self.rfs.once("history", function() {
 								self.rfs.end("test\n");
-							}, 100);
-						}, 100);
-					}, 100);
-				}, 100);
+							});
+						});
+					});
+				});
 			});
 		});
 
@@ -77,26 +78,27 @@ describe("history", function() {
 	describe("maxSize", function() {
 		before(function(done) {
 			var self = this;
-			exec(function() { setTimeout(done, 100); }, "rm -rf *log", function() {
-				self.rfs = rfs(setTimeout.bind(null, done, 100), { size: "10B", maxSize: "35B", history: "history.log" });
-				self.rfs.on("removed", function(name, number) { self.removed = name; self.number = number; });
+			var end  = doneN(done, 2);
+			exec(done, "rm -rf *log", function() {
+				self.rfs = rfs(end, { size: "10B", maxSize: "35B", history: "history.log" });
+				self.rfs.on("removed", function(name, number) { self.removed = name; self.number = number; end(); });
 				self.rfs.write("test\n");
 				self.rfs.write("test\n");
-				setTimeout(function() {
+				self.rfs.once("history", function() {
 					self.rfs.write("test\n");
 					self.rfs.write("test\n");
-					setTimeout(function() {
+					self.rfs.once("history", function() {
 						self.rfs.write("test\n");
 						self.rfs.write("test\n");
-						setTimeout(function() {
+						self.rfs.once("history", function() {
 							self.rfs.write("test\n");
 							self.rfs.write("test\n");
-							setTimeout(function() {
+							self.rfs.once("history", function() {
 								self.rfs.end("test\n");
-							}, 100);
-						}, 100);
-					}, 100);
-				}, 100);
+							});
+						});
+					});
+				});
 			});
 		});
 
@@ -143,12 +145,9 @@ describe("history", function() {
 			var self = this;
 			exec(done, "rm -rf *log *txt", function() {
 				self.rfs = rfs(setTimeout.bind(null, done, 100), { size: "10B", maxFiles: 1, "history": "test" });
-				self.rfs.on("removed", function(name) { self.removed = name; });
 				self.rfs.write("test\n");
 				self.rfs.write("test\n");
-				setTimeout(function() {
-					self.rfs.end("test\n");
-				}, 100);
+				self.rfs.end("test\n");
 			});
 		});
 
@@ -165,16 +164,15 @@ describe("history", function() {
 		before(function(done) {
 			var self = this;
 			var pre  = fs.writeFile;
+			var end  = doneN(done, 2);
 			fs.writeFile = function(a, b, c, d) { d("TEST"); };
 			exec(done, "rm -rf *log *txt", function() {
-				self.rfs = rfs(setTimeout.bind(null, done, 100), { size: "10B", maxFiles: 1 });
+				self.rfs = rfs(end, { size: "10B", maxFiles: 1 });
 				self.rfs.on("removed", function(name) { self.removed = name; });
 				self.rfs.write("test\n");
 				self.rfs.write("test\n");
-				setTimeout(function() {
-					self.rfs.end("test\n");
-					fs.writeFile = pre;
-				}, 100);
+				self.rfs.end("test\n");
+				self.rfs.once("warning", function() { fs.writeFile = pre; end(); });
 			});
 		});
 
@@ -191,20 +189,22 @@ describe("history", function() {
 		before(function(done) {
 			var self = this;
 			var pre  = fs.unlink;
+			var end  = doneN(done, 2);
 			fs.unlink = function(a, b) { b("TEST"); };
 			exec(done, "rm -rf *log *txt", function() {
-				self.rfs = rfs(setTimeout.bind(null, done, 100), { size: "10B", maxFiles: 1 });
+				self.rfs = rfs(end, { size: "10B", maxFiles: 1 });
 				self.rfs.on("removed", function(name) { self.removed = name; });
 				self.rfs.write("test\n");
 				self.rfs.write("test\n");
-				setTimeout(function() {
+				self.rfs.once("warning", end);
+				self.rfs.once("history", function() {
 					self.rfs.write("test\n");
 					self.rfs.write("test\n");
-					setTimeout(function() {
+					self.rfs.once("history", function() {
 						self.rfs.end("test\n");
 						fs.unlink = pre;
-					}, 100);
-				}, 100);
+					});
+				});
 			});
 		});
 
@@ -235,10 +235,8 @@ describe("history", function() {
 					};
 					self.rfs.write("test\n");
 					self.rfs.write("test\n");
-					setTimeout(function() {
-						self.rfs.end("test\n");
-						fs.stat = preS;
-					}, 100);
+					self.rfs.end("test\n");
+					self.rfs.once("end", function() { fs.stat = preS; });
 				}, 100);
 			});
 		});

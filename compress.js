@@ -238,7 +238,7 @@ function gzip(src, dst, callback) {
 	for(var i in files)
 		files[i].once("error", callback);
 
-	out.once("finish", process.nextTick.bind(process, callback));
+	out.once("finish", callback);
 
 	inp.pipe(zip).pipe(out);
 }

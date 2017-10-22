@@ -44,3 +44,12 @@ module.exports = {
 	exec: exec,
 	rfs:  _rfs
 };
+
+global.doneN = function(done, num) {
+	var n = 0;
+
+	return function() {
+		if(++n === num)
+			done();
+	};
+};
