@@ -120,6 +120,8 @@ RotatingFileStream.prototype._write = function(chunk, encoding, callback) {
 	this._rewrite();
 };
 
+RotatingFileStream.prototype.write = RotatingFileStream.prototype._write;
+
 RotatingFileStream.prototype._writev = function(chunks, callback) {
 	chunks[chunks.length - 1].cb = callback;
 	this.chunks = this.chunks.concat(chunks);
