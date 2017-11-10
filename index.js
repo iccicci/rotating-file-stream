@@ -49,6 +49,7 @@ function RotatingFileStream(filename, options) {
 	this.chunks  = [];
 	this.options = options;
 	this.size    = 0;
+	this.write   = this.write; // https://github.com/iccicci/rotating-file-stream/issues/19
 
 	utils.setEvents(this);
 
