@@ -7,7 +7,7 @@
     "coverage": "TZ=\"Europe/Rome\" ./node_modules/.bin/istanbul cover ./node_modules/.bin/_mocha -- --recursive test",
     "eslint": "./node_modules/.bin/eslint *.js test/*js",
     "npmignore": "echo '.codeclimate.yml\\n.eslintrc\\n.gitignore\\n.travis.yml\\nCHANGELOG.md\\npackage-lock.json\\ntest' > .npmignore ; cat .gitignore >> .npmignore",
-    "test": "TZ=\"Europe/Rome\" node --harmony node_modules/.bin/_mocha test"
+    "test": "bash -c 'if [[ `node --version` =~ ^v0.1 ]] ; then npm install mocha@3.5.3 ; fi' ; TZ=\"Europe/Rome\" ./node_modules/.bin/_mocha test"
   },
   "bugs": "https://github.com/iccicci/rotating-file-stream/issues",
   "repository": "https://github.com/iccicci/rotating-file-stream",
