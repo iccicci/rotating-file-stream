@@ -3,13 +3,13 @@ sudo: false
 language: node_js
 
 node_js:
-  - "10"
   - "9"
-  - "8.5"
+  - "9.0"
+  - "8"
   - "8.0"
-  - "7.10"
+  - "7"
   - "7.0"
-  - "6.11"
+  - "6."
   - "6.0"
   - "5"
   - "5.0"
@@ -23,4 +23,4 @@ addons:
     repo_token: b96c8e14d13e6e0eac109776042700ebba5cddd019d9031fc476d8110842920f
 
 after_script:
-  - if [[ `node --version` =~ ^v8.5 ]] ; then npm run coverage ; npm install codeclimate-test-reporter ; codeclimate-test-reporter < coverage/lcov.info ; fi
+  - if [[ `node --version` =~ ^v9 && `node --version` !~ ^v9.0 ]] ; then npm run coverage ; npm install codeclimate-test-reporter ; codeclimate-test-reporter < coverage/lcov.info ; fi
