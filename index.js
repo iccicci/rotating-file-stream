@@ -154,15 +154,8 @@ RotatingFileStream.prototype.end = function() {
 RotatingFileStream.prototype.firstOpen = function() {
 	var self = this;
 
-	try {
+	if(! this.options.immutable)
 		this.name = this.generator(null);
-	}
-	catch(err) {
-		return process.nextTick(function() {
-			self.emit("error", err);
-			process.nextTick(self._rewrite.bind(self));
-		});
-	}
 
 	this.once("open", this.interval.bind(this));
 

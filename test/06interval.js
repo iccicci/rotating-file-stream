@@ -22,7 +22,7 @@ describe("interval", function() {
 		});
 
 		it("1 rotation", function() {
-			assert.equal(this.rfs.ev.rotation, 1);
+			assert.equal(this.rfs.ev.rotation.length, 1);
 		});
 
 		it("1 rotated", function() {
@@ -65,7 +65,7 @@ describe("interval", function() {
 		});
 
 		it("1 rotation", function() {
-			assert.equal(this.rfs.ev.rotation, 1);
+			assert.equal(this.rfs.ev.rotation.length, 1);
 		});
 
 		it("1 rotated", function() {
@@ -105,7 +105,7 @@ describe("interval", function() {
 		});
 
 		it("1 rotation", function() {
-			assert.equal(this.rfs.ev.rotation, 1);
+			assert.equal(this.rfs.ev.rotation.length, 1);
 		});
 
 		it("1 rotated", function() {
@@ -144,7 +144,7 @@ describe("interval", function() {
 		});
 
 		it("0 rotation", function() {
-			assert.equal(this.rfs.ev.rotation, 0);
+			assert.equal(this.rfs.ev.rotation.length, 0);
 		});
 
 		it("0 rotated", function() {
@@ -183,7 +183,7 @@ describe("interval", function() {
 		});
 
 		it("1 rotation", function() {
-			assert.equal(this.rfs.ev.rotation, 1);
+			assert.equal(this.rfs.ev.rotation.length, 1);
 		});
 
 		it("1 rotated", function() {
@@ -235,7 +235,7 @@ describe("interval", function() {
 		});
 
 		it("1 rotation", function() {
-			assert.equal(this.rfs.ev.rotation, 1);
+			assert.equal(this.rfs.ev.rotation.length, 1);
 		});
 
 		it("1 rotated", function() {

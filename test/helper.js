@@ -18,8 +18,8 @@ function exec(done, cmd, cb) {
 function _rfs(done, options, generator) {
 	var ret = rfs(generator || function(time, index) { if(time) return index + "-test.log"; return "test.log"; }, options);
 
-	ret.ev = { single: 0, multi: 0, rotation: 0, rotated: [] };
-	ret.on("rotation", function() { ret.ev.rotation++; });
+	ret.ev = { single: 0, multi: 0, rotation: [], rotated: [] };
+	ret.on("rotation", function(filename) { ret.ev.rotation.push(filename); });
 	ret.on("rotated", function(filename) { ret.ev.rotated.push(filename); });
 	ret.once("warning", function(err) { ret.ev.warn = err; });
 	ret.on("finish", done);

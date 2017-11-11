@@ -50,7 +50,7 @@ describe("use", function() {
 		});
 
 		it("3 rotation", function() {
-			assert.equal(this.rfs.ev.rotation, 3);
+			assert.equal(this.rfs.ev.rotation.length, 3);
 		});
 
 		it("3 rotated", function() {

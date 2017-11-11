@@ -120,6 +120,8 @@ var checks = {
 			throw new Error("Don't know how to handle 'options.history' type: " + typ);
 	},
 
+	"immutable": function() {},
+
 	"initialRotation": function() {},
 
 	"interval": buildStringCheck("interval", checkInterval),

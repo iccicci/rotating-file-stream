@@ -289,8 +289,9 @@ stream.on('removed', function(filename, number) {
     // number == false, the file was removed to not exceed maxSize
 });
 
-stream.on('rotation', function() {
+stream.on('rotation', function(filename) {
     // rotation job started
+    // filename: if immuate then newly generated file else null
 });
 
 stream.on('rotated', function(filename) {

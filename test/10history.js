@@ -42,7 +42,7 @@ describe("history", function() {
 		});
 
 		it("4 rotation", function() {
-			assert.equal(this.rfs.ev.rotation, 4);
+			assert.equal(this.rfs.ev.rotation.length, 4);
 		});
 
 		it("4 rotated", function() {
@@ -107,7 +107,7 @@ describe("history", function() {
 		});
 
 		it("4 rotation", function() {
-			assert.equal(this.rfs.ev.rotation, 4);
+			assert.equal(this.rfs.ev.rotation.length, 4);
 		});
 
 		it("4 rotated", function() {

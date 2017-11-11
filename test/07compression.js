@@ -24,7 +24,7 @@ describe("compression", function() {
 		});
 
 		it("1 rotation", function() {
-			assert.equal(this.rfs.ev.rotation, 1);
+			assert.equal(this.rfs.ev.rotation.length, 1);
 		});
 
 		it("1 rotated", function() {
@@ -69,7 +69,7 @@ describe("compression", function() {
 		});
 
 		it("1 rotation", function() {
-			assert.equal(this.rfs.ev.rotation, 1);
+			assert.equal(this.rfs.ev.rotation.length, 1);
 		});
 
 		it("1 rotated", function() {
@@ -112,7 +112,7 @@ describe("compression", function() {
 		});
 
 		it("1 rotation", function() {
-			assert.equal(this.rfs.ev.rotation, 1);
+			assert.equal(this.rfs.ev.rotation.length, 1);
 		});
 
 		it("1 rotated", function() {
@@ -155,7 +155,7 @@ describe("compression", function() {
 		});
 
 		it("1 rotation", function() {
-			assert.equal(this.rfs.ev.rotation, 1);
+			assert.equal(this.rfs.ev.rotation.length, 1);
 		});
 
 		it("1 rotated", function() {
@@ -198,7 +198,7 @@ describe("compression", function() {
 		});
 
 		it("1 rotation", function() {
-			assert.equal(this.rfs.ev.rotation, 1);
+			assert.equal(this.rfs.ev.rotation.length, 1);
 		});
 
 		it("0 rotated", function() {
@@ -240,7 +240,7 @@ describe("compression", function() {
 		});
 
 		it("1 rotation", function() {
-			assert.equal(this.rfs.ev.rotation, 1);
+			assert.equal(this.rfs.ev.rotation.length, 1);
 		});
 
 		it("0 rotated", function() {
@@ -271,7 +271,7 @@ describe("compression", function() {
 		});
 
 		it("1 rotation", function() {
-			assert.equal(this.rfs.ev.rotation, 1);
+			assert.equal(this.rfs.ev.rotation.length, 1);
 		});
 
 		it("0 rotated", function() {
@@ -311,7 +311,7 @@ describe("compression", function() {
 		});
 
 		it("1 rotation", function() {
-			assert.equal(this.rfs.ev.rotation, 1);
+			assert.equal(this.rfs.ev.rotation.length, 1);
 		});
 
 		it("0 rotated", function() {
@@ -352,7 +352,7 @@ describe("compression", function() {
 		});
 
 		it("1 rotation", function() {
-			assert.equal(this.rfs.ev.rotation, 1);
+			assert.equal(this.rfs.ev.rotation.length, 1);
 		});
 
 		it("0 rotated", function() {
@@ -399,7 +399,7 @@ describe("compression", function() {
 		});
 
 		it("1 rotation", function() {
-			assert.equal(this.rfs.ev.rotation, 1);
+			assert.equal(this.rfs.ev.rotation.length, 1);
 		});
 
 		it("0 rotated", function() {
@@ -440,7 +440,7 @@ describe("compression", function() {
 		});
 
 		it("1 rotation", function() {
-			assert.equal(this.rfs.ev.rotation, 1);
+			assert.equal(this.rfs.ev.rotation.length, 1);
 		});
 
 		it("0 rotated", function() {
@@ -480,7 +480,7 @@ describe("compression", function() {
 		});
 
 		it("1 rotation", function() {
-			assert.equal(this.rfs.ev.rotation, 1);
+			assert.equal(this.rfs.ev.rotation.length, 1);
 		});
 
 		it("0 rotated", function() {

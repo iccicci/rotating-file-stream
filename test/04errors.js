@@ -10,29 +10,18 @@ describe("errors", function() {
 		before(function(done) {
 			var self = this;
 			exec(done, "rm -rf *log", function() {
-				self.rfs = rfs(done, { size: "10B" }, function() { throw new Error("test"); });
-				self.rfs.end("test\n");
+				try {
+					rfs(done, { size: "10B" }, function() { throw new Error("test"); });
+				}
+				catch(e) {
+					self.err = e;
+					done();
+				}
 			});
 		});
 
 		it("Error", function() {
-			assert.equal(this.rfs.err.message, "test");
-		});
-
-		it("0 rotation", function() {
-			assert.equal(this.rfs.ev.rotation, 0);
-		});
-
-		it("0 rotated", function() {
-			assert.equal(this.rfs.ev.rotated.length, 0);
-		});
-
-		it("1 single write", function() {
-			assert.equal(this.rfs.ev.single, 1);
-		});
-
-		it("0 multi write", function() {
-			assert.equal(this.rfs.ev.multi, 0);
+			assert.equal(this.err.message, "test");
 		});
 	});
 
@@ -54,7 +43,7 @@ describe("errors", function() {
 		});
 
 		it("1 rotation", function() {
-			assert.equal(this.rfs.ev.rotation, 1);
+			assert.equal(this.rfs.ev.rotation.length, 1);
 		});
 
 		it("0 rotated", function() {
@@ -98,7 +87,7 @@ describe("errors", function() {
 		});
 
 		it("0 rotation", function() {
-			assert.equal(this.rfs.ev.rotation, 0);
+			assert.equal(this.rfs.ev.rotation.length, 0);
 		});
 
 		it("0 rotated", function() {
@@ -127,7 +116,7 @@ describe("errors", function() {
 		});
 
 		it("0 rotation", function() {
-			assert.equal(this.rfs.ev.rotation, 0);
+			assert.equal(this.rfs.ev.rotation.length, 0);
 		});
 
 		it("0 rotated", function() {
@@ -158,7 +147,7 @@ describe("errors", function() {
 		});
 
 		it("1 rotation", function() {
-			assert.equal(this.rfs.ev.rotation, 1);
+			assert.equal(this.rfs.ev.rotation.length, 1);
 		});
 
 		it("0 rotated", function() {
@@ -192,7 +181,7 @@ describe("errors", function() {
 		});
 
 		it("1 rotation", function() {
-			assert.equal(this.rfs.ev.rotation, 1);
+			assert.equal(this.rfs.ev.rotation.length, 1);
 		});
 
 		it("0 rotated", function() {
@@ -229,7 +218,7 @@ describe("errors", function() {
 		});
 
 		it("0 rotation", function() {
-			assert.equal(this.rfs.ev.rotation, 0);
+			assert.equal(this.rfs.ev.rotation.length, 0);
 		});
 
 		it("0 rotated", function() {
@@ -265,7 +254,7 @@ describe("errors", function() {
 		});
 
 		it("1 rotation", function() {
-			assert.equal(this.rfs.ev.rotation, 1);
+			assert.equal(this.rfs.ev.rotation.length, 1);
 		});
 
 		it("0 rotated", function() {
@@ -301,7 +290,7 @@ describe("errors", function() {
 		});
 
 		it("1 rotation", function() {
-			assert.equal(this.rfs.ev.rotation, 1);
+			assert.equal(this.rfs.ev.rotation.length, 1);
 		});
 
 		it("1 rotated", function() {
@@ -350,7 +339,7 @@ describe("errors", function() {
 		});
 
 		it("0 rotation", function() {
-			assert.equal(this.rfs.ev.rotation, 0);
+			assert.equal(this.rfs.ev.rotation.length, 0);
 		});
 
 		it("0 rotated", function() {
@@ -380,7 +369,7 @@ describe("errors", function() {
 		});
 
 		it("1 rotation", function() {
-			assert.equal(this.rfs.ev.rotation, 1);
+			assert.equal(this.rfs.ev.rotation.length, 1);
 		});
 
 		it("0 rotated", function() {
@@ -416,7 +405,7 @@ describe("errors", function() {
 		});
 
 		it("0 rotation", function() {
-			assert.equal(this.rfs.ev.rotation, 0);
+			assert.equal(this.rfs.ev.rotation.length, 0);
 		});
 
 		it("0 rotated", function() {
@@ -458,7 +447,7 @@ describe("errors", function() {
 		});
 
 		it("1 rotation", function() {
-			assert.equal(this.rfs.ev.rotation, 1);
+			assert.equal(this.rfs.ev.rotation.length, 1);
 		});
 
 		it("1 rotated", function() {
@@ -499,7 +488,7 @@ describe("errors", function() {
 		});
 
 		it("1 rotation", function() {
-			assert.equal(this.rfs.ev.rotation, 1);
+			assert.equal(this.rfs.ev.rotation.length, 1);
 		});
 
 		it("1 rotated", function() {
@@ -533,7 +522,7 @@ describe("errors", function() {
 		});
 
 		it("1 rotation", function() {
-			assert.equal(this.rfs.ev.rotation, 1);
+			assert.equal(this.rfs.ev.rotation.length, 1);
 		});
 
 		it("0 rotated", function() {

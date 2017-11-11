@@ -22,7 +22,7 @@ describe("classical", function() {
 		});
 
 		it("1 rotation", function() {
-			assert.equal(this.rfs.ev.rotation, 1);
+			assert.equal(this.rfs.ev.rotation.length, 1);
 		});
 
 		it("1 rotated", function() {
@@ -63,7 +63,7 @@ describe("classical", function() {
 		});
 
 		it("3 rotation", function() {
-			assert.equal(this.rfs.ev.rotation, 3);
+			assert.equal(this.rfs.ev.rotation.length, 3);
 		});
 
 		it("3 rotated", function() {
@@ -109,7 +109,7 @@ describe("classical", function() {
 		});
 
 		it("2 rotation", function() {
-			assert.equal(this.rfs.ev.rotation, 2);
+			assert.equal(this.rfs.ev.rotation.length, 2);
 		});
 
 		it("2 rotated", function() {
@@ -155,7 +155,7 @@ describe("classical", function() {
 		});
 
 		it("3 rotation", function() {
-			assert.equal(this.rfs.ev.rotation, 3);
+			assert.equal(this.rfs.ev.rotation.length, 3);
 		});
 
 		it("3 rotated", function() {
@@ -209,7 +209,7 @@ describe("classical", function() {
 		});
 
 		it("1 rotation", function() {
-			assert.equal(this.rfs.ev.rotation, 1);
+			assert.equal(this.rfs.ev.rotation.length, 1);
 		});
 
 		it("0 rotated", function() {
@@ -240,7 +240,7 @@ describe("classical", function() {
 		});
 
 		it("1 rotation", function() {
-			assert.equal(this.rfs.ev.rotation, 1);
+			assert.equal(this.rfs.ev.rotation.length, 1);
 		});
 
 		it("0 rotated", function() {
@@ -273,7 +273,7 @@ describe("classical", function() {
 		});
 
 		it("1 rotation", function() {
-			assert.equal(this.rfs.ev.rotation, 1);
+			assert.equal(this.rfs.ev.rotation.length, 1);
 		});
 
 		it("0 rotated", function() {
@@ -312,7 +312,7 @@ describe("classical", function() {
 		});
 
 		it("1 rotation", function() {
-			assert.equal(this.rfs.ev.rotation, 1);
+			assert.equal(this.rfs.ev.rotation.length, 1);
 		});
 
 		it("0 rotated", function() {
@@ -351,7 +351,7 @@ describe("classical", function() {
 		});
 
 		it("1 rotation", function() {
-			assert.equal(this.rfs.ev.rotation, 1);
+			assert.equal(this.rfs.ev.rotation.length, 1);
 		});
 
 		it("0 rotated", function() {
@@ -391,7 +391,7 @@ describe("classical", function() {
 		});
 
 		it("1 rotation", function() {
-			assert.equal(this.rfs.ev.rotation, 1);
+			assert.equal(this.rfs.ev.rotation.length, 1);
 		});
 
 		it("0 rotated", function() {
