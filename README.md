@@ -117,6 +117,7 @@ if part of returned destination path does not exists, the rotation job will try 
 * compress: {String|Function|True} (default: null) Specifies compression method of rotated files.
 * highWaterMark: {Number} (default: null) Proxied to [new stream.Writable](https://nodejs.org/api/stream.html#stream_constructor_new_stream_writable_options)
 * history: {String} (default: null) Specifies the _history filename_.
+* immutable: {Boolean} (default: null) Never mutates file names.
 * initialRotation: {Boolean} (default: null) Initial rotation based on _not-rotated file_ timestamp.
 * interval: {String} (default: null) Specifies the time interval to rotate the file.
 * maxFiles: {Integer} (default: null) Specifies the maximum number of rotated files to keep.
@@ -219,6 +220,12 @@ var stream = rfs('file.log', {
 __Note:__
 the shell command to compress the rotated file should not remove the source file, it will be removed by the package
 if rotation job complete with success.
+
+#### immutable
+
+If set to __true__, names of generated files never changes. In other words the _rotated file name generator_ is never
+called with a __null__ _time_ parameter and new files are immediately generated with their rotated name.
+__rotation__ _envet_ now has a _filename_ paramere with the newly created file name.
 
 #### rotationTime
 
