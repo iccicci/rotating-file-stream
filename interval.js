@@ -10,7 +10,7 @@ function _clear(done) {
 	}
 }
 
-function _interval(now) {
+function __interval(now) {
 	    now   = new Date(now);
 	var year  = now.getFullYear();
 	var month = now.getMonth();
@@ -32,15 +32,11 @@ function _interval(now) {
 		this.next = new Date(year, month, day, hours + num, 0, 0, 0).getTime();
 }
 
-function interval() {
-	if(! this.options.interval)
-		return;
-
-	var now  = this.now();
+function _interval(now) {
 	var unit = this.options.interval.unit;
 
 	if(unit === "d" || unit === "h") {
-		this._interval(now);
+		this.__interval(now);
 	}
 	else {
 		var period = 1000 * this.options.interval.num;
@@ -52,6 +48,16 @@ function interval() {
 		this.next = this.prev + period;
 	}
 
+	return new Date(this.prev);
+}
+
+function interval() {
+	if(! this.options.interval)
+		return;
+
+	var now  = this.now();
+
+	this._interval(now);
 	this.timer = setTimeout(this.rotate.bind(this), this.next - now);
 	this.timer.unref();
 }
@@ -153,8 +159,9 @@ function history(lastfile) {
 }
 
 module.exports = {
-	_clear:    _clear,
-	_interval: _interval,
-	history:   history,
-	interval:  interval,
+	__interval: __interval,
+	_clear:     _clear,
+	_interval:  _interval,
+	history:    history,
+	interval:   interval,
 };
