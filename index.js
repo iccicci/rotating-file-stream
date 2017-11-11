@@ -33,9 +33,6 @@ function RotatingFileStream(filename, options) {
 		};
 	}
 
-	if(options.rotationTime && options.initialRotation)
-		options.initialRotation = null;
-
 	var opt = {};
 
 	if(options.highWaterMark)
@@ -154,9 +151,7 @@ RotatingFileStream.prototype.end = function() {
 RotatingFileStream.prototype.firstOpen = function() {
 	var self = this;
 
-	if(! this.options.immutable)
-		this.name = this.generator(null);
-
+	this.name = this.generator(this.options.immutable ? this._interval() : null);
 	this.once("open", this.interval.bind(this));
 
 	fs.stat(this.name, function(err, stats) {
@@ -275,12 +270,21 @@ RotatingFileStream.prototype.open = function(retry) {
 };
 
 RotatingFileStream.prototype.rotate = function() {
+	var mutable   = this.options.rotate || ! this.options.immutable;
 	this.size     = 0;
 	this.rotation = new Date();
 
 	this._clear();
-	this._close(this.options.rotate ? this.classical.bind(this, this.options.rotate) : this.move.bind(this));
-	this.emit("rotation");
+	this._close(mutable ?
+		this.options.rotate ?
+			this.classical.bind(this, this.options.rotate) :
+			this.move.bind(this) :
+		function() {
+			this.emit("rotation");
+		}.bind(this));
+
+	if(mutable)
+		this.emit("rotation");
 };
 
 for(var i in compress)

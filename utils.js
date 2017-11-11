@@ -164,6 +164,26 @@ function checkOptions(options) {
 		checks[opt](typ, ret, val);
 	}
 
+	if(! ret.interval) {
+		delete ret.immutable;
+		delete ret.initialRotation;
+		delete ret.rotationTime;
+	}
+
+	if(ret.rotate) {
+		delete ret.history;
+		delete ret.immutable;
+		delete ret.maxFiles;
+		delete ret.maxSize;
+		delete ret.rotationTime;
+	}
+
+	if(ret.immutable)
+		delete ret.compress;
+
+	if(ret.rotationTime)
+		delete ret.initialRotation;
+
 	return ret;
 }
 

@@ -218,20 +218,11 @@ var stream = rfs('file.log', {
 ```
 
 __Note:__
+this option is ignored if __immutable__ is set to __true__.
+
+__Note:__
 the shell command to compress the rotated file should not remove the source file, it will be removed by the package
 if rotation job complete with success.
-
-#### immutable
-
-If set to __true__, names of generated files never changes. In other words the _rotated file name generator_ is never
-called with a __null__ _time_ parameter and new files are immediately generated with their rotated name.
-__rotation__ _envet_ now has a _filename_ paramere with the newly created file name.
-
-#### rotationTime
-
-As specified above, if rotation by interval is enabled, the parameter _time_ passed to _rotatle name generator_ is the
-start time of rotation period. Setting this option to __true__, parameter _time_ passed is time when rotation job
-started.
 
 #### initialRotation
 When program stops in a rotation period then restarts in a new rotation period, logs of differente rotation period will
@@ -249,6 +240,22 @@ _logrotate.conf_ file.
 
 __Note:__
 following options are ignored if __rotate__ option is specified.
+
+#### immutable
+
+If set to __true__, names of generated files never changes. In other words the _rotated file name generator_ is never
+called with a __null__ _time_ parameter and new files are immediately generated with their rotated name.
+__rotation__ _envet_ now has a _filename_ paramere with the newly created file name.
+Usefull to send logs to logstash through filebeat.
+
+__Note:__
+if this option is set to _true__, __compress__ is ignored.
+
+#### rotationTime
+
+As specified above, if rotation by interval is enabled, the parameter _time_ passed to _rotatle name generator_ is the
+start time of rotation period. Setting this option to __true__, parameter _time_ passed is time when rotation job
+started.
 
 #### history
 

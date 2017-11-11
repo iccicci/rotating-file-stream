@@ -35,9 +35,8 @@ function __interval(now) {
 function _interval(now) {
 	var unit = this.options.interval.unit;
 
-	if(unit === "d" || unit === "h") {
+	if(unit === "d" || unit === "h")
 		this.__interval(now);
-	}
 	else {
 		var period = 1000 * this.options.interval.num;
 
