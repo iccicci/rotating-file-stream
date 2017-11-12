@@ -81,7 +81,7 @@ function generator(time, index) {
     var hour   = pad(time.getHours());
     var minute = pad(time.getMinutes());
 
-    return "/storage/" + month + "/" + month +
+    return month + "/" + month +
         day + "-" + hour + minute + "-" + index + "-file.log";
 }
 
@@ -249,13 +249,16 @@ __rotation__ _envet_ now has a _filename_ paramere with the newly created file n
 Usefull to send logs to logstash through filebeat.
 
 __Note:__
-if this option is set to _true__, __compress__ is ignored.
+if this option is set to __true__, __compress__ is ignored.
 
 #### rotationTime
 
 As specified above, if rotation by interval is enabled, the parameter _time_ passed to _rotatle name generator_ is the
 start time of rotation period. Setting this option to __true__, parameter _time_ passed is time when rotation job
 started.
+
+__Note:__
+if this option is set to __true__, __initialRotation__ is ignored.
 
 #### history
 
@@ -298,7 +301,7 @@ stream.on('removed', function(filename, number) {
 
 stream.on('rotation', function(filename) {
     // rotation job started
-    // filename: if immuate then newly generated file else null
+    // filename: if immutable then newly generated file else null
 });
 
 stream.on('rotated', function(filename) {

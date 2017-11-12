@@ -151,7 +151,10 @@ RotatingFileStream.prototype.end = function() {
 RotatingFileStream.prototype.firstOpen = function() {
 	var self = this;
 
-	this.name = this.generator(this.options.immutable ? this._interval() : null);
+	if(this.options.immutable)
+		return this.immutate();
+
+	this.name = this.generator(null);
 	this.once("open", this.interval.bind(this));
 
 	fs.stat(this.name, function(err, stats) {
@@ -187,6 +190,10 @@ RotatingFileStream.prototype.firstOpen = function() {
 		self.rotate();
 	});
 };
+
+RotatingFileStream.prototype.immutate = function() {
+	this.emit("rotation");
+}
 
 RotatingFileStream.prototype.move = function(retry) {
 	var name;
@@ -279,9 +286,7 @@ RotatingFileStream.prototype.rotate = function() {
 		this.options.rotate ?
 			this.classical.bind(this, this.options.rotate) :
 			this.move.bind(this) :
-		function() {
-			this.emit("rotation");
-		}.bind(this));
+		this.immutate.bind(this));
 
 	if(mutable)
 		this.emit("rotation");
