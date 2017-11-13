@@ -292,8 +292,9 @@ stream.on('error', function(err) {
     // once this event is emitted, the stream will be closed as well
 });
 
-stream.on('open', function() {
+stream.on('open', function(filename) {
     // no rotated file is open (emitted after each rotation as well)
+    // filename: useful if immutable option is true
 });
 
 stream.on('removed', function(filename, number) {
@@ -302,9 +303,8 @@ stream.on('removed', function(filename, number) {
     // number == false, the file was removed to not exceed maxSize
 });
 
-stream.on('rotation', function(filename) {
+stream.on('rotation', function() {
     // rotation job started
-    // filename: if immutable then newly generated file else null
 });
 
 stream.on('rotated', function(filename) {

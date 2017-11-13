@@ -90,7 +90,7 @@ describe("errors", function() {
 		});
 
 		it("0 rotation", function() {
-			assert.equal(this.rfs.ev.rotation.length, 0);
+			assert.equal(this.rfs.ev.rotation.length, 1);
 		});
 
 		it("0 rotated", function() {
