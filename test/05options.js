@@ -181,13 +181,14 @@ describe("options", function() {
 		});
 	});
 
-	xdescribe("immutable", function() {
+	describe("immutable", function() {
 		before(function(done) {
 			var self = this;
-			exec(done, "rm -rf *log", function() {
-				self.rfs = rfs(done, { immutable: true, size: "10B" });
-				self.rfs.write("test\n");
-				self.rfs.write("test\n");
+			exec(done, "rm -rf *log ; echo test > 1-test.log ; echo test > 2-test.log ; echo test >> 2-test.log", function() {
+				self.rfs = rfs(done, { immutable: true, interval: "1d", size: "10B" });
+				self.rfs.write("tes1\n");
+				self.rfs.write("tes2\n");
+				self.rfs.write("tes3\n");
 				self.rfs.end("test\n");
 			});
 		});
@@ -196,29 +197,36 @@ describe("options", function() {
 			assert.ifError(this.rfs.ev.err);
 		});
 
-		it("1 rotation", function() {
-			assert.equal(this.rfs.ev.rotation.length, 1);
+		it("2 rotation", function() {
+			assert.equal(this.rfs.ev.rotation.length, 2);
+			assert.equal(this.rfs.ev.rotation[0], "3-test.log");
+			assert.equal(this.rfs.ev.rotation[1], "4-test.log");
 		});
 
-		it("1 rotated", function() {
-			assert.equal(this.rfs.ev.rotated.length, 1);
-			assert.equal(this.rfs.ev.rotated[0], "/tmp/1-test.log");
+		it("2 rotated", function() {
+			assert.equal(this.rfs.ev.rotated.length, 2);
+			assert.equal(this.rfs.ev.rotated[0], "1-test.log");
+			assert.equal(this.rfs.ev.rotated[1], "3-test.log");
 		});
 
 		it("1 single write", function() {
 			assert.equal(this.rfs.ev.single, 1);
 		});
 
-		it("0 multi write", function() {
-			assert.equal(this.rfs.ev.multi, 0);
+		it("1 multi write", function() {
+			assert.equal(this.rfs.ev.multi, 1);
 		});
 
-		it("file content", function() {
-			assert.equal(fs.readFileSync("/tmp/test.log"), "");
+		it("1st file content", function() {
+			assert.equal(fs.readFileSync("1-test.log"), "test\ntes1\n");
 		});
 
-		it("rotated file content", function() {
-			assert.equal(fs.readFileSync("/tmp/1-test.log"), "test\ntest\n");
+		it("2nd file content", function() {
+			assert.equal(fs.readFileSync("3-test.log"), "tes2\ntes3\n");
+		});
+
+		it("3rd file content", function() {
+			assert.equal(fs.readFileSync("4-test.log"), "test\n");
 		});
 	});
 });

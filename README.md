@@ -250,6 +250,8 @@ Usefull to send logs to logstash through filebeat.
 
 __Note:__
 if this option is set to __true__, __compress__ is ignored.
+__Note:__
+this option is ignored if __interval__ is not set.
 
 #### rotationTime
 

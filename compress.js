@@ -177,20 +177,24 @@ function external(src, dst, callback) {
 	});
 }
 
+function exhausted(attempts) {
+	var err  = new Error("Too many destination file attempts");
+	err.code = "RFS-TOO-MANY";
+
+	if(attempts)
+		err.attempts = attempts;
+
+	return err;
+}
+
 function findName(attempts, tmp, callback) {
 	var count = 0;
 
 	for(var i in attempts)
 		count += attempts[i];
 
-	if(count >= 1000) {
-		var err = new Error("Too many destination file attempts");
-
-		err.attempts = attempts;
-		err.code     = "RFS-TOO-MANY";
-
-		return callback(err);
-	}
+	if(count >= 1000)
+		return callback(this.exhausted(attempts));
 
 	var name = this.name + "." + count + ".rfs.tmp";
 	var self = this;
@@ -265,6 +269,7 @@ function touch(name, callback, retry) {
 module.exports = {
 	classical: classical,
 	compress:  compress,
+	exhausted: exhausted,
 	external:  external,
 	findName:  findName,
 	gzip:      gzip,

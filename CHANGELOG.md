@@ -1,6 +1,6 @@
-* 2017-11-?? - v1.3.3
+* 2017-11-13 - v1.3.3
   * Solved: [problem with TypeScript](https://github.com/iccicci/rotating-file-stream/issues/19)
-  * __immutale__ option added
+  * __immutable__ option added
 * 2017-09-23 - v1.3.2
   * devDependencies updated
 * 2017-09-21 - v1.3.1

@@ -74,11 +74,76 @@ describe("errors", function() {
 		});
 	});
 
+	describe("wrong name generator (immutable)", function() {
+		before(function(done) {
+			var self  = this;
+			var first = true;
+			exec(done, "rm -rf *log", function() {
+				self.rfs = rfs(done, { immutable: true, interval: "1d", size: "5B" }, function(time) { if(! first) throw new Error("test"); first = false; return "test.log"; });
+				self.rfs.write("test\n");
+				self.rfs.end("test\n");
+			});
+		});
+
+		it("Error", function() {
+			assert.equal(this.rfs.err.message, "test");
+		});
+
+		it("0 rotation", function() {
+			assert.equal(this.rfs.ev.rotation.length, 0);
+		});
+
+		it("0 rotated", function() {
+			assert.equal(this.rfs.ev.rotated.length, 0);
+		});
+
+		it("2 single write", function() {
+			assert.equal(this.rfs.ev.single, 2);
+		});
+
+		it("0 multi write", function() {
+			assert.equal(this.rfs.ev.multi, 0);
+		});
+
+		it("file content", function() {
+			assert.equal(fs.readFileSync("test.log"), "test\n");
+		});
+	});
+
 	describe("logging on directory", function() {
 		before(function(done) {
 			var self = this;
 			exec(done, "rm -rf *log", function() {
 				self.rfs = rfs(done, { size: "5B" }, "test");
+			});
+		});
+
+		it("Error", function() {
+			assert.equal(this.rfs.err.message, "Can't write on: test (it is not a file)");
+		});
+
+		it("0 rotation", function() {
+			assert.equal(this.rfs.ev.rotation.length, 0);
+		});
+
+		it("0 rotated", function() {
+			assert.equal(this.rfs.ev.rotated.length, 0);
+		});
+
+		it("0 single write", function() {
+			assert.equal(this.rfs.ev.single, 0);
+		});
+
+		it("0 multi write", function() {
+			assert.equal(this.rfs.ev.multi, 0);
+		});
+	});
+
+	describe("logging on directory (immutable)", function() {
+		before(function(done) {
+			var self = this;
+			exec(done, "rm -rf *log", function() {
+				self.rfs = rfs(done, { immutable: true, interval: "1d", size: "5B" }, function() { return "test"; });
 			});
 		});
 
@@ -531,6 +596,75 @@ describe("errors", function() {
 
 		it("1 single write", function() {
 			assert.equal(this.rfs.ev.single, 1);
+		});
+
+		it("0 multi write", function() {
+			assert.equal(this.rfs.ev.multi, 0);
+		});
+	});
+
+	describe("error in stat (immutable)", function() {
+		before(function(done) {
+			var self = this;
+			var preS = fs.stat;
+			fs.stat  = function(a, b) { process.nextTick(b.bind(null, new Error("test"))); };
+			exec(done, "rm -rf *log", function() {
+				self.rfs = rfs(done, { immutable: true, interval: "1d", size: "5B" });
+				self.rfs.on("error", function() { fs.stat = preS; });
+			});
+		});
+
+		it("error", function() {
+			assert.equal(this.rfs.err.message, "test");
+		});
+
+		it("no warning", function() {
+			assert.ifError(this.rfs.ev.warn);
+		});
+
+		it("0 rotation", function() {
+			assert.equal(this.rfs.ev.rotation.length, 0);
+		});
+
+		it("0 rotated", function() {
+			assert.equal(this.rfs.ev.rotated.length, 0);
+		});
+
+		it("0 single write", function() {
+			assert.equal(this.rfs.ev.single, 0);
+		});
+
+		it("0 multi write", function() {
+			assert.equal(this.rfs.ev.multi, 0);
+		});
+	});
+
+	describe("immutable exhausted", function() {
+		before(function(done) {
+			var self = this;
+			exec(done, "rm -rf *log ; echo test > test.log", function() {
+				self.rfs = rfs(done, { immutable: true, interval: "1d", size: "5B" }, function() { return "test.log"; });
+			});
+		});
+
+		it("error", function() {
+			assert.equal(this.rfs.err.message, "Too many destination file attempts");
+		});
+
+		it("no warning", function() {
+			assert.ifError(this.rfs.ev.warn);
+		});
+
+		it("0 rotation", function() {
+			assert.equal(this.rfs.ev.rotation.length, 0);
+		});
+
+		it("0 rotated", function() {
+			assert.equal(this.rfs.ev.rotated.length, 0);
+		});
+
+		it("0 single write", function() {
+			assert.equal(this.rfs.ev.single, 0);
 		});
 
 		it("0 multi write", function() {

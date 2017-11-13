@@ -152,7 +152,7 @@ RotatingFileStream.prototype.firstOpen = function() {
 	var self = this;
 
 	if(this.options.immutable)
-		return this.immutate();
+		return this.immutate(true);
 
 	this.name = this.generator(null);
 	this.once("open", this.interval.bind(this));
@@ -168,7 +168,7 @@ RotatingFileStream.prototype.firstOpen = function() {
 		if(! stats.isFile())
 			return self.emit("error", new Error("Can't write on: " + self.name + " (it is not a file)"));
 
-		if(self.options.interval && self.options.initialRotation) {
+		if(self.options.initialRotation) {
 			var prev;
 
 			self._interval(self.now());
@@ -191,8 +191,53 @@ RotatingFileStream.prototype.firstOpen = function() {
 	});
 };
 
-RotatingFileStream.prototype.immutate = function() {
-	this.emit("rotation");
+RotatingFileStream.prototype.immutate = function(first, index, now) {
+	if(! index) {
+		index = 1;
+		now   = this.now();
+	}
+
+	if(index >= 1001)
+		return this.emit("error", this.exhausted());
+
+	if(index === 1)
+		this.last = this.name;
+
+	try{ this.name = this.generator(now, index); }
+	catch(e) { return this.emit("error", e); }
+
+	var open = function() {
+		this.open();
+		this.once("open", function() {
+			if(! first) {
+				this.emit("rotation", this.name);
+				this.emit("rotated", this.last);
+			}
+
+			this.interval();
+		}.bind(this));
+	}.bind(this);
+
+	fs.stat(this.name, function(err, stats) {
+		this.size = 0;
+
+		if(err) {
+			if(err.code === "ENOENT")
+				return open();
+
+			return this.emit("error", err);
+		}
+
+		if(! stats.isFile())
+			return this.emit("error", new Error("Can't write on: " + this.name + " (it is not a file)"));
+
+		this.size = stats.size;
+
+		if(this.options.size && stats.size >= this.options.size)
+			return this.immutate(first, index + 1, now);
+
+		open();
+	}.bind(this));
 }
 
 RotatingFileStream.prototype.move = function(retry) {
