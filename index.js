@@ -203,12 +203,14 @@ RotatingFileStream.prototype.immutate = function(first, index, now) {
 	try{ this.name = this.generator(now, index); }
 	catch(e) { return this.emit("error", e); }
 
-	var open = function() {
+	var open = function(size) {
+		this.size = size;
 		this.open();
 		this.once("open", function() {
 			if(! first)
 				this.emit("rotated", this.last);
 
+			this.last = this.name;
 			this.interval();
 		}.bind(this));
 	}.bind(this);
@@ -216,7 +218,7 @@ RotatingFileStream.prototype.immutate = function(first, index, now) {
 	fs.stat(this.name, function(err, stats) {
 		if(err) {
 			if(err.code === "ENOENT")
-				return open();
+				return open(0);
 
 			return this.emit("error", err);
 		}
@@ -224,12 +226,10 @@ RotatingFileStream.prototype.immutate = function(first, index, now) {
 		if(! stats.isFile())
 			return this.emit("error", new Error("Can't write on: " + this.name + " (it is not a file)"));
 
-		this.size = stats.size;
-
 		if(this.options.size && stats.size >= this.options.size)
 			return this.immutate(first, index + 1, now);
 
-		open();
+		open(stats.size);
 	}.bind(this));
 }
 
@@ -295,7 +295,6 @@ RotatingFileStream.prototype.open = function(retry) {
 	var stream = fs.createWriteStream(this.name, options);
 
 	stream.once("open", function() {
-		self.last   = self.name;
 		self.stream = stream;
 		self.emit("open", self.name);
 
@@ -322,10 +321,10 @@ RotatingFileStream.prototype.rotate = function() {
 	this.emit("rotation");
 	this._clear();
 	this._close(this.options.rotate ?
-			this.classical.bind(this, this.options.rotate) :
-			this.options.immutable ?
-				this.immutate.bind(this) :
-				this.move.bind(this));
+		this.classical.bind(this, this.options.rotate) :
+		this.options.immutable ?
+			this.immutate.bind(this) :
+			this.move.bind(this));
 };
 
 for(var i in compress)

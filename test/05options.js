@@ -181,15 +181,13 @@ describe("options", function() {
 		});
 	});
 
-	describe.only("immutable", function() {
+	describe("immutable", function() {
 		before(function(done) {
 			var self = this;
 			exec(done, "rm -rf *log ; echo test > 1-test.log ; echo test > 2-test.log ; echo test >> 2-test.log", function() {
 				self.rfs = rfs(done, { immutable: true, interval: "1d", size: "10B" });
 				self.rfs.ev.op = [];
-				self.rfs.on("open", function(filename) { console.log("open", filename); self.rfs.ev.op.push(filename); });
-				self.rfs.on("rotation", function(filename) { console.log("rotation"); });
-				self.rfs.on("rotated", function(filename) { console.log("rotated", filename); });
+				self.rfs.on("open", function(filename) { self.rfs.ev.op.push(filename); });
 				self.rfs.write("tes1\n");
 				self.rfs.write("tes2\n");
 				self.rfs.write("tes3\n");
@@ -202,16 +200,20 @@ describe("options", function() {
 		});
 
 		it("2 rotation", function() {
-			console.log(this.rfs.ev);
 			assert.equal(this.rfs.ev.rotation.length, 2);
-			assert.equal(this.rfs.ev.rotation[0], "3-test.log");
-			assert.equal(this.rfs.ev.rotation[1], "4-test.log");
 		});
 
 		it("2 rotated", function() {
 			assert.equal(this.rfs.ev.rotated.length, 2);
 			assert.equal(this.rfs.ev.rotated[0], "1-test.log");
 			assert.equal(this.rfs.ev.rotated[1], "3-test.log");
+		});
+
+		it("3 open", function() {
+			assert.equal(this.rfs.ev.op.length, 3);
+			assert.equal(this.rfs.ev.op[0], "1-test.log");
+			assert.equal(this.rfs.ev.op[1], "3-test.log");
+			assert.equal(this.rfs.ev.op[2], "4-test.log");
 		});
 
 		it("1 single write", function() {
