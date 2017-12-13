@@ -1,5 +1,8 @@
 ---
 checks:
+  method-complexity:
+    config:
+      threshold: 30
   method-lines:
     config:
       threshold: 100
