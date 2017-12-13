@@ -1,4 +1,8 @@
 ---
+checks:
+  method-lines:
+    config:
+      threshold: 100
 engines:
   duplication:
     enabled: true
