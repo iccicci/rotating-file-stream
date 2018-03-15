@@ -171,10 +171,10 @@ rules:
   operator-linebreak: 0
   padded-blocks: 0
   quote-props: 0
-  quotes: 0
+  quotes: [2, "double"]
   require-jsdoc: 0
   semi-spacing: 0
-  semi: 0
+  semi: 2
   sort-vars: 0
   space-after-keywords: 0
   space-before-blocks: 0

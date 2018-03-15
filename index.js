@@ -231,7 +231,7 @@ RotatingFileStream.prototype.immutate = function(first, index, now) {
 
 		open(stats.size);
 	}.bind(this));
-}
+};
 
 RotatingFileStream.prototype.move = function(retry) {
 	var name;

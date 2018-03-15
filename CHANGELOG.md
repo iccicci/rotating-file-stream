@@ -1,3 +1,6 @@
+* 2018-03-15 - v1.3.5
+  * Using slightly faster timestamp generator function (thanks to [jorgemsrs](https://github.com/jorgemsrs))
+  * devDependencies update
 * 2017-11-13 - v1.3.4
   * __immutable__ option review
 * 2017-11-13 - v1.3.3

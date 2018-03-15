@@ -464,7 +464,7 @@ describe("compression", function() {
 				self.rfs = rfs(done, { size: "10B", compress: true });
 				preF = self.rfs.findName;
 				self.rfs.findName = function(att, tmp, callback) {
-					if(! ('1-test.log' in att))
+					if(! ("1-test.log" in att))
 						return preF.apply(this, arguments);
 					var e  = new Error("test");
 					e.code = "TEST";
