@@ -275,7 +275,7 @@ RotatingFileStream.prototype.move = function(retry) {
 };
 
 RotatingFileStream.prototype.now = function() {
-	return new Date().getTime();
+	return Date.now();
 };
 
 RotatingFileStream.prototype.open = function(retry) {
