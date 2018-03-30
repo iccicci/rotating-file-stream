@@ -194,7 +194,7 @@ RotatingFileStream.prototype.firstOpen = function() {
 RotatingFileStream.prototype.immutate = function(first, index, now) {
 	if(! index) {
 		index = 1;
-		now   = this.now();
+		now   = new Date();
 	}
 
 	if(index >= 1001)
