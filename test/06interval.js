@@ -247,11 +247,13 @@ describe("interval", function() {
 		});
 
 		it("file content", function() {
-			assert.equal(fs.readFileSync("test.log"), "test\n");
+			var cnt = fs.readFileSync("test.log").toString();
+			assert.equal(cnt, "test\n");
 		});
 
 		it("rotated file content", function() {
-			assert.equal(fs.readFileSync("1-test.log"), "test\ntest\n");
+			var cnt = fs.readFileSync("1-test.log").toString();
+			assert.equal(cnt, "test\ntest\n");
 		});
 	});
 });
