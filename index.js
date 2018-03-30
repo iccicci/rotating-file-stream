@@ -88,11 +88,11 @@ RotatingFileStream.prototype._rewrite = function() {
 	if(this.options.size && this.size >= this.options.size)
 		return this.rotate();
 
-	if(! this.chunks.length)
-		return callback();
-
 	if(! this.stream)
 		return;
+
+	if(! this.chunks.length)
+		return callback();
 
 	var chunk = this.chunks[0];
 

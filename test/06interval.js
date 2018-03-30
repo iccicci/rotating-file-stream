@@ -168,13 +168,8 @@ describe("interval", function() {
 		before(function(done) {
 			var self = this;
 			exec(done, "rm -rf *log ; echo test > test.log", function() {
-				var now  = new Date().getTime();
-				var sec  = parseInt(now / 1000, 10) * 1000;
-				var open = sec + (sec + 900 > now ? 900 : 1900);
-				setTimeout(function() {
-					self.rfs = rfs(done, { interval: "1s" });
-					self.rfs.on("rotation", self.rfs.end.bind(self.rfs, "test\n"));
-				}, open - now);
+				self.rfs = rfs(done, { interval: "1s" });
+				self.rfs.on("rotation", self.rfs.end.bind(self.rfs, "test\n"));
 			});
 		});
 
@@ -200,11 +195,13 @@ describe("interval", function() {
 		});
 
 		it("file content", function() {
-			assert.equal(fs.readFileSync("test.log"), "test\n");
+			var cnt = fs.readFileSync("test.log").toString();
+			assert.equal(cnt, "test\n");
 		});
 
 		it("rotated file content", function() {
-			assert.equal(fs.readFileSync("1-test.log"), "test\n");
+			var cnt = fs.readFileSync("1-test.log").toString();
+			assert.equal(cnt, "test\n");
 		});
 	});
 
