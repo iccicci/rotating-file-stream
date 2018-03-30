@@ -4,6 +4,7 @@ var assert = require("assert");
 var exec   = require("./helper").exec;
 var fs     = require("fs");
 var rfs    = require("./helper").rfs;
+var utils  = require("../utils");
 
 describe("options", function() {
 	describe("size KiloBytes", function() {
@@ -234,6 +235,54 @@ describe("options", function() {
 
 		it("3rd file content", function() {
 			assert.equal(fs.readFileSync("4-test.log"), "test\n");
+		});
+	});
+
+	describe("immutable with time", function() {
+		before(function(done) {
+			var self = this;
+			exec(done, "rm -rf *log", function() {
+				self.rfs = rfs(done, { immutable: true, interval: "1d", size: "10B" }, utils.createGenerator("test.log"));
+				self.rfs.now = function() { return new Date(1976, 0, 23, 13, 29, 23, 123).getTime(); };
+				self.rfs.ev.op = [];
+				self.rfs.on("open", function(filename) { self.rfs.ev.op.push(filename); });
+				self.rfs.write("test\n");
+				self.rfs.write("test\n");
+				self.rfs.end("test\n");
+			});
+		});
+
+		it("no error", function() {
+			assert.ifError(this.rfs.ev.err);
+		});
+
+		it("1 rotation", function() {
+			assert.equal(this.rfs.ev.rotation.length, 1);
+		});
+
+		it("1 rotated", function() {
+			assert.equal(this.rfs.ev.rotated.length, 1);
+		});
+
+		it("2 open", function() {
+			assert.equal(this.rfs.ev.op.length, 2);
+			assert.equal(this.rfs.ev.op[1], "19760123-1329-01-test.log");
+		});
+
+		it("1 single write", function() {
+			assert.equal(this.rfs.ev.single, 1);
+		});
+
+		it("1 multi write", function() {
+			assert.equal(this.rfs.ev.multi, 1);
+		});
+
+		it("1st file content", function() {
+			assert.equal(fs.readFileSync(this.rfs.ev.op[0]), "test\ntest\n");
+		});
+
+		it("2nd file content", function() {
+			assert.equal(fs.readFileSync("19760123-1329-01-test.log"), "test\n");
 		});
 	});
 });

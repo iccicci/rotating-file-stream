@@ -212,21 +212,16 @@ describe("interval", function() {
 		before(function(done) {
 			var self = this;
 			exec(done, "rm -rf *log ; echo test > test.log", function() {
-				var now  = new Date().getTime();
-				var sec  = parseInt(now / 1000, 10) * 1000;
-				var open = sec + (sec + 900 > now ? 900 : 1900);
-				setTimeout(function() {
-					self.rfs = rfs(done, { interval: "1s"});
-					self.rfs.once("open", function() {
-						var prev = self.rfs.stream._write;
-						self.rfs.stream._write = function(chunk, encoding, callback) {
-							setTimeout(prev.bind(self.rfs.stream, chunk, encoding, callback), 200);
-						};
+				self.rfs = rfs(done, { interval: "1s"});
+				self.rfs.once("open", function() {
+					var prev = self.rfs.stream._write;
+					self.rfs.stream._write = function(chunk, encoding, callback) {
+						self.rfs.once("rotation", prev.bind(self.rfs.stream, chunk, encoding, callback));
+					};
 
-						self.rfs.write("test\n");
-						self.rfs.end("test\n");
-					});
-				}, open - now);
+					self.rfs.write("test\n");
+					self.rfs.end("test\n");
+				});
 			});
 		});
 
