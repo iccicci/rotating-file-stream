@@ -1,3 +1,7 @@
+* 2018-04-05 - v1.3.6
+  * Discovered and solved: ["write after end" error with immutable option](https://github.com/iccicci/rotating-file-stream/issues/23) (thanks to [JcBernack](https://github.com/JcBernack))
+  * Added a test case to cover that bug
+  * devDependencies update
 * 2018-03-15 - v1.3.5
   * Using slightly faster timestamp generator function (thanks to [jorgemsrs](https://github.com/jorgemsrs))
   * devDependencies update
