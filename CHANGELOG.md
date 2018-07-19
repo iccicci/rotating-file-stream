@@ -1,3 +1,5 @@
+* 2018-07-19 - v1.3.7
+  * devDependencies update
 * 2018-04-05 - v1.3.6
   * Discovered and solved: ["write after end" error with immutable option](https://github.com/iccicci/rotating-file-stream/issues/23) (thanks to [JcBernack](https://github.com/JcBernack))
   * Added a test case to cover that bug
