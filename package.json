@@ -24,12 +24,13 @@
     "cicci",
     "allevo",
     "Jorge Silva <jorgemsrs@gmail.com>",
-    "Jan Christoph Bernack <jc.bernack@gmail.com>"
+    "Jan Christoph Bernack <jc.bernack@gmail.com>",
+    "rakshith-ravi"
   ],
   "license": "MIT",
   "readmeFilename": "README.md",
   "devDependencies": {
-    "eslint": "5.1.0",
+    "eslint": "5.6.0",
     "istanbul": "0.4.5",
     "mocha": "5.2.0",
     "mocha-istanbul": "0.3.0"

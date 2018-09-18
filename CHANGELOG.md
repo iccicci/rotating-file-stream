@@ -1,3 +1,5 @@
+* 2018-09-18 - v1.3.8
+  * Added TypeScript Definition file (thanks to [rakshith-ravi](https://www.npmjs.com/~rakshith-ravi))
 * 2018-07-19 - v1.3.7
   * devDependencies update
 * 2018-04-05 - v1.3.6
