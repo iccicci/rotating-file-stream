@@ -1,6 +1,6 @@
-import { StreamOptions } from "morgan";
+import { WriteStream } from "fs";
 
-interface Options {
+interface RfsOptions {
 	compress?: string | Function | boolean
 	highWaterMark?: number
 	history?: string
@@ -16,4 +16,4 @@ interface Options {
 	size?: string
 }
 
-export default function (fileName: string | Function, options: Options): StreamOptions;
+export default function (fileName: string | Function, options: RfsOptions): WriteStream;
