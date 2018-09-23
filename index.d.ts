@@ -5,7 +5,7 @@ interface RfsOptions {
 	highWaterMark?: number
 	history?: string
 	immutable?: boolean
-	initialRotation?: Boolean
+	initialRotation?: boolean
 	interval?: string
 	maxFiles?: number
 	maxSize?: string
@@ -16,4 +16,5 @@ interface RfsOptions {
 	size?: string
 }
 
-export default function (fileName: string | Function, options: RfsOptions): WriteStream;
+declare function RotatingFileStream(fileName: string | Function, options: RfsOptions): WriteStream;
+export = RotatingFileStream;
