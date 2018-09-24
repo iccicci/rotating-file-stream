@@ -333,4 +333,5 @@ for(var i in compress)
 for(i in interval)
 	RotatingFileStream.prototype[i] = interval[i];
 
-module.exports = RotatingFileStream;
+module.exports         = RotatingFileStream;
+module.exports.default = RotatingFileStream;
