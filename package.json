@@ -25,6 +25,7 @@
     "cicci",
     "allevo",
     "rakshith-ravi",
+    "kbirger",
     "Jorge Silva <jorgemsrs@gmail.com>",
     "Jan Christoph Bernack <jc.bernack@gmail.com>"
   ],
@@ -37,6 +38,6 @@
     "mocha": "5.2.0",
     "mocha-istanbul": "0.3.0",
     "typescript": "3.0.3",
-    "@types/node": "10.10.3"
+    "@types/node": "10.11.0"
   }
 }

@@ -34,6 +34,34 @@ With [npm](https://www.npmjs.com/package/rotating-file-stream):
 $ npm install --save rotating-file-stream
 ```
 
+### Table of contents
+
+* [API](#api)
+  * [Class: RotatingFileStream](#class-rotatingfilestream)
+  * [RotatingFileStream(filename, options)](#new-rotatingfilestreamfilename-options)
+    * [filename](#filename-stringfunction)
+    * [options](#options-object)
+      * [compress](#compress)
+      * [history](#history)
+      * [immutable](#immutable)
+      * [initialRotation](#initialrotation)
+      * [interval](#interval)
+      * [maxFiles](#maxfiles)
+      * [maxSize](#maxsize)
+      * [path](#path)
+      * [rotate](#rotate)
+      * [rotationTime](#rotationtime)
+      * [size](#size)
+  * [Events](#events)
+  * [Rotation logic](#rotation-logic)
+  * [Under the hood](#under-the-hood)
+  * [Compatibility](#compatibility)
+  * [TypeScript](#typescript)
+  * [Licence](#licence)
+  * [Bugs](#bugs)
+  * [ChangeLog](#changelog)
+  * [Donating](#donating)
+
 # API
 
 ```javascript
@@ -364,6 +392,14 @@ compatibility. The package is tested under
 [several Node.js versions](https://travis-ci.org/iccicci/rotating-file-stream).
 
 __Required: Node.js 0.11__
+
+## TypeScript
+
+To import the package in a __TypeScript__ project, use following import statement.
+
+```typescript
+import rfs from 'rotating-file-stream';
+```
 
 ## Licence
 

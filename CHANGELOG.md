@@ -1,3 +1,7 @@
+* 2018-09-26 - v1.3.9
+  * Fixed TypeScript Definition file (thanks to [rakshith-ravi](https://www.npmjs.com/~rakshith-ravi) and [kbirger](https://www.npmjs.com/~kbirger))
+  * Added TOC and __TypeScript__ import documentation
+  * devDependencies update
 * 2018-09-18 - v1.3.8
   * Added TypeScript Definition file (thanks to [rakshith-ravi](https://www.npmjs.com/~rakshith-ravi))
 * 2018-07-19 - v1.3.7
