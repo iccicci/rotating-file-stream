@@ -6,8 +6,8 @@ var exec   = require("./helper").exec;
 var fs     = require("fs");
 var rfs    = require("./helper").rfs;
 
-describe("use", function() {
-	describe("case", function() {
+describe("use cases", function() {
+	describe("use case", function() {
 		before(function(done) {
 			var cnt  = 0;
 			var pad  = function(num) { return (num > 9 ? "" : "0") + num; };
@@ -84,6 +84,43 @@ describe("use", function() {
 					});
 				});
 			});
+		});
+	});
+
+	describe("double makePath", function() {
+		before(function(done) {
+			var self = this;
+			var end  = function() { self.rfs1.end("test\n"); };
+			exec(done, "rm -rf *log", function() {
+				self.rfs1 = rfs(done, { path: "log/double", size: "15B" }, "test1.log");
+				self.rfs2 = rfs(end,  { path: "log/double", size: "15B" }, "test2.log");
+				self.rfs2.end("test\n");
+			});
+		});
+
+		it("no error", function() {
+			assert.ifError(this.rfs1.ev.err);
+			assert.ifError(this.rfs2.ev.err);
+		});
+
+		it("0 rotation", function() {
+			assert.equal(this.rfs1.ev.rotation.length, 0);
+			assert.equal(this.rfs2.ev.rotation.length, 0);
+		});
+
+		it("2 single write", function() {
+			assert.equal(this.rfs1.ev.single, 1);
+			assert.equal(this.rfs2.ev.single, 1);
+		});
+
+		it("0 multi write", function() {
+			assert.equal(this.rfs1.ev.multi, 0);
+			assert.equal(this.rfs2.ev.multi, 0);
+		});
+
+		it("files content", function() {
+			assert.equal(fs.readFileSync("log/double/test1.log"), "test\n");
+			assert.equal(fs.readFileSync("log/double/test2.log"), "test\n");
 		});
 	});
 });

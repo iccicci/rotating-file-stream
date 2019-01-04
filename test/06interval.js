@@ -169,7 +169,7 @@ describe("interval", function() {
 			var self = this;
 			exec(done, "rm -rf *log ; echo test > test.log", function() {
 				self.rfs = rfs(done, { interval: "1s" });
-				self.rfs.on("rotation", self.rfs.end.bind(self.rfs, "test\n"));
+				self.rfs.once("rotation", self.rfs.end.bind(self.rfs, "test\n"));
 			});
 		});
 
@@ -211,9 +211,10 @@ describe("interval", function() {
 			exec(done, "rm -rf *log ; echo test > test.log", function() {
 				self.rfs = rfs(done, { interval: "1s"});
 				self.rfs.once("open", function() {
-					var prev = self.rfs.stream._write;
-					self.rfs.stream._write = function(chunk, encoding, callback) {
-						self.rfs.once("rotation", prev.bind(self.rfs.stream, chunk, encoding, callback));
+					var stream = self.rfs.stream;
+					var prev   = stream._write;
+					stream._write = function(chunk, encoding, callback) {
+						self.rfs.once("rotation", prev.bind(stream, chunk, encoding, callback));
 					};
 
 					self.rfs.write("test\n");

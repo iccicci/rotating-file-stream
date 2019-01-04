@@ -3,7 +3,7 @@
 [![Build Status](https://travis-ci.org/iccicci/rotating-file-stream.png?branch=master)](https://travis-ci.org/iccicci/rotating-file-stream?branch=master)
 [![Code Climate](https://codeclimate.com/github/iccicci/rotating-file-stream/badges/gpa.svg)](https://codeclimate.com/github/iccicci/rotating-file-stream)
 [![Test Coverage](https://codeclimate.com/github/iccicci/rotating-file-stream/badges/coverage.svg)](https://codeclimate.com/github/iccicci/rotating-file-stream/coverage)
-[![Donate](http://img.shields.io/donate/bitcoin.png?color=blue)](https://blockchain.info/address/12p1p5q7sK75tPyuesZmssiMYr4TKzpSCN)
+[![Donate](https://img.shields.io/badge/donate-bitcoin-blue.svg)](https://blockchain.info/address/12p1p5q7sK75tPyuesZmssiMYr4TKzpSCN)
 
 [![NPM version](https://badge.fury.io/js/rotating-file-stream.svg)](https://www.npmjs.com/package/rotating-file-stream)
 [![Dependencies](https://david-dm.org/iccicci/rotating-file-stream.svg)](https://david-dm.org/iccicci/rotating-file-stream)

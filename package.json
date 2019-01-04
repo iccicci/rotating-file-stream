@@ -22,22 +22,23 @@
   },
   "author": "Daniele Ricci <daniele.icc@gmail.com> (https://github.com/iccicci)",
   "contributors": [
-    "cicci",
+    "cicci (https://www.trinityteam.it/DanieleRicci#en)",
     "allevo",
     "rakshith-ravi",
     "kbirger",
     "Jorge Silva <jorgemsrs@gmail.com>",
-    "Jan Christoph Bernack <jc.bernack@gmail.com>"
+    "Jan Christoph Bernack <jc.bernack@gmail.com>",
+    "cchare (https://github.com/cchare)"
   ],
   "license": "MIT",
   "readmeFilename": "README.md",
   "types": "index.d.ts",
   "devDependencies": {
-    "eslint": "5.6.0",
+    "eslint": "5.11.1",
     "istanbul": "0.4.5",
     "mocha": "5.2.0",
     "mocha-istanbul": "0.3.0",
-    "typescript": "3.0.3",
-    "@types/node": "10.11.0"
+    "typescript": "3.2.2",
+    "@types/node": "10.12.18"
   }
 }

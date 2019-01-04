@@ -1,3 +1,6 @@
+* 2019-01-04 - v1.3.10
+  * Fixed a [bug occurring when two calls to _makePath_ are concurrently done](https://github.com/iccicci/rotating-file-stream/pull/33) (thanks to [cchare](https://github.com/cchare))
+  * devDependencies update
 * 2018-09-26 - v1.3.9
   * Fixed TypeScript Definition file (thanks to [rakshith-ravi](https://www.npmjs.com/~rakshith-ravi) and [kbirger](https://www.npmjs.com/~kbirger))
   * Added TOC and __TypeScript__ import documentation

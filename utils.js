@@ -221,6 +221,7 @@ function makePath(name, callback) {
 		if(e) {
 			if(e.code === "ENOENT")
 				return makePath(dir, callback);
+
 			if(e.code !== "EEXIST")
 				return callback(e);
 		}
