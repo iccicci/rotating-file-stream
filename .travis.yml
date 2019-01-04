@@ -25,4 +25,4 @@ node_js:
   - "0.11"
 
 after_script:
-  - if [[ `node --version` =~ ^v9 && `node --version` =~ ^v9.[^0] ]] ; then npm run coverage ; npm install codeclimate-test-reporter ; codeclimate-test-reporter < coverage/lcov.info ; fi
+  - if [[ `node --version` =~ ^v10 && `node --version` =~ ^v10.[^0] ]] ; then npm run coverage ; npm install codeclimate-test-reporter ; codeclimate-test-reporter < coverage/lcov.info ; fi
