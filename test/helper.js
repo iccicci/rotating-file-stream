@@ -1,6 +1,6 @@
 "use strict";
 
-var cp  = require("child_process");
+var cp = require("child_process");
 var rfs = require("..");
 
 function exec(done, cmd, cb) {
@@ -16,12 +16,25 @@ function exec(done, cmd, cb) {
 }
 
 function _rfs(done, options, generator) {
-	var ret = rfs(generator || function(time, index) { if(time) return index + "-test.log"; return "test.log"; }, options);
+	var ret = rfs(
+		generator ||
+			function(time, index) {
+				if(time) return index + "-test.log";
+				return "test.log";
+			},
+		options
+	);
 
 	ret.ev = { single: 0, multi: 0, rotation: [], rotated: [] };
-	ret.on("rotation", function(filename) { ret.ev.rotation.push(filename); });
-	ret.on("rotated", function(filename) { ret.ev.rotated.push(filename); });
-	ret.once("warning", function(err) { ret.ev.warn = err; });
+	ret.on("rotation", function(filename) {
+		ret.ev.rotation.push(filename);
+	});
+	ret.on("rotated", function(filename) {
+		ret.ev.rotated.push(filename);
+	});
+	ret.once("warning", function(err) {
+		ret.ev.warn = err;
+	});
 	ret.on("finish", done);
 
 	var oldw = ret._write;
@@ -49,7 +62,6 @@ global.doneN = function(done, num) {
 	var n = 0;
 
 	return function() {
-		if(++n === num)
-			done();
+		if(++n === num) done();
 	};
 };

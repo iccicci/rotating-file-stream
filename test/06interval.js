@@ -1,10 +1,10 @@
 "use strict";
 
 var assert = require("assert");
-var exec   = require("./helper").exec;
-var fs     = require("fs");
-var rfs    = require("./helper").rfs;
-var utils  = require("../utils");
+var exec = require("./helper").exec;
+var fs = require("fs");
+var rfs = require("./helper").rfs;
+var utils = require("../utils");
 
 describe("interval", function() {
 	describe("initial rotation with interval", function() {
@@ -12,7 +12,9 @@ describe("interval", function() {
 			var self = this;
 			exec(done, "rm -rf *log ; echo test > test.log ; echo test >> test.log", function() {
 				self.rfs = rfs(done, { size: "10B", interval: "1d" }, "test.log");
-				self.rfs.now = function() { return new Date(2015, 2, 29, 1, 29, 23, 123).getTime(); };
+				self.rfs.now = function() {
+					return new Date(2015, 2, 29, 1, 29, 23, 123).getTime();
+				};
 				self.rfs.end("test\n");
 			});
 		});
@@ -55,7 +57,9 @@ describe("interval", function() {
 					self.time = time;
 					return utils.createGenerator("test.log")(time, index);
 				});
-				self.rfs.now = function() { return new Date(2015, 2, 29, 1, 29, 23, 123).getTime(); };
+				self.rfs.now = function() {
+					return new Date(2015, 2, 29, 1, 29, 23, 123).getTime();
+				};
 				self.rfs.end("test\n");
 			});
 		});
@@ -209,10 +213,10 @@ describe("interval", function() {
 		before(function(done) {
 			var self = this;
 			exec(done, "rm -rf *log ; echo test > test.log", function() {
-				self.rfs = rfs(done, { interval: "1s"});
+				self.rfs = rfs(done, { interval: "1s" });
 				self.rfs.once("open", function() {
 					var stream = self.rfs.stream;
-					var prev   = stream._write;
+					var prev = stream._write;
 					stream._write = function(chunk, encoding, callback) {
 						self.rfs.once("rotation", prev.bind(stream, chunk, encoding, callback));
 					};

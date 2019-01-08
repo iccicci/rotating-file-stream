@@ -1,28 +1,24 @@
 "use strict";
 
-var cp    = require("child_process");
-var fs    = require("fs");
-var path  = require("path");
+var cp = require("child_process");
+var fs = require("fs");
+var path = require("path");
 var utils = require("./utils");
-var zlib  = require("zlib");
-
+var zlib = require("zlib");
 
 function classical(count) {
 	var prevName;
 	var thisName;
 	var self = this;
 
-	if(this.options.rotate === count)
-		delete this.rotatedName;
+	if(this.options.rotate === count) delete this.rotatedName;
 
 	var callback = function(err) {
-		if(err)
-			return self.emit("error", err);
+		if(err) return self.emit("error", err);
 
 		self.open();
 
-		if(self.options.compress)
-			self.compress(thisName);
+		if(self.options.compress) self.compress(thisName);
 		else {
 			self.emit("rotated", self.rotatedName);
 			self.interval();
@@ -40,16 +36,13 @@ function classical(count) {
 	var doIt = function(done) {
 		fs.rename(prevName, thisName, function(err) {
 			if(err) {
-				if(err.code !== "ENOENT")
-					return callback(err);
+				if(err.code !== "ENOENT") return callback(err);
 
 				return utils.makePath(thisName, function(err) {
-					if(err)
-						return callback(err);
+					if(err) return callback(err);
 
 					fs.rename(prevName, thisName, function(err) {
-						if(err)
-							return callback(err);
+						if(err) return callback(err);
 
 						process.nextTick(done);
 					});
@@ -62,16 +55,13 @@ function classical(count) {
 
 	fs.stat(prevName, function(err) {
 		if(! err) {
-			if(! self.rotatedName)
-				self.rotatedName = thisName;
+			if(! self.rotatedName) self.rotatedName = thisName;
 
-			if(count !== 1)
-				return doIt(self.classical.bind(self, count - 1));
+			if(count !== 1) return doIt(self.classical.bind(self, count - 1));
 
 			if(self.options.compress)
 				return self.findName({}, true, function(err, name) {
-					if(err)
-						return callback(err);
+					if(err) return callback(err);
 
 					thisName = name;
 					doIt(callback);
@@ -80,8 +70,7 @@ function classical(count) {
 			return doIt(callback);
 		}
 
-		if(err.code !== "ENOENT")
-			return callback(err);
+		if(err.code !== "ENOENT") return callback(err);
 
 		self.classical(count - 1);
 	});
@@ -91,34 +80,26 @@ function compress(tmp) {
 	var self = this;
 
 	this.findName({}, false, function(err, name) {
-		if(err)
-			return self.emit("error", err);
+		if(err) return self.emit("error", err);
 
 		self.touch(name, function(err) {
-			if(err)
-				return self.emit("error", err);
+			if(err) return self.emit("error", err);
 
 			var done = function(err) {
-				if(err)
-					return self.emit("error", err);
+				if(err) return self.emit("error", err);
 
 				fs.unlink(tmp, function(err) {
-					if(err)
-						self.emit("warning", err);
+					if(err) self.emit("warning", err);
 
-					if(self.options.rotate)
-						self.emit("rotated", self.rotatedName);
-					else
-						self.emit("rotated", name);
+					if(self.options.rotate) self.emit("rotated", self.rotatedName);
+					else self.emit("rotated", name);
 
 					self.interval();
 				});
 			};
 
-			if(typeof self.options.compress === "function")
-				self.external(tmp, name, done);
-			else
-				self.gzip(tmp, name, done);
+			if(typeof self.options.compress === "function") self.external(tmp, name, done);
+			else self.gzip(tmp, name, done);
 			/*
 			if(self.options.compress == "gzip")
 				self.gzip(tmp, name, done);
@@ -130,26 +111,27 @@ function compress(tmp) {
 }
 
 function external(src, dst, callback) {
-	var att  = {};
+	var att = {};
 	var cont;
 	var self = this;
 
-	try { cont = self.options.compress(src, dst); }
-	catch(e) { return process.nextTick(callback.bind(null, e)); }
+	try {
+		cont = self.options.compress(src, dst);
+	}
+	catch(e) {
+		return process.nextTick(callback.bind(null, e));
+	}
 
 	att[dst] = 1;
 	self.findName(att, true, function(err, name) {
-		if(err)
-			return callback(err);
+		if(err) return callback(err);
 
 		fs.open(name, "w", parseInt("777", 8), function(err, fd) {
-			if(err)
-				return callback(err);
+			if(err) return callback(err);
 
 			var unlink = function(err) {
 				fs.unlink(name, function(err2) {
-					if(err2)
-						self.emit("warning", err2);
+					if(err2) self.emit("warning", err2);
 
 					callback(err);
 				});
@@ -158,17 +140,14 @@ function external(src, dst, callback) {
 			fs.write(fd, cont, function(err) {
 				fs.close(fd, function(err2) {
 					if(err) {
-						if(err2)
-							self.emit("warning", err2);
+						if(err2) self.emit("warning", err2);
 
 						return unlink(err);
 					}
 
-					if(err2)
-						return unlink(err2);
+					if(err2) return unlink(err2);
 
-					if(name.indexOf(path.sep) === -1)
-						name = "." + path.sep + name;
+					if(name.indexOf(path.sep) === -1) name = "." + path.sep + name;
 
 					cp.exec(name, unlink);
 				});
@@ -178,11 +157,10 @@ function external(src, dst, callback) {
 }
 
 function exhausted(attempts) {
-	var err  = new Error("Too many destination file attempts");
+	var err = new Error("Too many destination file attempts");
 	err.code = "RFS-TOO-MANY";
 
-	if(attempts)
-		err.attempts = attempts;
+	if(attempts) err.attempts = attempts;
 
 	return err;
 }
@@ -190,11 +168,9 @@ function exhausted(attempts) {
 function findName(attempts, tmp, callback) {
 	var count = 0;
 
-	for(var i in attempts)
-		count += attempts[i];
+	for(var i in attempts) count += attempts[i];
 
-	if(count >= 1000)
-		return callback(this.exhausted(attempts));
+	if(count >= 1000) return callback(this.exhausted(attempts));
 
 	var name = this.name + "." + count + ".rfs.tmp";
 	var self = this;
@@ -203,12 +179,9 @@ function findName(attempts, tmp, callback) {
 		try {
 			var pars = [count + 1];
 
-			if(! this.options.rotate) {
-				if(this.options.interval && ! this.options.rotationTime)
-					pars.unshift(new Date(this.prev));
-				else
-					pars.unshift(this.rotation);
-			}
+			if(! this.options.rotate)
+				if(this.options.interval && ! this.options.rotationTime) pars.unshift(new Date(this.prev));
+				else pars.unshift(this.rotation);
 
 			name = this.generator.apply(this, pars);
 		}
@@ -223,7 +196,7 @@ function findName(attempts, tmp, callback) {
 	}
 
 	fs.stat(name, function(err) {
-		if((! err) || err.code !== "ENOENT") {
+		if(! err || err.code !== "ENOENT") {
 			attempts[name] = 1;
 
 			return self.findName(attempts, tmp, callback);
@@ -234,13 +207,12 @@ function findName(attempts, tmp, callback) {
 }
 
 function gzip(src, dst, callback) {
-	var inp   = fs.createReadStream(src);
-	var out   = fs.createWriteStream(dst);
-	var zip   = zlib.createGzip();
+	var inp = fs.createReadStream(src);
+	var out = fs.createWriteStream(dst);
+	var zip = zlib.createGzip();
 	var files = [inp, out, zip];
 
-	for(var i in files)
-		files[i].once("error", callback);
+	for(var i in files) files[i].once("error", callback);
 
 	out.once("finish", callback);
 
@@ -251,15 +223,12 @@ function touch(name, callback, retry) {
 	var self = this;
 
 	fs.open(name, "a", function(err, fd) {
-		if(err && err.code !== "ENOENT" && ! retry)
-			return callback(err);
+		if(err && err.code !== "ENOENT" && ! retry) return callback(err);
 
-		if(! err)
-			return fs.close(fd, callback);
+		if(! err) return fs.close(fd, callback);
 
 		utils.makePath(name, function(err) {
-			if(err)
-				return callback(err);
+			if(err) return callback(err);
 
 			self.touch(name, callback, true);
 		});

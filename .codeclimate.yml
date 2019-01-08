@@ -14,10 +14,10 @@ engines:
     enabled: true
     config:
       languages:
-      - ruby
-      - javascript
-      - python
-      - php
+        - ruby
+        - javascript
+        - python
+        - php
   eslint:
     enabled: true
     channel: eslint-3
@@ -25,4 +25,4 @@ engines:
     enabled: true
 ratings:
   paths:
-  - "*.js"
+    - "*.js"

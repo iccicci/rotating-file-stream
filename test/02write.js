@@ -1,9 +1,9 @@
 "use strict";
 
 var assert = require("assert");
-var exec   = require("./helper").exec;
-var fs     = require("fs");
-var rfs    = require("./helper").rfs;
+var exec = require("./helper").exec;
+var fs = require("fs");
+var rfs = require("./helper").rfs;
 
 describe("write(s)", function() {
 	describe("single write", function() {
@@ -92,7 +92,9 @@ describe("write(s)", function() {
 			var self = this;
 			exec(done, "rm -rf *log", function() {
 				self.rfs = rfs(done);
-				self.rfs.end("test\n", function() { self.endcb = true; });
+				self.rfs.end("test\n", function() {
+					self.endcb = true;
+				});
 			});
 		});
 

@@ -1,25 +1,26 @@
 "use strict";
 
 var assert = require("assert");
-var cp     = require("child_process");
-var exec   = require("./helper").exec;
-var fs     = require("fs");
-var rfs    = require("./helper").rfs;
+var cp = require("child_process");
+var exec = require("./helper").exec;
+var fs = require("fs");
+var rfs = require("./helper").rfs;
 
 describe("use cases", function() {
 	describe("use case", function() {
 		before(function(done) {
-			var cnt  = 0;
-			var pad  = function(num) { return (num > 9 ? "" : "0") + num; };
+			var cnt = 0;
+			var pad = function(num) {
+				return (num > 9 ? "" : "0") + num;
+			};
 			var self = this;
 			exec(done, "rm -rf *log *gz", function() {
 				self.rfs = rfs(done, { size: "10B", compress: true, interval: "1d" }, function(time, index) {
-					if(! time)
-						return "test.log";
+					if(! time) return "test.log";
 
-					var year  = time.getFullYear();
+					var year = time.getFullYear();
 					var month = pad(time.getMonth() + 1);
-					var day   = pad(time.getDate());
+					var day = pad(time.getDate());
 
 					return year + "-" + month + "-" + day + "-test-" + pad(index) + ".log.gz";
 				});
@@ -90,10 +91,12 @@ describe("use cases", function() {
 	describe("double makePath", function() {
 		before(function(done) {
 			var self = this;
-			var end  = function() { self.rfs1.end("test\n"); };
+			var end = function() {
+				self.rfs1.end("test\n");
+			};
 			exec(done, "rm -rf *log", function() {
 				self.rfs1 = rfs(done, { path: "log/double", size: "15B" }, "test1.log");
-				self.rfs2 = rfs(end,  { path: "log/double", size: "15B" }, "test2.log");
+				self.rfs2 = rfs(end, { path: "log/double", size: "15B" }, "test2.log");
 				self.rfs2.end("test\n");
 			});
 		});

@@ -1,10 +1,10 @@
 "use strict";
 
 var assert = require("assert");
-var cp     = require("child_process");
-var exec   = require("./helper").exec;
-var fs     = require("fs");
-var rfs    = require("./helper").rfs;
+var cp = require("child_process");
+var exec = require("./helper").exec;
+var fs = require("fs");
+var rfs = require("./helper").rfs;
 
 describe("compression", function() {
 	describe("external", function() {
@@ -12,10 +12,14 @@ describe("compression", function() {
 			var self = this;
 			exec(done, "rm -rf *log", function() {
 				self.rfs = rfs(function() {}, { size: "10B", compress: true }, function(time, idx) {
-					if(time) return "test.log/" + idx; return "test.log/log"; });
+					if(time) return "test.log/" + idx;
+					return "test.log/log";
+				});
 				self.rfs.write("test\n");
 				self.rfs.end("test\n");
-				self.rfs.on("rotated", function() { done(); });
+				self.rfs.on("rotated", function() {
+					done();
+				});
 			});
 		});
 
@@ -56,9 +60,12 @@ describe("compression", function() {
 		before(function(done) {
 			var self = this;
 			exec(done, "rm -rf *log", function() {
-				self.rfs = rfs(setTimeout.bind(null, done, 100), { size: "10B", compress: function(source, dest) {
-			        return "cat " + source + " | gzip -c9 > " + dest + ".log";
-			    }});
+				self.rfs = rfs(setTimeout.bind(null, done, 100), {
+					size:     "10B",
+					compress: function(source, dest) {
+						return "cat " + source + " | gzip -c9 > " + dest + ".log";
+					}
+				});
 				self.rfs.write("test\n");
 				self.rfs.end("test\n");
 			});
@@ -144,7 +151,10 @@ describe("compression", function() {
 		before(function(done) {
 			var self = this;
 			exec(done, "rm -rf *log", function() {
-				self.rfs = rfs(setTimeout.bind(null, done, 100), { size: "10B", compress: true }, function(time) { if(time) return "log/test.log"; return "test.log"; });
+				self.rfs = rfs(setTimeout.bind(null, done, 100), { size: "10B", compress: true }, function(time) {
+					if(time) return "log/test.log";
+					return "test.log";
+				});
 				self.rfs.write("test\n");
 				self.rfs.end("test\n");
 			});
@@ -187,7 +197,10 @@ describe("compression", function() {
 		before(function(done) {
 			var self = this;
 			exec(done, "rm -rf *log ; mkdir log ; chmod 555 log", function() {
-				self.rfs = rfs(done, { size: "10B", compress: true }, function(time) { if(time) return "log/t/test.log"; return "test.log"; });
+				self.rfs = rfs(done, { size: "10B", compress: true }, function(time) {
+					if(time) return "log/t/test.log";
+					return "test.log";
+				});
 				self.rfs.write("test\n");
 				self.rfs.write("test\n");
 			});
@@ -220,14 +233,21 @@ describe("compression", function() {
 			var preO;
 			var preT;
 			exec(done, "rm -rf *log", function() {
-				self.rfs = rfs(function() {
-					fs.open = preO;
-					done();
-				}, { size: "10B", compress: true });
+				self.rfs = rfs(
+					function() {
+						fs.open = preO;
+						done();
+					},
+					{ size: "10B", compress: true }
+				);
 				preT = self.rfs.touch;
 				self.rfs.touch = function(name, callback, retry) {
 					preO = fs.open;
-					fs.open = function(a, b, c) { var e = new Error("test"); e.code = "TEST"; c(e); };
+					fs.open = function(a, b, c) {
+						var e = new Error("test");
+						e.code = "TEST";
+						c(e);
+					};
 					preT.call(this, name, callback, retry);
 				};
 				self.rfs.write("test\n");
@@ -260,7 +280,10 @@ describe("compression", function() {
 		before(function(done) {
 			var self = this;
 			exec(done, "rm -rf *log", function() {
-				self.rfs = rfs(done, { size: "10B", compress: true }, function(time) { if(time) return "index.js"; return "test.log"; });
+				self.rfs = rfs(done, { size: "10B", compress: true }, function(time) {
+					if(time) return "index.js";
+					return "test.log";
+				});
 				self.rfs.write("test\n");
 				self.rfs.write("test\n");
 			});
@@ -291,12 +314,11 @@ describe("compression", function() {
 		before(function(done) {
 			var self = this;
 			var preO = fs.open;
-			fs.open  = function(path, flags, mode, cb) {
-				if(mode !== parseInt("777", 8))
-					return preO.apply(fs, arguments);
-				var e   = new Error("test");
+			fs.open = function(path, flags, mode, cb) {
+				if(mode !== parseInt("777", 8)) return preO.apply(fs, arguments);
+				var e = new Error("test");
 				fs.open = preO;
-				e.code  = "TEST";
+				e.code = "TEST";
 				cb(e);
 			};
 			exec(done, "rm -rf *log", function() {
@@ -333,13 +355,20 @@ describe("compression", function() {
 			var preT;
 			var preW = fs.write;
 			exec(done, "rm -rf *log", function() {
-				self.rfs = rfs(function() {
-					fs.write = preW;
-					done();
-				}, { size: "10B", compress: true });
+				self.rfs = rfs(
+					function() {
+						fs.write = preW;
+						done();
+					},
+					{ size: "10B", compress: true }
+				);
 				preT = self.rfs.touch;
 				self.rfs.touch = function(name, callback, retry) {
-					fs.write = function(a, b, c) { var e = new Error("test"); e.code = "TEST"; c(e); };
+					fs.write = function(a, b, c) {
+						var e = new Error("test");
+						e.code = "TEST";
+						c(e);
+					};
 					preT.call(this, name, callback, retry);
 				};
 				self.rfs.write("test\n");
@@ -374,15 +403,27 @@ describe("compression", function() {
 			var preC = fs.close;
 			var preT;
 			var preW = fs.write;
-			var e    = new Error("test");
-			e.code   = "TEST";
+			var e = new Error("test");
+			e.code = "TEST";
 			exec(done, "rm -rf *log", function() {
 				self.rfs = rfs(done, { size: "10B", compress: true });
 				preT = self.rfs.touch;
 				self.rfs.touch = function(name, callback, retry) {
 					var done = false;
-					fs.close = function(a, b)    { if(done) { fs.close = preC; b(e); } else { done = true; preC(a, b); } };
-					fs.write = function(a, b, c) { fs.write = preW; c(e); };
+					fs.close = function(a, b) {
+						if(done) {
+							fs.close = preC;
+							b(e);
+						}
+						else {
+							done = true;
+							preC(a, b);
+						}
+					};
+					fs.write = function(a, b, c) {
+						fs.write = preW;
+						c(e);
+					};
 					preT.call(this, name, callback, retry);
 				};
 				self.rfs.write("test\n");
@@ -420,14 +461,23 @@ describe("compression", function() {
 			var self = this;
 			var preT;
 			var preC = fs.close;
-			var e    = new Error("test");
-			e.code   = "TEST";
+			var e = new Error("test");
+			e.code = "TEST";
 			exec(done, "rm -rf *log", function() {
 				self.rfs = rfs(done, { size: "10B", compress: true });
 				preT = self.rfs.touch;
 				self.rfs.touch = function(name, callback, retry) {
 					var done = false;
-					fs.close = function(a, b) { if(done) { fs.close = preC; b(e); } else { done = true; preC(a, b); } };
+					fs.close = function(a, b) {
+						if(done) {
+							fs.close = preC;
+							b(e);
+						}
+						else {
+							done = true;
+							preC(a, b);
+						}
+					};
 					preT.call(this, name, callback, retry);
 				};
 				self.rfs.write("test\n");
@@ -464,9 +514,8 @@ describe("compression", function() {
 				self.rfs = rfs(done, { size: "10B", compress: true });
 				preF = self.rfs.findName;
 				self.rfs.findName = function(att, tmp, callback) {
-					if(! ("1-test.log" in att))
-						return preF.apply(this, arguments);
-					var e  = new Error("test");
+					if(! ("1-test.log" in att)) return preF.apply(this, arguments);
+					var e = new Error("test");
 					e.code = "TEST";
 					callback(e);
 				};

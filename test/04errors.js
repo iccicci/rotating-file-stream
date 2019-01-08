@@ -1,9 +1,9 @@
 "use strict";
 
 var assert = require("assert");
-var exec   = require("./helper").exec;
-var fs     = require("fs");
-var rfs    = require("./helper").rfs;
+var exec = require("./helper").exec;
+var fs = require("fs");
+var rfs = require("./helper").rfs;
 
 describe("errors", function() {
 	describe("wrong name generator (first time)", function() {
@@ -11,7 +11,9 @@ describe("errors", function() {
 			var self = this;
 			exec(done, "rm -rf *log", function() {
 				try {
-					rfs(done, { size: "10B" }, function() { throw new Error("test"); });
+					rfs(done, { size: "10B" }, function() {
+						throw new Error("test");
+					});
 				}
 				catch(e) {
 					self.err = e;
@@ -29,7 +31,10 @@ describe("errors", function() {
 		before(function(done) {
 			var self = this;
 			exec(done, "rm -rf *log", function() {
-				self.rfs = rfs(done, { size: "15B" }, function(time) { if(time) throw new Error("test"); return "test.log"; });
+				self.rfs = rfs(done, { size: "15B" }, function(time) {
+					if(time) throw new Error("test");
+					return "test.log";
+				});
 				self.rfs.write("test\n");
 				self.rfs.write("test\n");
 				self.rfs.write("test\n");
@@ -76,10 +81,14 @@ describe("errors", function() {
 
 	describe("wrong name generator (immutable)", function() {
 		before(function(done) {
-			var self  = this;
+			var self = this;
 			var first = true;
 			exec(done, "rm -rf *log", function() {
-				self.rfs = rfs(done, { immutable: true, interval: "1d", size: "5B" }, function(time) { if(! first) throw new Error("test"); first = false; return "test.log"; });
+				self.rfs = rfs(done, { immutable: true, interval: "1d", size: "5B" }, function(time) {
+					if(! first) throw new Error("test");
+					first = false;
+					return "test.log";
+				});
 				self.rfs.write("test\n");
 				self.rfs.end("test\n");
 			});
@@ -143,7 +152,9 @@ describe("errors", function() {
 		before(function(done) {
 			var self = this;
 			exec(done, "rm -rf *log", function() {
-				self.rfs = rfs(done, { immutable: true, interval: "1d", size: "5B" }, function() { return "test"; });
+				self.rfs = rfs(done, { immutable: true, interval: "1d", size: "5B" }, function() {
+					return "test";
+				});
 			});
 		});
 
@@ -201,7 +212,9 @@ describe("errors", function() {
 		before(function(done) {
 			var self = this;
 			exec(done, "rm -rf *log", function() {
-				self.rfs = rfs(done, { size: "5B" }, function(time, index) { return "test.log"; });
+				self.rfs = rfs(done, { size: "5B" }, function(time, index) {
+					return "test.log";
+				});
 				self.rfs.end("test\n");
 			});
 		});
@@ -236,7 +249,9 @@ describe("errors", function() {
 		before(function(done) {
 			var self = this;
 			exec(done, "rm -rf *log ; echo test > test.log", function() {
-				self.rfs = rfs(done, { size: "5B" }, function(time, index) { return "test.log"; });
+				self.rfs = rfs(done, { size: "5B" }, function(time, index) {
+					return "test.log";
+				});
 			});
 		});
 
@@ -272,7 +287,9 @@ describe("errors", function() {
 			exec(done, "rm -rf *log", function() {
 				self.rfs = rfs(done, { interval: "10d" });
 				self.rfs.once("open", function() {
-					self.rfs.stream.write = function(buffer, callback) { process.nextTick(callback.bind(null, new Error("Test error"))); };
+					self.rfs.stream.write = function(buffer, callback) {
+						process.nextTick(callback.bind(null, new Error("Test error")));
+					};
 					self.rfs.end("test\n");
 				});
 			});
@@ -305,11 +322,19 @@ describe("errors", function() {
 
 	describe("error while rename", function() {
 		before(function(done) {
-			var self  = this;
-			var oldR  = fs.rename;
-			fs.rename = function(a, b, callback) { process.nextTick(callback.bind(null, new Error("Test error"))); };
+			var self = this;
+			var oldR = fs.rename;
+			fs.rename = function(a, b, callback) {
+				process.nextTick(callback.bind(null, new Error("Test error")));
+			};
 			exec(done, "rm -rf *log", function() {
-				self.rfs = rfs(function() { fs.rename = oldR; done(); }, { size: "5B" });
+				self.rfs = rfs(
+					function() {
+						fs.rename = oldR;
+						done();
+					},
+					{ size: "5B" }
+				);
 				self.rfs.end("test\n");
 			});
 		});
@@ -343,7 +368,10 @@ describe("errors", function() {
 		before(function(done) {
 			var self = this;
 			exec(done, "rm -rf *log", function() {
-				self.rfs = rfs(done, { size: "10B" }, function(time) { if(time) return "log/t/rot/test.log"; return "log/t/test.log"; });
+				self.rfs = rfs(done, { size: "10B" }, function(time) {
+					if(time) return "log/t/rot/test.log";
+					return "log/t/test.log";
+				});
 				self.rfs.write("test\n");
 				self.rfs.write("test\n");
 				self.rfs.end("test\n");
@@ -395,7 +423,9 @@ describe("errors", function() {
 		before(function(done) {
 			var self = this;
 			exec(done, "rm -rf *log ; mkdir log ; chmod 555 log", function() {
-				self.rfs = rfs(done, {}, function() { return "log/t/test.log"; });
+				self.rfs = rfs(done, {}, function() {
+					return "log/t/test.log";
+				});
 			});
 		});
 
@@ -424,7 +454,10 @@ describe("errors", function() {
 		before(function(done) {
 			var self = this;
 			exec(done, "rm -rf *log ; mkdir log ; chmod 555 log", function() {
-				self.rfs = rfs(done, { size: "5B" }, function(time) { if(time) return "log/t/test.log"; return "test.log"; });
+				self.rfs = rfs(done, { size: "5B" }, function(time) {
+					if(time) return "log/t/test.log";
+					return "test.log";
+				});
 				self.rfs.end("test\n");
 			});
 		});
@@ -455,13 +488,17 @@ describe("errors", function() {
 			var self = this;
 			var oldC = fs.createWriteStream;
 			fs.createWriteStream = function() {
-				return { once: function(event, callback) {
-					if(event === "error")
-						setTimeout(callback.bind(null, { code: "TEST" }), 50);
-				} };
+				return {
+					once: function(event, callback) {
+						if(event === "error") setTimeout(callback.bind(null, { code: "TEST" }), 50);
+					}
+				};
 			};
 			exec(done, "rm -rf *log", function() {
-				self.rfs = rfs(function() { fs.createWriteStream = oldC; done(); });
+				self.rfs = rfs(function() {
+					fs.createWriteStream = oldC;
+					done();
+				});
 			});
 		});
 
@@ -573,7 +610,14 @@ describe("errors", function() {
 		before(function(done) {
 			var self = this;
 			exec(done, "rm -rf *log", function() {
-				self.rfs = rfs(done, { size: "5B", compress: function() { var e = new Error("test"); e.code = "TEST"; throw e; } });
+				self.rfs = rfs(done, {
+					size:     "5B",
+					compress: function() {
+						var e = new Error("test");
+						e.code = "TEST";
+						throw e;
+					}
+				});
 				self.rfs.write("test\n");
 			});
 		});
@@ -607,10 +651,14 @@ describe("errors", function() {
 		before(function(done) {
 			var self = this;
 			var preS = fs.stat;
-			fs.stat  = function(a, b) { process.nextTick(b.bind(null, new Error("test"))); };
+			fs.stat = function(a, b) {
+				process.nextTick(b.bind(null, new Error("test")));
+			};
 			exec(done, "rm -rf *log", function() {
 				self.rfs = rfs(done, { immutable: true, interval: "1d", size: "5B" });
-				self.rfs.on("error", function() { fs.stat = preS; });
+				self.rfs.on("error", function() {
+					fs.stat = preS;
+				});
 			});
 		});
 
@@ -643,7 +691,9 @@ describe("errors", function() {
 		before(function(done) {
 			var self = this;
 			exec(done, "rm -rf *log ; echo test > test.log", function() {
-				self.rfs = rfs(done, { immutable: true, interval: "1d", size: "5B" }, function() { return "test.log"; });
+				self.rfs = rfs(done, { immutable: true, interval: "1d", size: "5B" }, function() {
+					return "test.log";
+				});
 			});
 		});
 

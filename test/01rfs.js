@@ -1,8 +1,8 @@
 "use strict";
 
-var assert   = require("assert");
-var fs       = require("fs");
-var rfs      = require("..");
+var assert = require("assert");
+var fs = require("fs");
+var rfs = require("..");
 var Writable = require("stream").Writable;
 
 describe("rfs", function() {

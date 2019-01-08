@@ -1,29 +1,23 @@
 "use strict";
 
 var compress = require("./compress");
-var fs       = require("fs");
+var fs = require("fs");
 var interval = require("./interval");
-var path     = require("path");
-var util     = require("util");
-var utils    = require("./utils");
+var path = require("path");
+var util = require("util");
+var utils = require("./utils");
 var Writable = require("stream").Writable;
 
 function RotatingFileStream(filename, options) {
-	if(! (this instanceof RotatingFileStream))
-		return new RotatingFileStream(filename, options);
+	if(! (this instanceof RotatingFileStream)) return new RotatingFileStream(filename, options);
 
 	options = utils.checkOptions(options);
 
-	if(typeof filename === "function")
-		this.generator = filename;
-	else if(typeof filename === "string") {
-		if(options.rotate)
-			this.generator = utils.createClassical(filename);
-		else
-			this.generator = utils.createGenerator(filename);
-	}
-	else
-		throw new Error("Don't know how to handle 'filename' type: " + typeof filename);
+	if(typeof filename === "function") this.generator = filename;
+	else if(typeof filename === "string") 
+		if(options.rotate) this.generator = utils.createClassical(filename);
+		else this.generator = utils.createGenerator(filename);
+	 else throw new Error("Don't know how to handle 'filename' type: " + typeof filename);
 
 	if(options.path) {
 		var generator = this.generator;
@@ -35,18 +29,16 @@ function RotatingFileStream(filename, options) {
 
 	var opt = {};
 
-	if(options.highWaterMark)
-		opt.highWaterMark = options.highWaterMark;
+	if(options.highWaterMark) opt.highWaterMark = options.highWaterMark;
 
-	if(options.mode)
-		opt.mode = options.mode;
+	if(options.mode) opt.mode = options.mode;
 
 	Writable.call(this, opt);
 
-	this.chunks  = [];
+	this.chunks = [];
 	this.options = options;
-	this.size    = 0;
-	this.write   = this.write; // https://github.com/iccicci/rotating-file-stream/issues/19
+	this.size = 0;
+	this.write = this.write; // https://github.com/iccicci/rotating-file-stream/issues/19
 
 	utils.setEvents(this);
 
@@ -61,53 +53,43 @@ RotatingFileStream.prototype._close = function(done) {
 		this.stream.end();
 		this.stream = null;
 	}
-	else
-		done();
+	else done();
 };
 
 RotatingFileStream.prototype._rewrite = function() {
-	var self     = this;
+	var self = this;
 	var callback = function() {
-		if(self.ending)
-			self._close(Writable.prototype.end.bind(self));
+		if(self.ending) self._close(Writable.prototype.end.bind(self));
 	};
 
 	if(this.err) {
-		for(var i in this.chunks)
-			if(this.chunks[i].cb)
-				this.chunks[i].cb();
+		for(var i in this.chunks) if(this.chunks[i].cb) this.chunks[i].cb();
 
 		this.chunks = [];
 
 		return callback();
 	}
 
-	if(this.writing || this.rotation)
-		return;
+	if(this.writing || this.rotation) return;
 
-	if(this.options.size && this.size >= this.options.size)
-		return this.rotate();
+	if(this.options.size && this.size >= this.options.size) return this.rotate();
 
-	if(! this.stream)
-		return;
+	if(! this.stream) return;
 
-	if(! this.chunks.length)
-		return callback();
+	if(! this.chunks.length) return callback();
 
 	var chunk = this.chunks[0];
 
 	this.chunks.shift();
-	this.size   += chunk.chunk.length;
+	this.size += chunk.chunk.length;
 	this.writing = true;
 
 	this.stream.write(chunk.chunk, function(err) {
 		self.writing = false;
 
-		if(err)
-			self.emit("error", err);
+		if(err) self.emit("error", err);
 
-		if(chunk.cb)
-			chunk.cb();
+		if(chunk.cb) chunk.cb();
 
 		process.nextTick(self._rewrite.bind(self));
 	});
@@ -134,39 +116,33 @@ RotatingFileStream.prototype.end = function() {
 			break;
 		}
 
-		if(i > 1)
-			break;
+		if(i > 1) break;
 
 		args.push(arguments[i]);
 	}
 
 	this.ending = true;
 
-	if(args.length)
-		this.write.apply(this, args);
-	else
-		this._rewrite();
+	if(args.length) this.write.apply(this, args);
+	else this._rewrite();
 };
 
 RotatingFileStream.prototype.firstOpen = function() {
 	var self = this;
 
-	if(this.options.immutable)
-		return this.immutate(true);
+	if(this.options.immutable) return this.immutate(true);
 
 	this.name = this.generator(null);
 	this.once("open", this.interval.bind(this));
 
 	fs.stat(this.name, function(err, stats) {
 		if(err) {
-			if(err.code === "ENOENT")
-				return self.open();
+			if(err.code === "ENOENT") return self.open();
 
 			return self.emit("error", err);
 		}
 
-		if(! stats.isFile())
-			return self.emit("error", new Error("Can't write on: " + self.name + " (it is not a file)"));
+		if(! stats.isFile()) return self.emit("error", new Error("Can't write on: " + self.name + " (it is not a file)"));
 
 		if(self.options.initialRotation) {
 			var prev;
@@ -175,17 +151,14 @@ RotatingFileStream.prototype.firstOpen = function() {
 			prev = self.prev;
 			self._interval(stats.mtime.getTime());
 
-			if(prev !== self.prev)
-				return self.rotate();
+			if(prev !== self.prev) return self.rotate();
 		}
 
 		self.size = stats.size;
 
-		if((! self.options.size) || stats.size < self.options.size)
-			return self.open();
+		if(! self.options.size || stats.size < self.options.size) return self.open();
 
-		if(self.options.interval)
-			self._interval(self.now());
+		if(self.options.interval) self._interval(self.now());
 
 		self.rotate();
 	});
@@ -194,43 +167,48 @@ RotatingFileStream.prototype.firstOpen = function() {
 RotatingFileStream.prototype.immutate = function(first, index, now) {
 	if(! index) {
 		index = 1;
-		now   = new Date(this.now());
+		now = new Date(this.now());
 	}
 
-	if(index >= 1001)
-		return this.emit("error", this.exhausted());
+	if(index >= 1001) return this.emit("error", this.exhausted());
 
-	try{ this.name = this.generator(now, index); }
-	catch(e) { return this.emit("error", e); }
+	try {
+		this.name = this.generator(now, index);
+	}
+	catch(e) {
+		return this.emit("error", e);
+	}
 
 	var open = function(size) {
 		this.size = size;
 		this.open();
-		this.once("open", function() {
-			if(! first)
-				this.emit("rotated", this.last);
+		this.once(
+			"open",
+			function() {
+				if(! first) this.emit("rotated", this.last);
 
-			this.last = this.name;
-			this.interval();
-		}.bind(this));
+				this.last = this.name;
+				this.interval();
+			}.bind(this)
+		);
 	}.bind(this);
 
-	fs.stat(this.name, function(err, stats) {
-		if(err) {
-			if(err.code === "ENOENT")
-				return open(0);
+	fs.stat(
+		this.name,
+		function(err, stats) {
+			if(err) {
+				if(err.code === "ENOENT") return open(0);
 
-			return this.emit("error", err);
-		}
+				return this.emit("error", err);
+			}
 
-		if(! stats.isFile())
-			return this.emit("error", new Error("Can't write on: " + this.name + " (it is not a file)"));
+			if(! stats.isFile()) return this.emit("error", new Error("Can't write on: " + this.name + " (it is not a file)"));
 
-		if(this.options.size && stats.size >= this.options.size)
-			return this.immutate(first, index + 1, now);
+			if(this.options.size && stats.size >= this.options.size) return this.immutate(first, index + 1, now);
 
-		open(stats.size);
-	}.bind(this));
+			open(stats.size);
+		}.bind(this)
+	);
 };
 
 RotatingFileStream.prototype.move = function(retry) {
@@ -238,13 +216,11 @@ RotatingFileStream.prototype.move = function(retry) {
 	var self = this;
 
 	var callback = function(err) {
-		if(err)
-			return self.emit("error", err);
+		if(err) return self.emit("error", err);
 
 		self.open();
 
-		if(self.options.compress)
-			self.compress(name);
+		if(self.options.compress) self.compress(name);
 		else {
 			self.emit("rotated", name);
 			self.interval();
@@ -252,21 +228,17 @@ RotatingFileStream.prototype.move = function(retry) {
 	};
 
 	this.findName({}, self.options.compress, function(err, found) {
-		if(err)
-			return callback(err);
+		if(err) return callback(err);
 
 		name = found;
 
 		fs.rename(self.name, name, function(err) {
-			if(err && err.code !== "ENOENT" && ! retry)
-				return callback(err);
+			if(err && err.code !== "ENOENT" && ! retry) return callback(err);
 
-			if(! err)
-				return callback();
+			if(! err) return callback();
 
 			utils.makePath(name, function(err) {
-				if(err)
-					return callback(err);
+				if(err) return callback(err);
 
 				self.move(true);
 			});
@@ -280,17 +252,15 @@ RotatingFileStream.prototype.now = function() {
 
 RotatingFileStream.prototype.open = function(retry) {
 	var fd;
-	var self     = this;
-	var options  = { flags: "a" };
+	var self = this;
+	var options = { flags: "a" };
 	var callback = function(err) {
-		if(err)
-			self.emit("error", err);
+		if(err) self.emit("error", err);
 
 		process.nextTick(self._rewrite.bind(self));
 	};
 
-	if("mode" in this.options)
-		options.mode = this.options.mode;
+	if("mode" in this.options) options.mode = this.options.mode;
 
 	var stream = fs.createWriteStream(this.name, options);
 
@@ -302,12 +272,10 @@ RotatingFileStream.prototype.open = function(retry) {
 	});
 
 	stream.once("error", function(err) {
-		if(err.code !== "ENOENT" && ! retry)
-			return callback(err);
+		if(err.code !== "ENOENT" && ! retry) return callback(err);
 
 		utils.makePath(self.name, function(err) {
-			if(err)
-				return callback(err);
+			if(err) return callback(err);
 
 			self.open(true);
 		});
@@ -315,23 +283,17 @@ RotatingFileStream.prototype.open = function(retry) {
 };
 
 RotatingFileStream.prototype.rotate = function() {
-	this.size     = 0;
+	this.size = 0;
 	this.rotation = new Date();
 
 	this.emit("rotation");
 	this._clear();
-	this._close(this.options.rotate ?
-		this.classical.bind(this, this.options.rotate) :
-		this.options.immutable ?
-			this.immutate.bind(this) :
-			this.move.bind(this));
+	this._close(this.options.rotate ? this.classical.bind(this, this.options.rotate) : this.options.immutable ? this.immutate.bind(this) : this.move.bind(this));
 };
 
-for(var i in compress)
-	RotatingFileStream.prototype[i] = compress[i];
+for(var i in compress) RotatingFileStream.prototype[i] = compress[i];
 
-for(i in interval)
-	RotatingFileStream.prototype[i] = interval[i];
+for(i in interval) RotatingFileStream.prototype[i] = interval[i];
 
-module.exports         = RotatingFileStream;
+module.exports = RotatingFileStream;
 module.exports.default = RotatingFileStream;

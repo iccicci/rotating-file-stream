@@ -1,9 +1,9 @@
 "use strict";
 
 var assert = require("assert");
-var exec   = require("./helper").exec;
-var fs     = require("fs");
-var rfs    = require("./helper").rfs;
+var exec = require("./helper").exec;
+var fs = require("fs");
+var rfs = require("./helper").rfs;
 
 describe("size", function() {
 	describe("initial rotation", function() {

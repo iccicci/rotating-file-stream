@@ -1,11 +1,11 @@
 "use strict";
 
 var assert = require("assert");
-var cp     = require("child_process");
-var exec   = require("./helper").exec;
-var fs     = require("fs");
-var rfs    = require("./helper").rfs;
-var utils  = require("../utils");
+var cp = require("child_process");
+var exec = require("./helper").exec;
+var fs = require("fs");
+var rfs = require("./helper").rfs;
+var utils = require("../utils");
 
 describe("classical", function() {
 	describe("initial rotation with interval", function() {
@@ -98,7 +98,10 @@ describe("classical", function() {
 		before(function(done) {
 			var self = this;
 			exec(done, "rm -rf *log test.log.* ; echo test > test.log ; echo test >> test.log", function() {
-				self.rfs = rfs(done, { size: "10B", rotate: 2 }, function(index) { if(! index) return "test.log"; return "test.log." + index + "/log"; });
+				self.rfs = rfs(done, { size: "10B", rotate: 2 }, function(index) {
+					if(! index) return "test.log";
+					return "test.log." + index + "/log";
+				});
 				self.rfs.write("test\ntest\n");
 				self.rfs.end("test\n");
 			});
@@ -196,16 +199,17 @@ describe("classical", function() {
 		before(function(done) {
 			var self = this;
 			exec(done, "rm -rf *log *.log.? ; > test2.log", function() {
-				self.rfs = rfs(done, { rotate: 2, size: "5B" }, function(count) { if(count) return "test2.log/test.log"; return "test.log"; });
+				self.rfs = rfs(done, { rotate: 2, size: "5B" }, function(count) {
+					if(count) return "test2.log/test.log";
+					return "test.log";
+				});
 				self.rfs.write("test\n");
 			});
 		});
 
 		it("Error", function() {
-			if(process.version.match(/^v0.1/))
-				assert.equal(this.rfs.err.message, "ENOTDIR, stat 'test2.log/test.log'");
-			else
-				assert.equal(this.rfs.err.message, "ENOTDIR: not a directory, stat 'test2.log/test.log'");
+			if(process.version.match(/^v0.1/)) assert.equal(this.rfs.err.message, "ENOTDIR, stat 'test2.log/test.log'");
+			else assert.equal(this.rfs.err.message, "ENOTDIR: not a directory, stat 'test2.log/test.log'");
 		});
 
 		it("1 rotation", function() {
@@ -229,7 +233,10 @@ describe("classical", function() {
 		before(function(done) {
 			var self = this;
 			exec(done, "rm -rf *log", function() {
-				self.rfs = rfs(done, { compress: "gzip", rotate: 1, size: "5B" }, function(count) { if(count) throw new Error("test"); return "test.log"; });
+				self.rfs = rfs(done, { compress: "gzip", rotate: 1, size: "5B" }, function(count) {
+					if(count) throw new Error("test");
+					return "test.log";
+				});
 				self.rfs.write("test\n");
 				self.rfs.end("test\n");
 			});
@@ -262,7 +269,10 @@ describe("classical", function() {
 			exec(done, "rm -rf *log", function() {
 				self.rfs = rfs(done, { compress: "gzip", rotate: 2, size: "5B" }, "test.log");
 				var pre = self.rfs.findName;
-				self.rfs.findName = function(a, b, c) { if(b) return c(Error("test")); pre.apply(self, arguments); };
+				self.rfs.findName = function(a, b, c) {
+					if(b) return c(Error("test"));
+					pre.apply(self, arguments);
+				};
 				self.rfs.write("test\n");
 				self.rfs.end("test\n");
 			});
@@ -297,7 +307,10 @@ describe("classical", function() {
 			exec(done, "rm -rf *log", function() {
 				self.rfs = rfs(done, { rotate: 2, size: "5B" }, "test.log");
 				pre = fs.rename;
-				fs.rename = function(a, b, c) { if(a === "test.log" && b === "test.log.1") return c(Error("test")); pre.apply(fs, arguments); };
+				fs.rename = function(a, b, c) {
+					if(a === "test.log" && b === "test.log.1") return c(Error("test"));
+					pre.apply(fs, arguments);
+				};
 				self.rfs.write("test\n");
 				self.rfs.end("test\n");
 			});
@@ -334,9 +347,14 @@ describe("classical", function() {
 		before(function(done) {
 			var self = this;
 			exec(done, "rm -rf *log", function() {
-				self.rfs = rfs(done, { rotate: 2, size: "5B" }, function(count) { if(count) return "test2.log/test.log"; return "test.log"; });
+				self.rfs = rfs(done, { rotate: 2, size: "5B" }, function(count) {
+					if(count) return "test2.log/test.log";
+					return "test.log";
+				});
 				pre = utils.makePath;
-				utils.makePath = function(a, c) { c(Error("test")); };
+				utils.makePath = function(a, c) {
+					c(Error("test"));
+				};
 				self.rfs.write("test\n");
 				self.rfs.end("test\n");
 			});
@@ -374,9 +392,15 @@ describe("classical", function() {
 			var self = this;
 			var count = 0;
 			exec(done, "rm -rf *log", function() {
-				self.rfs = rfs(done, { rotate: 2, size: "5B" }, function(count) { if(count) return "test2.log/test.log"; return "test.log"; });
+				self.rfs = rfs(done, { rotate: 2, size: "5B" }, function(count) {
+					if(count) return "test2.log/test.log";
+					return "test.log";
+				});
 				pre = fs.rename;
-				fs.rename = function(a, b, c) { if(a === "test.log" && b === "test2.log/test.log" && ++count === 2) return c(Error("test")); pre.apply(fs, arguments); };
+				fs.rename = function(a, b, c) {
+					if(a === "test.log" && b === "test2.log/test.log" && ++count === 2) return c(Error("test"));
+					pre.apply(fs, arguments);
+				};
 				self.rfs.write("test\n");
 				self.rfs.end("test\n");
 			});

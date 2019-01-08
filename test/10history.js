@@ -1,18 +1,22 @@
 "use strict";
 
 var assert = require("assert");
-var exec   = require("./helper").exec;
-var fs     = require("fs");
-var rfs    = require("./helper").rfs;
+var exec = require("./helper").exec;
+var fs = require("fs");
+var rfs = require("./helper").rfs;
 
 describe("history", function() {
 	describe("maxFiles", function() {
 		before(function(done) {
 			var self = this;
-			var end  = doneN(done, 2);
+			var end = doneN(done, 2);
 			exec(done, "rm -rf *log *txt ; echo none > test.log.txt ; echo -n test >> test.log.txt", function() {
 				self.rfs = rfs(end, { size: "10B", maxFiles: 3 });
-				self.rfs.on("removed", function(name, number) { self.removed = name; self.number = number; end(); });
+				self.rfs.on("removed", function(name, number) {
+					self.removed = name;
+					self.number = number;
+					end();
+				});
 				self.rfs.write("test\n");
 				self.rfs.write("test\n");
 				self.rfs.once("history", function() {
@@ -78,10 +82,14 @@ describe("history", function() {
 	describe("maxSize", function() {
 		before(function(done) {
 			var self = this;
-			var end  = doneN(done, 2);
+			var end = doneN(done, 2);
 			exec(done, "rm -rf *log", function() {
 				self.rfs = rfs(end, { size: "10B", maxSize: "35B", history: "history.log" });
-				self.rfs.on("removed", function(name, number) { self.removed = name; self.number = number; end(); });
+				self.rfs.on("removed", function(name, number) {
+					self.removed = name;
+					self.number = number;
+					end();
+				});
 				self.rfs.write("test\n");
 				self.rfs.write("test\n");
 				self.rfs.once("history", function() {
@@ -144,7 +152,7 @@ describe("history", function() {
 		before(function(done) {
 			var self = this;
 			exec(done, "rm -rf *log *txt", function() {
-				self.rfs = rfs(setTimeout.bind(null, done, 100), { size: "10B", maxFiles: 1, "history": "test" });
+				self.rfs = rfs(setTimeout.bind(null, done, 100), { size: "10B", maxFiles: 1, history: "test" });
 				self.rfs.write("test\n");
 				self.rfs.write("test\n");
 				self.rfs.end("test\n");
@@ -163,16 +171,23 @@ describe("history", function() {
 	describe("error writing history file", function() {
 		before(function(done) {
 			var self = this;
-			var pre  = fs.writeFile;
-			var end  = doneN(done, 2);
-			fs.writeFile = function(a, b, c, d) { d("TEST"); };
+			var pre = fs.writeFile;
+			var end = doneN(done, 2);
+			fs.writeFile = function(a, b, c, d) {
+				d("TEST");
+			};
 			exec(done, "rm -rf *log *txt", function() {
 				self.rfs = rfs(end, { size: "10B", maxFiles: 1 });
-				self.rfs.on("removed", function(name) { self.removed = name; });
+				self.rfs.on("removed", function(name) {
+					self.removed = name;
+				});
 				self.rfs.write("test\n");
 				self.rfs.write("test\n");
 				self.rfs.end("test\n");
-				self.rfs.once("warning", function() { fs.writeFile = pre; end(); });
+				self.rfs.once("warning", function() {
+					fs.writeFile = pre;
+					end();
+				});
 			});
 		});
 
@@ -188,12 +203,16 @@ describe("history", function() {
 	describe("error removing file", function() {
 		before(function(done) {
 			var self = this;
-			var pre  = fs.unlink;
-			var end  = doneN(done, 2);
-			fs.unlink = function(a, b) { b("TEST"); };
+			var pre = fs.unlink;
+			var end = doneN(done, 2);
+			fs.unlink = function(a, b) {
+				b("TEST");
+			};
 			exec(done, "rm -rf *log *txt", function() {
 				self.rfs = rfs(end, { size: "10B", maxFiles: 1 });
-				self.rfs.on("removed", function(name) { self.removed = name; });
+				self.rfs.on("removed", function(name) {
+					self.removed = name;
+				});
 				self.rfs.write("test\n");
 				self.rfs.write("test\n");
 				self.rfs.once("warning", end);
@@ -224,19 +243,25 @@ describe("history", function() {
 			var preS = fs.stat;
 			exec(done, "rm -rf *log *txt", function() {
 				self.rfs = rfs(setTimeout.bind(null, done, 100), { size: "10B", maxFiles: 1 });
-				self.rfs.on("removed", function(name) { self.removed = name; });
+				self.rfs.on("removed", function(name) {
+					self.removed = name;
+				});
 				self.rfs.write("test\n");
 				self.rfs.write("test\n");
 				setTimeout(function() {
 					fs.readFile = function(a, b, c) {
-						fs.stat     = function(a, b) { b("TEST"); };
+						fs.stat = function(a, b) {
+							b("TEST");
+						};
 						fs.readFile = preR;
 						fs.readFile(a, b, c);
 					};
 					self.rfs.write("test\n");
 					self.rfs.write("test\n");
 					self.rfs.end("test\n");
-					self.rfs.once("end", function() { fs.stat = preS; });
+					self.rfs.once("end", function() {
+						fs.stat = preS;
+					});
 				}, 100);
 			});
 		});

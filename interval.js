@@ -1,6 +1,6 @@
 "use strict";
 
-var fs   = require("fs");
+var fs = require("fs");
 var util = require("util");
 
 function _clear(done) {
@@ -11,37 +11,31 @@ function _clear(done) {
 }
 
 function __interval(now) {
-	    now   = new Date(now);
-	var year  = now.getFullYear();
+	now = new Date(now);
+	var year = now.getFullYear();
 	var month = now.getMonth();
-	var day   = now.getDate();
+	var day = now.getDate();
 	var hours = now.getHours();
-	var num   = this.options.interval.num;
-	var unit  = this.options.interval.unit;
+	var num = this.options.interval.num;
+	var unit = this.options.interval.unit;
 
-	if(unit === "d")
-		hours = 0;
-	else
-		hours = parseInt(hours / num, 10) * num;
+	if(unit === "d") hours = 0;
+	else hours = parseInt(hours / num, 10) * num;
 
 	this.prev = new Date(year, month, day, hours, 0, 0, 0).getTime();
 
-	if(unit === "d")
-		this.next = new Date(year, month, day + num, hours, 0, 0, 0).getTime();
-	else
-		this.next = new Date(year, month, day, hours + num, 0, 0, 0).getTime();
+	if(unit === "d") this.next = new Date(year, month, day + num, hours, 0, 0, 0).getTime();
+	else this.next = new Date(year, month, day, hours + num, 0, 0, 0).getTime();
 }
 
 function _interval(now) {
 	var unit = this.options.interval.unit;
 
-	if(unit === "d" || unit === "h")
-		this.__interval(now);
+	if(unit === "d" || unit === "h") this.__interval(now);
 	else {
 		var period = 1000 * this.options.interval.num;
 
-		if(unit === "m")
-			period *= 60;
+		if(unit === "m") period *= 60;
 
 		this.prev = parseInt(now / period, 10) * period;
 		this.next = this.prev + period;
@@ -51,10 +45,9 @@ function _interval(now) {
 }
 
 function interval() {
-	if(! this.options.interval)
-		return;
+	if(! this.options.interval) return;
 
-	var now  = this.now();
+	var now = this.now();
 
 	this._interval(now);
 	this.timer = setTimeout(this.rotate.bind(this), this.next - now);
@@ -64,12 +57,10 @@ function interval() {
 function historyWrite(self, res) {
 	var files = [];
 
-	for(var i in res)
-		files.push(res[i].name);
+	for(var i in res) files.push(res[i].name);
 
 	fs.writeFile(self.options.history, files.join("\n"), "utf8", function(err) {
-		if(err)
-			self.emit("warning", err);
+		if(err) self.emit("warning", err);
 
 		self.emit("history");
 	});
@@ -79,57 +70,49 @@ function historyRemove(self, res, step, number) {
 	var file = res.shift();
 
 	fs.unlink(file.name, function(err) {
-		if(err)
-			self.emit("warning", err);
-		else
-			self.emit("removed", file.name, number);
+		if(err) self.emit("warning", err);
+		else self.emit("removed", file.name, number);
 
 		step(self, res);
 	});
 }
 
 function historyCheckSize(self, res) {
-	if(! self.options.maxSize)
-		return historyWrite(self, res);
+	if(! self.options.maxSize) return historyWrite(self, res);
 
 	var size = 0;
 
-	for(var i in res)
-		size += res[i].size;
+	for(var i in res) size += res[i].size;
 
-	if(size <= self.options.maxSize)
-		return historyWrite(self, res);
+	if(size <= self.options.maxSize) return historyWrite(self, res);
 
 	historyRemove(self, res, historyCheckSize, false);
 }
 
 function historyCheckFiles(self, res) {
-	res.sort(function(a, b) { return a.time - b.time; });
+	res.sort(function(a, b) {
+		return a.time - b.time;
+	});
 
-	if(! self.options.maxFiles || res.length <= self.options.maxFiles)
-		return historyCheckSize(self, res);
+	if(! self.options.maxFiles || res.length <= self.options.maxFiles) return historyCheckSize(self, res);
 
 	historyRemove(self, res, historyCheckFiles, true);
 }
 
 function historyGather(self, files, idx, res) {
-	if(idx === files.length)
-		return historyCheckFiles(self, res);
+	if(idx === files.length) return historyCheckFiles(self, res);
 
 	fs.stat(files[idx], function(err, stats) {
 		if(err) {
-			if(err.code !== "ENOENT")
-				return self.emit("warning", err);
+			if(err.code !== "ENOENT") return self.emit("warning", err);
 		}
-		else if(stats.isFile()) {
+		else if(stats.isFile()) 
 			res.push({
 				name: files[idx],
 				size: stats.size,
 				time: stats.ctime.getTime()
 			});
-		}
-		else
-			self.emit("warning", "File '" + files[idx] + "' contained in history is not a regular file");
+		 else self.emit("warning", "File '" + files[idx] + "' contained in history is not a regular file");
 
 		historyGather(self, files, idx + 1, res);
 	});
@@ -137,15 +120,13 @@ function historyGather(self, files, idx, res) {
 
 function history(lastfile) {
 	var filename = this.options.history;
-	var self     = this;
+	var self = this;
 
-	if(! filename)
-		this.options.history = filename = this.generator(null) + ".txt";
+	if(! filename) this.options.history = filename = this.generator(null) + ".txt";
 
 	fs.readFile(filename, "utf8", function(err, data) {
 		if(err) {
-			if(err.code !== "ENOENT")
-				return self.emit("warning", err);
+			if(err.code !== "ENOENT") return self.emit("warning", err);
 
 			return historyGather(self, [lastfile], 0, []);
 		}
@@ -162,5 +143,5 @@ module.exports = {
 	_clear:     _clear,
 	_interval:  _interval,
 	history:    history,
-	interval:   interval,
+	interval:   interval
 };

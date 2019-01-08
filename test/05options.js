@@ -1,10 +1,10 @@
 "use strict";
 
 var assert = require("assert");
-var exec   = require("./helper").exec;
-var fs     = require("fs");
-var rfs    = require("./helper").rfs;
-var utils  = require("../utils");
+var exec = require("./helper").exec;
+var fs = require("fs");
+var rfs = require("./helper").rfs;
+var utils = require("../utils");
 
 describe("options", function() {
 	describe("size KiloBytes", function() {
@@ -51,8 +51,7 @@ describe("options", function() {
 			var now = new Date().getTime();
 			var sec = parseInt(now / 1000, 10) * 1000;
 
-			if(now - sec < 900)
-				return doIt();
+			if(now - sec < 900) return doIt();
 
 			setTimeout(doIt, 101);
 		});
@@ -77,8 +76,7 @@ describe("options", function() {
 			var now = new Date().getTime();
 			var sec = parseInt(now / 1000, 10) * 1000;
 
-			if(now - sec < 900)
-				return doIt();
+			if(now - sec < 900) return doIt();
 
 			setTimeout(doIt, 101);
 		});
@@ -107,8 +105,7 @@ describe("options", function() {
 			var now = new Date().getTime();
 			var sec = parseInt(now / 1000, 10) * 1000;
 
-			if(now - sec < 900)
-				return doIt();
+			if(now - sec < 900) return doIt();
 
 			setTimeout(doIt, 101);
 		});
@@ -188,7 +185,9 @@ describe("options", function() {
 			exec(done, "rm -rf *log ; echo test > 1-test.log ; echo test > 2-test.log ; echo test >> 2-test.log", function() {
 				self.rfs = rfs(done, { immutable: true, interval: "1d", size: "10B" });
 				self.rfs.ev.op = [];
-				self.rfs.on("open", function(filename) { self.rfs.ev.op.push(filename); });
+				self.rfs.on("open", function(filename) {
+					self.rfs.ev.op.push(filename);
+				});
 				self.rfs.write("tes1\n");
 				self.rfs.write("tes2\n");
 				self.rfs.write("tes3\n");
@@ -243,9 +242,13 @@ describe("options", function() {
 			var self = this;
 			exec(done, "rm -rf *log", function() {
 				self.rfs = rfs(done, { immutable: true, interval: "1d", size: "10B" }, utils.createGenerator("test.log"));
-				self.rfs.now = function() { return new Date(1976, 0, 23, 13, 29, 23, 123).getTime(); };
+				self.rfs.now = function() {
+					return new Date(1976, 0, 23, 13, 29, 23, 123).getTime();
+				};
 				self.rfs.ev.op = [];
-				self.rfs.on("open", function(filename) { self.rfs.ev.op.push(filename); });
+				self.rfs.on("open", function(filename) {
+					self.rfs.ev.op.push(filename);
+				});
 				self.rfs.write("test\n");
 				self.rfs.write("test\n");
 				self.rfs.end("test\n");
