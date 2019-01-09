@@ -196,11 +196,22 @@ describe("compression", function() {
 	describe("missing path (error)", function() {
 		before(function(done) {
 			var self = this;
-			exec(done, "rm -rf *log ; mkdir log ; chmod 555 log", function() {
-				self.rfs = rfs(done, { size: "10B", compress: true }, function(time) {
-					if(time) return "log/t/test.log";
-					return "test.log";
-				});
+			exec(done, "rm -rf *log", function() {
+				var mkdir = fs.mkdir;
+				fs.mkdir = function(path, callback) {
+					process.nextTick(callback.bind(null, { code: "EACCES" }));
+				};
+				self.rfs = rfs(
+					function() {
+						fs.mkdir = mkdir;
+						done();
+					},
+					{ size: "10B", compress: true },
+					function(time) {
+						if(time) return "log/t/test.log";
+						return "test.log";
+					}
+				);
 				self.rfs.write("test\n");
 				self.rfs.write("test\n");
 			});

@@ -422,10 +422,21 @@ describe("errors", function() {
 	describe("error creating missing path in first open", function() {
 		before(function(done) {
 			var self = this;
-			exec(done, "rm -rf *log ; mkdir log ; chmod 555 log", function() {
-				self.rfs = rfs(done, {}, function() {
-					return "log/t/test.log";
-				});
+			exec(done, "rm -rf *log", function() {
+				var mkdir = fs.mkdir;
+				fs.mkdir = function(path, callback) {
+					process.nextTick(callback.bind(null, { code: "EACCES" }));
+				};
+				self.rfs = rfs(
+					function() {
+						fs.mkdir = mkdir;
+						done();
+					},
+					{},
+					function() {
+						return "log/t/test.log";
+					}
+				);
 			});
 		});
 
@@ -453,11 +464,22 @@ describe("errors", function() {
 	describe("error creating missing path in rotation", function() {
 		before(function(done) {
 			var self = this;
-			exec(done, "rm -rf *log ; mkdir log ; chmod 555 log", function() {
-				self.rfs = rfs(done, { size: "5B" }, function(time) {
-					if(time) return "log/t/test.log";
-					return "test.log";
-				});
+			exec(done, "rm -rf *log", function() {
+				var mkdir = fs.mkdir;
+				fs.mkdir = function(path, callback) {
+					process.nextTick(callback.bind(null, { code: "EACCES" }));
+				};
+				self.rfs = rfs(
+					function() {
+						fs.mkdir = mkdir;
+						done();
+					},
+					{ size: "5B" },
+					function(time) {
+						if(time) return "log/t/test.log";
+						return "test.log";
+					}
+				);
 				self.rfs.end("test\n");
 			});
 		});

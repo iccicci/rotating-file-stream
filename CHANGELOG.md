@@ -1,3 +1,7 @@
+- 2019-01-09 - v1.4.0
+  - Fixed the [TimeoutOverflowWarning bug](https://github.com/iccicci/rotating-file-stream/issues/34)
+  - Added **experimental** monthly rotation
+  - devDependencies update
 - 2019-01-04 - v1.3.10
   - Fixed a [bug occurring when two calls to _makePath_ are concurrently done](https://github.com/iccicci/rotating-file-stream/pull/33) (thanks to [cchare](https://github.com/cchare))
   - devDependencies update

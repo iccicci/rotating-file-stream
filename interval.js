@@ -19,19 +19,26 @@ function __interval(now) {
 	var num = this.options.interval.num;
 	var unit = this.options.interval.unit;
 
-	if(unit === "d") hours = 0;
+	if(unit === "M") {
+		day = 1;
+		hours = 0;
+	}
+	else if(unit === "d") hours = 0;
 	else hours = parseInt(hours / num, 10) * num;
 
 	this.prev = new Date(year, month, day, hours, 0, 0, 0).getTime();
 
-	if(unit === "d") this.next = new Date(year, month, day + num, hours, 0, 0, 0).getTime();
-	else this.next = new Date(year, month, day, hours + num, 0, 0, 0).getTime();
+	if(unit === "M") month += num;
+	else if(unit === "d") day += num;
+	else hours += num;
+
+	this.next = new Date(year, month, day, hours, 0, 0, 0).getTime();
 }
 
 function _interval(now) {
 	var unit = this.options.interval.unit;
 
-	if(unit === "d" || unit === "h") this.__interval(now);
+	if(unit === "M" || unit === "d" || unit === "h") this.__interval(now);
 	else {
 		var period = 1000 * this.options.interval.num;
 
@@ -47,11 +54,17 @@ function _interval(now) {
 function interval() {
 	if(! this.options.interval) return;
 
-	var now = this.now();
+	this._interval(this.now());
 
-	this._interval(now);
-	this.timer = setTimeout(this.rotate.bind(this), this.next - now);
-	this.timer.unref();
+	var self = this;
+	var set = function() {
+		var time = self.next - self.now();
+
+		self.timer = time > self.maxTimeout ? setTimeout(set, self.maxTimeout) : setTimeout(self.rotate.bind(self), time);
+		self.timer.unref();
+	};
+
+	set();
 }
 
 function historyWrite(self, res) {
@@ -106,13 +119,13 @@ function historyGather(self, files, idx, res) {
 		if(err) {
 			if(err.code !== "ENOENT") return self.emit("warning", err);
 		}
-		else if(stats.isFile()) 
+		else if(stats.isFile())
 			res.push({
 				name: files[idx],
 				size: stats.size,
 				time: stats.ctime.getTime()
 			});
-		 else self.emit("warning", "File '" + files[idx] + "' contained in history is not a regular file");
+		else self.emit("warning", "File '" + files[idx] + "' contained in history is not a regular file");
 
 		historyGather(self, files, idx + 1, res);
 	});
@@ -143,5 +156,6 @@ module.exports = {
 	_clear:     _clear,
 	_interval:  _interval,
 	history:    history,
-	interval:   interval
+	interval:   interval,
+	maxTimeout: 2147483640
 };

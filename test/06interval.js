@@ -11,7 +11,7 @@ describe("interval", function() {
 		before(function(done) {
 			var self = this;
 			exec(done, "rm -rf *log ; echo test > test.log ; echo test >> test.log", function() {
-				self.rfs = rfs(done, { size: "10B", interval: "1d" }, "test.log");
+				self.rfs = rfs(done, { size: "10B", interval: "1M" }, "test.log");
 				self.rfs.now = function() {
 					return new Date(2015, 2, 29, 1, 29, 23, 123).getTime();
 				};
@@ -29,7 +29,7 @@ describe("interval", function() {
 
 		it("1 rotated", function() {
 			assert.equal(this.rfs.ev.rotated.length, 1);
-			assert.equal(this.rfs.ev.rotated[0], "20150329-0000-01-test.log");
+			assert.equal(this.rfs.ev.rotated[0], "20150301-0000-01-test.log");
 		});
 
 		it("1 single write", function() {
@@ -45,7 +45,7 @@ describe("interval", function() {
 		});
 
 		it("rotated file content", function() {
-			assert.equal(fs.readFileSync("20150329-0000-01-test.log"), "test\ntest\n");
+			assert.equal(fs.readFileSync("20150301-0000-01-test.log"), "test\ntest\n");
 		});
 	});
 

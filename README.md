@@ -195,7 +195,8 @@ Accepts a positive integer followed by one of these possible letters:
 - **s**: seconds. Accepts integer divider of 60.
 - **m**: minutes. Accepts integer divider of 60.
 - **h**: hours. Accepts integer divider of 24.
-- **d**: days
+- **d**: days. Accepts integer.
+- **M**: months. Accepts integer. **EXPERIMENTAL**
 
 ```javascript
   interval: '5s', // rotates at seconds 0, 5, 10, 15 and so on
@@ -212,6 +213,10 @@ Accepts a positive integer followed by one of these possible letters:
 
 ```javascript
   interval: '1d', // rotates at every midnight
+```
+
+```javascript
+  interval: '1M', // rotates at every midnight between two distinct months
 ```
 
 #### compress

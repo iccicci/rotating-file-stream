@@ -38,6 +38,7 @@ function checkMeasure(v, what, units) {
 }
 
 var intervalUnits = {
+	M: true,
 	d: true,
 	h: true,
 	m: true,
