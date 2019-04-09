@@ -262,7 +262,7 @@ if rotation job complete with success.
 
 #### initialRotation
 
-When program stops in a rotation period then restarts in a new rotation period, logs of differente rotation period will
+When program stops in a rotation period then restarts in a new rotation period, logs of different rotation period will
 go in the next rotated file; in a few words: a rotation job is lost. If this option is set to **true** an initial check
 is performed against the _not-rotated file_ timestamp and, if it falls in a previous rotation period, an initial
 rotation job is done as well.
@@ -282,8 +282,8 @@ following options are ignored if **rotate** option is specified.
 
 If set to **true**, names of generated files never changes. In other words the _rotated file name generator_ is never
 called with a **null** _time_ parameter and new files are immediately generated with their rotated name.
-**rotation** _envet_ now has a _filename_ paramere with the newly created file name.
-Usefull to send logs to logstash through filebeat.
+**rotation** _event_ now has a _filename_ parameter with the newly created file name.
+Useful to send logs to logstash through filebeat.
 
 **Note:**
 if this option is set to **true**, **compress** is ignored.
@@ -293,7 +293,7 @@ this option is ignored if **interval** is not set.
 
 #### rotationTime
 
-As specified above, if rotation by interval is enabled, the parameter _time_ passed to _rotatle name generator_ is the
+As specified above, if rotation by interval is enabled, the parameter _time_ passed to _rotated file name generator_ is the
 start time of rotation period. Setting this option to **true**, parameter _time_ passed is time when rotation job
 started.
 
@@ -304,7 +304,7 @@ if this option is set to **true**, **initialRotation** is ignored.
 
 Due to the complexity that _rotated file names_ can have because of the _filename generator function_, if number or
 size of rotated files should not exceed a given limit, the package needs a file where to store this information. This
-option specifies the name of that file. This option takes effects only if at least one of **maxFiles** or **maxSize**
+option specifies the name of that file. This option takes effect only if at least one of **maxFiles** or **maxSize**
 is used. If **null**, the _not rotated filename_ with the '.txt' suffix is used.
 
 #### maxFiles
@@ -386,8 +386,8 @@ times for each rotation job.
 
 If requested by **maxFiles** or **maxSize** options, at the end of a rotation job, a check is performed to ensure that
 given limits are respected. This means that **while rotation job is running both the limits could be not respected**,
-the same can happend (if **maxFiles** or **maxSize** are changed) till the end of first _rotation job_.
-The first check performed is the one against **maxFiles**, in case some files are removed, than the check against
+the same can happen (if **maxFiles** or **maxSize** are changed) till the end of first _rotation job_.
+The first check performed is the one against **maxFiles**, in case some files are removed, then the check against
 **maxSize** is performed, finally other files can be removed. When **maxFiles** or **maxSize** are enabled for first
 time, an _history file_ can be created with one _rotated filename_ (as returned by _filename generator function_) at
 each line.
