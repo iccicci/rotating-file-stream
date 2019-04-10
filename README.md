@@ -396,9 +396,8 @@ Once an **error** _event_ is emitted, nothing more can be done: the stream is cl
 
 ## Compatibility
 
-This package is written following **Node.js 4.0** specifications always taking care about backward
-compatibility. The package is tested under
-[several Node.js versions](https://travis-ci.org/iccicci/rotating-file-stream).
+The package is tested under [all Node.js versions](https://travis-ci.org/iccicci/rotating-file-stream)
+currently supported accordingly to [Node.js Release](https://github.com/nodejs/Release).
 
 **Required: Node.js 0.11**
 

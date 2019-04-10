@@ -7,6 +7,8 @@ sudo: false
 language: node_js
 
 node_js:
+  - "11"
+  - "11.0"
   - "10"
   - "10.0"
   - "9"
@@ -17,12 +19,6 @@ node_js:
   - "7.0"
   - "6"
   - "6.0"
-  - "5"
-  - "5.0"
-  - "4"
-  - "4.0"
-  - "0.12"
-  - "0.11"
 
 after_script:
   - if [[ `node --version` =~ ^v10 && `node --version` =~ ^v10.[^0] ]] ; then npm run coverage ; npm install codeclimate-test-reporter ; codeclimate-test-reporter < coverage/lcov.info ; fi
