@@ -34,11 +34,11 @@
 	"readmeFilename": "README.md",
 	"types": "index.d.ts",
 	"devDependencies": {
-		"eslint": "5.12.0",
+		"eslint": "5.16.0",
 		"istanbul": "0.4.5",
-		"mocha": "5.2.0",
+		"mocha": "6.1.2",
 		"mocha-istanbul": "0.3.0",
-		"typescript": "3.2.2",
-		"@types/node": "10.12.18"
+		"typescript": "3.4.3",
+		"@types/node": "11.13.2"
 	}
 }
