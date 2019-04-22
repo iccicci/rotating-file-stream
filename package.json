@@ -6,7 +6,7 @@
 		"all": "npm run npmignore && npm run eslint && npm run coverage && npm run ts",
 		"coverage": "TZ=\"Europe/Rome\" ./node_modules/.bin/nyc -r lcov -r text -r text-summary npm test",
 		"eslint": "./node_modules/.bin/eslint *.js test/*js",
-		"npmignore": "echo '.codeclimate.yml\\n.eslintrc\\n.gitignore\\n.travis.yml\\nCHANGELOG.md\\ntest' > .npmignore ; cat .gitignore >> .npmignore",
+		"npmignore": "echo '.codeclimate.yml\\n.eslintrc\\n.gitignore\\n.gitattributes\\n.travis.yml\\n.vscode\\nCHANGELOG.md\\nREADME.md\\ntest' > .npmignore ; cat .gitignore >> .npmignore",
 		"test": "TZ=\"Europe/Rome\" ./node_modules/.bin/_mocha test",
 		"ts": "node_modules/.bin/tsc index.d.ts --lib es6"
 	},
