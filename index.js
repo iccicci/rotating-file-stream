@@ -14,10 +14,10 @@ function RotatingFileStream(filename, options) {
 	options = utils.checkOptions(options);
 
 	if(typeof filename === "function") this.generator = filename;
-	else if(typeof filename === "string") 
+	else if(typeof filename === "string")
 		if(options.rotate) this.generator = utils.createClassical(filename);
 		else this.generator = utils.createGenerator(filename);
-	 else throw new Error("Don't know how to handle 'filename' type: " + typeof filename);
+	else throw new Error("Don't know how to handle 'filename' type: " + typeof filename);
 
 	if(options.path) {
 		var generator = this.generator;
@@ -57,28 +57,26 @@ RotatingFileStream.prototype._close = function(done) {
 };
 
 RotatingFileStream.prototype._rewrite = function() {
-	var self = this;
-	var callback = function() {
+	const self = this;
+	const callback = function() {
 		if(self.ending) self._close(Writable.prototype.end.bind(self));
 	};
 
 	if(this.err) {
-		for(var i in this.chunks) if(this.chunks[i].cb) this.chunks[i].cb();
+		const chunks = this.chunks;
 
 		this.chunks = [];
+		for(var i in chunks) if(chunks[i].cb) chunks[i].cb();
 
 		return callback();
 	}
 
 	if(this.writing || this.rotation) return;
-
 	if(this.options.size && this.size >= this.options.size) return this.rotate();
-
 	if(! this.stream) return;
-
 	if(! this.chunks.length) return callback();
 
-	var chunk = this.chunks[0];
+	const chunk = this.chunks[0];
 
 	this.chunks.shift();
 	this.size += chunk.chunk.length;
