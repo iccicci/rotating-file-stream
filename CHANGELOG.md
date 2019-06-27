@@ -1,3 +1,6 @@
+- 2019-06-27 - v1.4.2
+  - Fixed a [bug causing a ERR_MULTIPLE_CALLBACK error](https://github.com/iccicci/rotating-file-stream/issues/36) (thanks to [rooftopsparrow](https://github.com/rooftopsparrow))
+  - devDependencies update
 - 2019-04-22 - v1.4.1
   - From [istanbul](https://www.npmjs.com/package/istanbul) to [nyc](https://www.npmjs.com/package/nyc) for tests coverage
   - Several typos fixed in [README.md](https://github.com/iccicci/rotating-file-stream/blob/master/README.md); thanks to [dhurlburtusa](https://github.com/dhurlburtusa)
