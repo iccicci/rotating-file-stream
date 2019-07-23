@@ -1,6 +1,6 @@
 import { WriteStream } from "fs";
 
-interface RfsOptions {
+export interface RfsOptions {
 	compress?: string | Function | boolean;
 	highWaterMark?: number;
 	history?: string;
