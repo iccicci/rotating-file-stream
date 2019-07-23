@@ -1,3 +1,6 @@
+- 2019-07-23 - v1.4.3
+  - Exported the options interface
+  - devDependencies update
 - 2019-06-27 - v1.4.2
   - Fixed a [bug causing a ERR_MULTIPLE_CALLBACK error](https://github.com/iccicci/rotating-file-stream/issues/36) (thanks to [rooftopsparrow](https://github.com/rooftopsparrow))
   - devDependencies update
