@@ -63,24 +63,13 @@ describe("write(s)", function() {
 			assert.equal(this.rfs.ev.rotated.length, 0);
 		});
 
-		if(process.version.match(/^v0.10/)) {
-			it("3 single write", function() {
-				assert.equal(this.rfs.ev.single, 3);
-			});
+		it("1 single write", function() {
+			assert.equal(this.rfs.ev.single, 1);
+		});
 
-			it("0 multi write", function() {
-				assert.equal(this.rfs.ev.multi, 0);
-			});
-		}
-		else {
-			it("1 single write", function() {
-				assert.equal(this.rfs.ev.single, 1);
-			});
-
-			it("1 multi write", function() {
-				assert.equal(this.rfs.ev.multi, 1);
-			});
-		}
+		it("1 multi write", function() {
+			assert.equal(this.rfs.ev.multi, 1);
+		});
 
 		it("file content", function() {
 			assert.equal(fs.readFileSync("test.log"), "test\ntest\ntest\ntest\n");

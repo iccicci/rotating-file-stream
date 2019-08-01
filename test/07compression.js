@@ -63,7 +63,7 @@ describe("compression", function() {
 				self.rfs = rfs(setTimeout.bind(null, done, 100), {
 					size:     "10B",
 					compress: function(source, dest) {
-						return "cat " + source + " | gzip -c9 > " + dest + ".log";
+						return "cat " + source + " | gzip -c9 > " + dest;
 					}
 				});
 				self.rfs.write("test\n");
@@ -97,7 +97,7 @@ describe("compression", function() {
 		});
 
 		it("rotated file content", function(done) {
-			cp.exec("zcat " + this.rfs.ev.rotated[0] + ".log", function(error, stdout, stderr) {
+			cp.exec("zcat " + this.rfs.ev.rotated[0], function(error, stdout, stderr) {
 				assert.equal(stdout, "test\ntest\n");
 				done();
 			});

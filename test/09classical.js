@@ -208,8 +208,7 @@ describe("classical", function() {
 		});
 
 		it("Error", function() {
-			if(process.version.match(/^v0.1/)) assert.equal(this.rfs.err.message, "ENOTDIR, stat 'test2.log/test.log'");
-			else assert.equal(this.rfs.err.message, "ENOTDIR: not a directory, stat 'test2.log/test.log'");
+			assert.equal(this.rfs.err.message, "ENOTDIR: not a directory, stat 'test2.log/test.log'");
 		});
 
 		it("1 rotation", function() {
