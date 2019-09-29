@@ -34,10 +34,10 @@
 	"readmeFilename": "README.md",
 	"types": "index.d.ts",
 	"devDependencies": {
-		"eslint": "6.1.0",
-		"mocha": "6.2.0",
+		"eslint": "6.5.0",
+		"mocha": "6.2.1",
 		"nyc": "14.1.1",
-		"typescript": "3.5.3",
-		"@types/node": "12.6.8"
+		"typescript": "3.6.3",
+		"@types/node": "12.7.8"
 	}
 }

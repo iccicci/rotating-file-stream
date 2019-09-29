@@ -207,14 +207,15 @@ function findName(attempts, tmp, callback) {
 }
 
 function gzip(src, dst, callback) {
-	var inp = fs.createReadStream(src);
-	var out = fs.createWriteStream(dst);
-	var zip = zlib.createGzip();
-	var files = [inp, out, zip];
+	const inp = fs.createReadStream(src);
+	const out = fs.createWriteStream(dst);
+	const zip = zlib.createGzip();
+	const files = [inp, out, zip];
 
-	for(var i in files) files[i].once("error", callback);
-
-	out.once("finish", callback);
+	inp.on("error", callback);
+	out.on("error", callback);
+	zip.on("error", callback);
+	out.on("finish", callback);
 
 	inp.pipe(zip).pipe(out);
 }
