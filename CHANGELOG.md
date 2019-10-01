@@ -1,3 +1,6 @@
+- 2019-10-01 - v1.4.4
+  - Fixed a [bug](https://github.com/iccicci/rotating-file-stream/issues/42) occurring adding properties to **Array.prototype**
+  - devDependencies update
 - 2019-07-23 - v1.4.3
   - Exported the options interface
   - devDependencies update
