@@ -70,7 +70,7 @@ function interval() {
 function historyWrite(self, res) {
 	var files = [];
 
-	for(var i in res) files.push(res[i].name);
+	res.map(e => files.push(e.name));
 
 	fs.writeFile(self.options.history, files.join("\n"), "utf8", function(err) {
 		if(err) self.emit("warning", err);
@@ -95,7 +95,7 @@ function historyCheckSize(self, res) {
 
 	var size = 0;
 
-	for(var i in res) size += res[i].size;
+	res.map(e => (size += e.size));
 
 	if(size <= self.options.maxSize) return historyWrite(self, res);
 

@@ -6,6 +6,10 @@
 		"jquery": true,
 		"node": true
 	},
+	"parserOptions": {
+		"ecmaVersion": 9,
+		"sourceType": "module"
+	},
 	"rules": {
 		"comma-dangle": [2, "only-multiline"],
 		"no-cond-assign": 2,

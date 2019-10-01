@@ -65,3 +65,6 @@ global.doneN = function(done, num) {
 		if(++n === num) done();
 	};
 };
+
+// eslint-disable-next-line no-extend-native
+Array.prototype.test = () => {};

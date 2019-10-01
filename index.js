@@ -66,7 +66,9 @@ RotatingFileStream.prototype._rewrite = function() {
 		const chunks = this.chunks;
 
 		this.chunks = [];
-		for(var i in chunks) if(chunks[i].cb) chunks[i].cb();
+		chunks.map(e => {
+			if(e.cb) e.cb();
+		});
 
 		return callback();
 	}
@@ -107,7 +109,7 @@ RotatingFileStream.prototype._writev = function(chunks, callback) {
 RotatingFileStream.prototype.end = function() {
 	var args = [];
 
-	for(var i in arguments) {
+	for(var i = 0; i < arguments.length; ++i) {
 		if("function" === typeof arguments[i]) {
 			this.once("finish", arguments[i]);
 
@@ -290,7 +292,6 @@ RotatingFileStream.prototype.rotate = function() {
 };
 
 for(var i in compress) RotatingFileStream.prototype[i] = compress[i];
-
 for(i in interval) RotatingFileStream.prototype[i] = interval[i];
 
 module.exports = RotatingFileStream;

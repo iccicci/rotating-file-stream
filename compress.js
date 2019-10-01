@@ -210,12 +210,9 @@ function gzip(src, dst, callback) {
 	const inp = fs.createReadStream(src);
 	const out = fs.createWriteStream(dst);
 	const zip = zlib.createGzip();
-	const files = [inp, out, zip];
 
-	inp.on("error", callback);
-	out.on("error", callback);
-	zip.on("error", callback);
-	out.on("finish", callback);
+	[inp, out, zip].map(e => e.once("error", callback));
+	out.once("finish", callback);
 
 	inp.pipe(zip).pipe(out);
 }
