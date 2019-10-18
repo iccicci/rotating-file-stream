@@ -50,10 +50,13 @@ util.inherits(RotatingFileStream, Writable);
 RotatingFileStream.prototype._close = function(done) {
 	if(this.stream) {
 		this.stream.on("finish", done);
-		this.stream.end();
+		this.stream.end(() => this.emit("close"));
 		this.stream = null;
 	}
-	else done();
+	else {
+		this.emit("close");
+		done();
+	}
 };
 
 RotatingFileStream.prototype._rewrite = function() {

@@ -280,9 +280,11 @@ following options are ignored if **rotate** option is specified.
 
 #### immutable
 
-If set to **true**, names of generated files never changes. In other words the _rotated file name generator_ is never
-called with a **null** _time_ parameter and new files are immediately generated with their rotated name.
-**rotation** _event_ now has a _filename_ parameter with the newly created file name.
+If set to **true**, names of generated files never changes. New files are immediately generated with their rotated
+name. In other words the _rotated file name generator_ is never called with a **null** _time_ parameter unless to
+determinate the _history file_ name; this can happen if **maxFiles** or **maxSize** are used without **history**
+option. **rotation** _event_ now has a _filename_ parameter with the newly created file name.
+
 Useful to send logs to logstash through filebeat.
 
 **Note:**
@@ -304,7 +306,7 @@ if this option is set to **true**, **initialRotation** is ignored.
 
 Due to the complexity that _rotated file names_ can have because of the _filename generator function_, if number or
 size of rotated files should not exceed a given limit, the package needs a file where to store this information. This
-option specifies the name of that file. This option takes effect only if at least one of **maxFiles** or **maxSize**
+option specifies the name _history file_. This option takes effect only if at least one of **maxFiles** or **maxSize**
 is used. If **null**, the _not rotated filename_ with the '.txt' suffix is used.
 
 #### maxFiles
@@ -323,6 +325,10 @@ Custom _Events_ are emitted by the stream.
 ```javascript
 var rfs    = require('rotating-file-stream');
 var stream = rfs(...);
+
+stream.on('close', function() {
+    // the stream have been closed
+});
 
 stream.on('error', function(err) {
     // here are reported blocking errors

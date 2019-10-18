@@ -1,3 +1,6 @@
+- 2019-10-18 - v1.4.5
+  - Fixed a [bug](https://github.com/iccicci/rotating-file-stream/issues/39) when **immutable** and **history** are both set.
+  - devDependencies update
 - 2019-10-01 - v1.4.4
   - Fixed a [bug](https://github.com/iccicci/rotating-file-stream/issues/42) occurring adding properties to **Array.prototype**
   - devDependencies update

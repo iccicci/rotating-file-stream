@@ -222,7 +222,7 @@ function setEvents(self) {
 		self._rewrite();
 	});
 
-	if((self.options.maxFiles || self.options.maxSize) && ! self.options.rotate) self.on("rotated", self.history.bind(self));
+	if((self.options.maxFiles || self.options.maxSize) && ! self.options.rotate) self.on(self.options.immutable ? "open" : "rotated", self.history.bind(self));
 }
 
 module.exports = {
