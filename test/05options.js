@@ -269,7 +269,7 @@ describe("options", function() {
 
 		it("2 open", function() {
 			assert.equal(this.rfs.ev.op.length, 2);
-			assert.equal(this.rfs.ev.op[1], "19760123-1329-01-test.log");
+			assert.equal(this.rfs.ev.op[1], "19760123-1329-02-test.log");
 		});
 
 		it("1 single write", function() {
@@ -285,7 +285,7 @@ describe("options", function() {
 		});
 
 		it("2nd file content", function() {
-			assert.equal(fs.readFileSync("19760123-1329-01-test.log"), "test\n");
+			assert.equal(fs.readFileSync("19760123-1329-02-test.log"), "test\n");
 		});
 	});
 });

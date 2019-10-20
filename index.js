@@ -42,7 +42,7 @@ function RotatingFileStream(filename, options) {
 
 	utils.setEvents(this);
 
-	this.firstOpen();
+	process.nextTick(this.firstOpen.bind(this));
 }
 
 util.inherits(RotatingFileStream, Writable);
@@ -50,13 +50,10 @@ util.inherits(RotatingFileStream, Writable);
 RotatingFileStream.prototype._close = function(done) {
 	if(this.stream) {
 		this.stream.on("finish", done);
-		this.stream.end(() => this.emit("close"));
+		this.stream.end();
 		this.stream = null;
 	}
-	else {
-		this.emit("close");
-		done();
-	}
+	else done();
 };
 
 RotatingFileStream.prototype._rewrite = function() {
@@ -135,7 +132,13 @@ RotatingFileStream.prototype.firstOpen = function() {
 
 	if(this.options.immutable) return this.immutate(true);
 
-	this.name = this.generator(null);
+	try {
+		this.name = this.generator(null);
+	}
+	catch(e) {
+		return this.emit("error", e);
+	}
+
 	this.once("open", this.interval.bind(this));
 
 	fs.stat(this.name, function(err, stats) {

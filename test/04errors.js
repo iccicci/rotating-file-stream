@@ -10,20 +10,14 @@ describe("errors", function() {
 		before(function(done) {
 			var self = this;
 			exec(done, "rm -rf *log", function() {
-				try {
-					rfs(done, { size: "10B" }, function() {
-						throw new Error("test");
-					});
-				}
-				catch(e) {
-					self.err = e;
-					done();
-				}
+				self.rfs = rfs(done, { size: "10B" }, function() {
+					throw new Error("test");
+				});
 			});
 		});
 
 		it("Error", function() {
-			assert.equal(this.err.message, "test");
+			assert.equal(this.rfs.err.message, "test");
 		});
 	});
 

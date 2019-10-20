@@ -326,10 +326,6 @@ Custom _Events_ are emitted by the stream.
 var rfs    = require('rotating-file-stream');
 var stream = rfs(...);
 
-stream.on('close', function() {
-    // the stream have been closed
-});
-
 stream.on('error', function(err) {
     // here are reported blocking errors
     // once this event is emitted, the stream will be closed as well

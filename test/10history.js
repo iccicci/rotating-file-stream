@@ -206,6 +206,7 @@ describe("history", function() {
 			var pre = fs.unlink;
 			var end = doneN(done, 2);
 			fs.unlink = function(a, b) {
+				fs.unlink = pre;
 				b("TEST");
 			};
 			exec(done, "rm -rf *log *txt", function() {
@@ -221,7 +222,6 @@ describe("history", function() {
 					self.rfs.write("test\n");
 					self.rfs.once("history", function() {
 						self.rfs.end("test\n");
-						fs.unlink = pre;
 					});
 				});
 			});
@@ -246,21 +246,19 @@ describe("history", function() {
 				self.rfs.on("removed", function(name) {
 					self.removed = name;
 				});
-				self.rfs.write("test\n");
-				self.rfs.write("test\n");
-				setTimeout(function() {
-					fs.readFile = function(a, b, c) {
-						fs.stat = function(a, b) {
-							fs.stat = preS;
-							b("TEST");
-						};
-						fs.readFile = preR;
-						fs.readFile(a, b, c);
-					};
-					self.rfs.write("test\n");
-					self.rfs.write("test\n");
+				self.rfs.on("warning", function() {
 					self.rfs.end("test\n");
-				}, 100);
+				});
+				self.rfs.write("test\n");
+				self.rfs.write("test\n");
+				fs.readFile = function(a, b, c) {
+					fs.stat = function(a, b) {
+						fs.stat = preS;
+						b("TEST");
+					};
+					fs.readFile = preR;
+					fs.readFile(a, b, c);
+				};
 			});
 		});
 
@@ -278,21 +276,23 @@ describe("history", function() {
 
 		before(function(done) {
 			var self = this;
-			var end = doneN(done, 2);
-			var day = 0;
+			var end = doneN(done, 3);
+			var min = 0;
 			exec(done, "rm -rf *log *txt ; echo none > test.log.txt ; echo -n test >> test.log.txt", function() {
 				self.rfs = rfs(end, { immutable: true, interval: "1d", size: "10B", maxFiles: 3 }, function(time, idx) {
 					if(! time) return "test.log";
-					var month = time.getFullYear() + "" + time.getMonth() + 1;
-					var day = time.getDate();
-					var hour = time.getHours();
-					var minute = time.getMinutes();
+					var pad = function(num) {
+						return (num > 9 ? "" : "0") + num;
+					};
+					var month = time.getFullYear() + "" + pad(time.getMonth() + 1);
+					var day = pad(time.getDate());
+					var hour = pad(time.getHours());
+					var minute = pad(time.getMinutes());
 
-					return month + day + "-" + hour + minute + "-" + idx + "test.log";
+					return month + day + "-" + hour + minute + "-" + idx + "-test.log";
 				});
 				self.rfs.now = function() {
-					if(++day % 3) return new Date();
-					return new Date(2015, 0, day, 1, 29, 23, 123).getTime();
+					return new Date(2015, 0, 23, 1, ++min, 23, 123).getTime();
 				};
 				self.rfs.on("removed", function(name, number) {
 					self.removed = name;
@@ -302,6 +302,7 @@ describe("history", function() {
 				self.rfs.on("open", function(name) {
 					last = name;
 				});
+				//setTimeout(done, 1800);
 				self.rfs.write("test\n");
 				self.rfs.write("test\n");
 				self.rfs.once("history", function() {
@@ -343,28 +344,24 @@ describe("history", function() {
 		});
 
 		it("file content", function() {
-			assert.equal(fs.readFileSync("20150115-129-1test.log"), "test\n");
+			assert.equal(fs.readFileSync("20150123-0116-1-test.log"), "test\n");
 		});
 
 		it("removed", function() {
-			assert.equal(this.removed, "2015013-129-1test.log");
+			assert.equal(this.removed, "20150123-0107-1-test.log");
 			assert.equal(this.number, true);
 		});
 
 		it("removed first rotated file", function() {
-			assert.equal(fs.existsSync("2015013-129-1test.log"), false);
-		});
-
-		it("second rotated file content", function() {
-			assert.equal(fs.readFileSync("2015016-129-1test.log"), "test\ntest\n");
+			assert.equal(fs.existsSync("20150123-0107-1-test.log"), false);
 		});
 
 		it("third rotated file content", function() {
-			assert.equal(fs.readFileSync("2015019-129-1test.log"), "test\ntest\n");
+			assert.equal(fs.readFileSync("20150123-0110-1-test.log"), "test\ntest\n");
 		});
 
 		it("forth rotated file content", function() {
-			assert.equal(fs.readFileSync("20150112-129-1test.log"), "test\ntest\n");
+			assert.equal(fs.readFileSync("20150123-0113-1-test.log"), "test\ntest\n");
 		});
 
 		it("last file", function() {

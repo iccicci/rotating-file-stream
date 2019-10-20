@@ -1,3 +1,5 @@
+- 2019-10-20 - v1.4.6
+  - tests fix
 - 2019-10-18 - v1.4.5
   - Fixed a [bug](https://github.com/iccicci/rotating-file-stream/issues/39) when **immutable** and **history** are both set.
   - devDependencies update

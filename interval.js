@@ -71,6 +71,7 @@ function historyWrite(self, res) {
 	var files = [];
 
 	res.map(e => files.push(e.name));
+	self.files = files;
 
 	fs.writeFile(self.options.history, files.join("\n"), "utf8", function(err) {
 		if(err) self.emit("warning", err);
@@ -134,6 +135,12 @@ function historyGather(self, files, idx, res) {
 function history(lastfile) {
 	var filename = this.options.history;
 	var self = this;
+
+	if(this.files) {
+		this.files.push(lastfile);
+
+		return historyGather(self, this.files, 0, []);
+	}
 
 	if(! filename) this.options.history = filename = this.generator(null) + ".txt";
 
