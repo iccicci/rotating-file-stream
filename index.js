@@ -96,16 +96,16 @@ RotatingFileStream.prototype._rewrite = function() {
 };
 
 RotatingFileStream.prototype._write = function(chunk, encoding, callback) {
-  var self = this;
-  // Check if active file still exist
-  // If the file is exist we do nothing else we re-create the file and continue append the logs.
-  fs.access(self.name, FS_F_OK, function (err) {
-    if (err) {
-      self.open()
-    }
-  })
-  this.chunks.push({ chunk: chunk, cb: callback });
-  this._rewrite();
+	var self = this;
+	// Check if active file still exist
+	// If the file is exist we do nothing else we re-create the file and continue append the logs.
+	fs.access(self.name, FS_F_OK, function (err) {
+		if (err) {
+			self.open()
+		}
+	})
+	this.chunks.push({ chunk: chunk, cb: callback });
+	this._rewrite();
 };
 
 RotatingFileStream.prototype._writev = function(chunks, callback) {
