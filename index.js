@@ -7,6 +7,7 @@ var path = require("path");
 var util = require("util");
 var utils = require("./utils");
 var Writable = require("stream").Writable;
+var FS_F_OK = fs.constants ? fs.constants.F_OK : fs.F_OK;
 
 function RotatingFileStream(filename, options) {
 	if(! (this instanceof RotatingFileStream)) return new RotatingFileStream(filename, options);
