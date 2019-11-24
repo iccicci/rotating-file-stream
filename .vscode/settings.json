@@ -1,15 +1,17 @@
 {
+	"editor.defaultFormatter": "prettier.prettier-vscode",
 	"editor.formatOnSave": true,
 	"eslint.autoFixOnSave": true,
 	"eslint.alwaysShowStatus": true,
+	"eslint.validate": ["javascript", { "language": "typescript", "autoFix": true }],
 	"explorer.confirmDelete": false,
+	"files.autoSave": "off",
 	"files.eol": "\n",
 	"files.insertFinalNewline": true,
 	"files.trimFinalNewlines": true,
 	"git.ignoreMissingGitWarning": true,
-	"prettier.eslintIntegration": true,
-	"prettier.jsxBracketSameLine": true,
-	"prettier.printWidth": 200,
-	"prettier.useTabs": true,
-	"window.zoomLevel": 0
+	"window.zoomLevel": 0,
+	"[typescript]": {
+		"editor.defaultFormatter": "prettier.prettier-vscode"
+	}
 }

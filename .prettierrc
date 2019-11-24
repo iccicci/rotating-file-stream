@@ -1,0 +1,13 @@
+{
+	"jsxBracketSameLine": true,
+	"printWidth": 200,
+	"useTabs": true,
+	"overrides": [
+		{
+			"files": ["*.md"],
+			"options": {
+				"useTabs": false
+			}
+		}
+	]
+}

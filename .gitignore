@@ -1,7 +1,0 @@
-*gz
-*log
-*tmp
-.npmignore
-.nyc_output
-coverage
-node_modules

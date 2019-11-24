@@ -1,3 +1,7 @@
+- 2019-11-24 - v2.0.0
+  - complete refactoring with TypeScript
+  - full Windows compliance (at least all tests are OK)
+  - file is recreated if externally removed while logging
 - 2019-10-20 - v1.4.6
   - tests fix
 - 2019-10-18 - v1.4.5

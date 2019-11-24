@@ -1,23 +1,30 @@
 ---
 checks:
+  file-lines:
+    config:
+      threshold: 1000
   method-complexity:
     config:
       threshold: 30
+  method-count:
+    config:
+      threshold: 35
   method-lines:
     config:
       threshold: 100
   return-statements:
     config:
       threshold: 20
+  similar-code:
+    config:
+      threshold: 60
 engines:
   duplication:
     enabled: true
     config:
       languages:
-        - ruby
         - javascript
-        - python
-        - php
+        - typescript
   eslint:
     enabled: true
     channel: eslint-6
@@ -25,4 +32,6 @@ engines:
     enabled: true
 ratings:
   paths:
-    - "*.js"
+    - "*.ts"
+    - "test/*.ts"
+    - "test/*.js"

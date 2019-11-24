@@ -9,7 +9,6 @@ language: node_js
 node_js:
   - "12"
   - "10"
-  - "8"
 
 after_script:
   - if [[ `node --version` =~ ^v12 ]] ; then npm run coverage ; npm install codeclimate-test-reporter ; codeclimate-test-reporter < coverage/lcov.info ; fi
