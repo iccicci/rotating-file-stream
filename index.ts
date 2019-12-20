@@ -6,6 +6,7 @@ import { Readable, Writable } from "stream";
 import { Stats, close, createReadStream, createWriteStream, mkdir, open, readFile, rename, stat, unlink, write, writeFile } from "fs";
 import { parse, sep } from "path";
 import { TextDecoder } from "util";
+import { setTimeout } from "timers";
 
 class RotatingFileStreamError extends Error {
 	public code: string;
