@@ -1,9 +1,9 @@
 {
-	"editor.defaultFormatter": "prettier.prettier-vscode",
+	"editor.codeActionsOnSave": { "source.fixAll.eslint": true },
+	"editor.defaultFormatter": "esbenp.prettier-vscode",
 	"editor.formatOnSave": true,
-	"eslint.autoFixOnSave": true,
 	"eslint.alwaysShowStatus": true,
-	"eslint.validate": ["javascript", { "language": "typescript", "autoFix": true }],
+	"eslint.validate": ["javascript", "typescript"],
 	"explorer.confirmDelete": false,
 	"files.autoSave": "off",
 	"files.eol": "\n",
@@ -11,7 +11,5 @@
 	"files.trimFinalNewlines": true,
 	"git.ignoreMissingGitWarning": true,
 	"window.zoomLevel": 0,
-	"[typescript]": {
-		"editor.defaultFormatter": "prettier.prettier-vscode"
-	}
+	"[typescript]": { "editor.defaultFormatter": "dbaeumer.vscode-eslint" }
 }

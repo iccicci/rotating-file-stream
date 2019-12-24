@@ -216,6 +216,7 @@
 		"prefer-spread": 0,
 		"prefer-template": 0,
 		"require-yield": 0,
+		"@typescript-eslint/no-empty-function": 0,
 		"@typescript-eslint/no-explicit-any": 0,
 		"@typescript-eslint/type-annotation-spacing": [2, { "before": false, "after": true, "overrides": { "arrow": { "before": true } } }]
 	}

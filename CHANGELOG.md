@@ -1,3 +1,6 @@
+- 2019-12-24 - v2.0.1
+  - Fixed a [bug about setTimeout on some node environments](https://github.com/iccicci/rotating-file-stream/pull/46) (thanks to [Rastopyr](https://github.com/Rastopyr))
+  - devDependencies update
 - 2019-11-24 - v2.0.0
   - complete refactoring with TypeScript
   - full Windows compliance (at least all tests are OK)

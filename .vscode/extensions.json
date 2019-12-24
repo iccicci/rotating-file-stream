@@ -1,8 +1,3 @@
 {
-	"recommendations": [
-		"dbaeumer.vscode-eslint",
-		"eg2.vscode-npm-script",
-		"myh.preview-vscode",
-		"prettier.prettier-vscode"
-	]
+	"recommendations": ["dbaeumer.vscode-eslint", "eg2.vscode-npm-script", "esbenp.prettier-vscode", "myh.preview-vscode"]
 }
