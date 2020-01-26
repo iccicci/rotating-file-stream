@@ -170,6 +170,11 @@ export class RotatingFileStream extends Writable {
 			if(this.destroyed) return callback(this.error);
 			if(this.error) return destroy(this.error);
 
+			if(! this.stream) {
+				this.opened = rewrite;
+				return;
+			}
+
 			const done: Callback = (error?: Error): void => {
 				if(error) return destroy(error);
 				if(chunk.next) return this.rewrite(chunk.next, callback);
@@ -477,7 +482,9 @@ export class RotatingFileStream extends Writable {
 		const set = (): void => {
 			const time = this.next - this.now().getTime();
 
-			this.timer = time > this.maxTimeout ? setTimeout(set, this.maxTimeout) : setTimeout(() => this.rotate(error => (this.error = error)), time);
+			if(time <= 0) return this.rotate(error => (this.error = error));
+
+			this.timer = setTimeout(set, time > this.maxTimeout ? this.maxTimeout : time);
 			this.timer.unref();
 		};
 

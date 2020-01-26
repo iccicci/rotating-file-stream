@@ -1,3 +1,6 @@
+- 2020-01-26 - v2.0.2
+  - Fixed two [bugs](https://github.com/iccicci/rotating-file-stream/pull/47)
+  - devDependencies update
 - 2019-12-24 - v2.0.1
   - Fixed a [bug about setTimeout on some node environments](https://github.com/iccicci/rotating-file-stream/pull/46) (thanks to [Rastopyr](https://github.com/Rastopyr))
   - devDependencies update

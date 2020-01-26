@@ -65,8 +65,8 @@ describe("interval", () => {
 
 	describe("write while rotation", () => {
 		const events = test({ files: { "test.log": "test\ntest\n" }, options: { interval: "1s" } }, rfs => {
-			let ms = 990;
-			rfs.now = (): Date => new Date(2015, 0, 23, 0, 0, 0, (ms -= 10));
+			let count = 0;
+			rfs.now = (): Date => new Date(2015, 0, 23, 0, 0, 0, count++ ? 1000 : 990);
 			rfs.once("rotation", () => rfs.end("test\n"));
 		});
 
@@ -78,8 +78,8 @@ describe("interval", () => {
 	describe("_write while rotation", () => {
 		const events = test({ files: { "test.log": "test\ntest\n" }, options: { interval: "1s" } }, rfs => {
 			const prev = rfs._write;
-			let ms = 990;
-			rfs.now = (): Date => new Date(2015, 0, 23, 0, 0, 0, (ms -= 10));
+			let count = 0;
+			rfs.now = (): Date => new Date(2015, 0, 23, 0, 0, 0, count++ ? 1000 : 990);
 			rfs._write = (chunk: any, encoding: any, callback: any): any => rfs.once("rotation", prev.bind(rfs, chunk, encoding, callback));
 
 			rfs.end("test\n");
@@ -121,5 +121,27 @@ describe("interval", () => {
 		it("events", () => deq(events, { finish: 1, open: ["test.log", "test.log", "test.log", "test.log"], rotated: ["1-test.log", "2-test.log", "3-test.log"], rotation: 3, write: 3, writev: 1 }));
 		it("file content", () => eq(readFileSync("test.log", "utf8"), "test\n"));
 		it("rotated file content", () => eq(readFileSync("1-test.log", "utf8"), "test\ntest\n"));
+	});
+
+	describe("timeout while stat", () => {
+		const events = test({ options: { interval: "1s" } }, rfs => {
+			const prev = rfs.fsStat.bind(rfs);
+			let now = 0,
+				stat = 0;
+			rfs.now = (): Date => {
+				now++;
+				return new Date(2015, 0, 23, 0, 0, now < 3 ? 0 : 1, now < 3 ? 990 : now === 3 ? 0 : 500);
+			};
+			rfs.fsStat = (path: string, callback: () => void): void => {
+				if(stat++ !== 1) return prev(path, callback);
+				rfs.stream.once("finish", () => prev(path, callback));
+			};
+
+			rfs.write("test\n", () => rfs.write("test\n", () => rfs.end("test\n")));
+		});
+
+		it("events", () => deq(events, { finish: 1, open: ["test.log", "test.log"], rotated: ["1-test.log"], rotation: 1, write: 3 }));
+		it("file content", () => eq(readFileSync("test.log", "utf8"), "test\ntest\n"));
+		it("rotated file content", () => eq(readFileSync("1-test.log", "utf8"), "test\n"));
 	});
 });
