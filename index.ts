@@ -161,9 +161,11 @@ export class RotatingFileStream extends Writable {
 
 	private rewrite(chunk: Chunk, callback: Callback): void {
 		const destroy = (error: Error): void => {
-			this.destroy();
-
-			return callback(error);
+			try {
+				this.destroy();
+			} catch(error) {
+				return callback(error);
+			}
 		};
 
 		const rewrite = (): void => {
