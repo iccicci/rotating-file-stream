@@ -1,15 +1,34 @@
 # rotating-file-stream
 
-[![Build Status](https://travis-ci.org/iccicci/rotating-file-stream.png?branch=master)](https://travis-ci.org/iccicci/rotating-file-stream?branch=master)
-[![Code Climate](https://codeclimate.com/github/iccicci/rotating-file-stream/badges/gpa.svg)](https://codeclimate.com/github/iccicci/rotating-file-stream)
-[![Test Coverage](https://codeclimate.com/github/iccicci/rotating-file-stream/badges/coverage.svg)](https://codeclimate.com/github/iccicci/rotating-file-stream/coverage)
-[![Donate](https://img.shields.io/badge/donate-bitcoin-blue.svg)](https://blockchain.info/address/12p1p5q7sK75tPyuesZmssiMYr4TKzpSCN)
+[![Build Status][travis-badge]][travis-url]
+[![Code Climate][code-badge]][code-url]
+[![Test Coverage][cover-badge]][code-url]
 
-[![NPM version](https://badge.fury.io/js/rotating-file-stream.svg)](https://www.npmjs.com/package/rotating-file-stream)
-[![Dependencies](https://david-dm.org/iccicci/rotating-file-stream.svg)](https://david-dm.org/iccicci/rotating-file-stream)
-[![Dev Dependencies](https://david-dm.org/iccicci/rotating-file-stream/dev-status.svg)](https://david-dm.org/iccicci/rotating-file-stream?type=dev)
+[![NPM version][npm-badge]][npm-url]
+[![NPM downloads][npm-downloads-badge]][npm-url]
+[![Types][types-badge]][npm-url]
+[![Donate][donate-badge]][donate-url]
 
-[![NPM](https://nodei.co/npm/rotating-file-stream.png?downloads=true&downloadRank=true)](https://nodei.co/npm/rotating-file-stream/)
+[![Dependencies][dep-badge]][dep-url]
+[![Dev Dependencies][dev-dep-badge]][dev-dep-url]
+[![Dependents][deps-badge]][npm-url]
+
+[code-badge]: https://codeclimate.com/github/iccicci/rotating-file-stream/badges/gpa.svg
+[code-url]: https://codeclimate.com/github/iccicci/rotating-file-stream
+[cover-badge]: https://codeclimate.com/github/iccicci/rotating-file-stream/badges/coverage.svg
+[dep-badge]: https://david-dm.org/iccicci/rotating-file-stream.svg
+[dep-url]: https://david-dm.org/iccicci/rotating-file-stream
+[deps-badge]: https://badgen.net/npm/dependents/rotating-file-stream
+[dev-dep-badge]: https://david-dm.org/iccicci/rotating-file-stream/dev-status.svg
+[dev-dep-url]: https://david-dm.org/iccicci/rotating-file-stream?type=dev
+[donate-badge]: https://img.shields.io/badge/donate-bitcoin-blue.svg
+[donate-url]: https://blockchain.info/address/12p1p5q7sK75tPyuesZmssiMYr4TKzpSCN
+[npm-downloads-badge]: https://badgen.net/npm/dm/rotating-file-stream
+[npm-badge]: https://badge.fury.io/js/rotating-file-stream.svg
+[npm-url]: https://www.npmjs.com/package/rotating-file-stream
+[travis-badge]: https://travis-ci.org/iccicci/rotating-file-stream.png?branch=master
+[travis-url]: https://travis-ci.org/iccicci/rotating-file-stream?branch=master
+[types-badge]: https://badgen.net/npm/types/rotating-file-stream
 
 ### Description
 
@@ -167,8 +186,8 @@ const stream = rfs(generator, {
 ```
 
 **Note:**
-if all of [`options.interval`](#interval), [`options.size`](#size) and [`options.intervalBoundary`](#intervalBoundary)
-are used, returned _rotated file name_ **must** be function of both arguments `time` and `index`.
+if both of [`options.interval`](#interval) [`options.size`](#size) are used, returned _rotated file name_ **must** be
+function of both arguments `time` and `index`.
 
 #### filename(index)
 
@@ -185,7 +204,7 @@ used. Exported only to be used with `instanceof` operator and similar.
 
 ### Event: 'history'
 
-The `history` event is emitted once the _history check job _ is completed.
+The `history` event is emitted once the _history check job_ is completed.
 
 ### Event: 'open'
 
