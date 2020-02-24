@@ -254,4 +254,12 @@ describe("errors", () => {
 
 		it("events", () => deq(events, { close: 1, error: ["test.logtest"], finish: 1, open: ["test.log"], write: 1 }));
 	});
+
+	describe("RO error", () => {
+		const events = test({ files: { "test.log": { content: "test\n", mode: 0o400 } }, options: { size: "10B" } }, rfs => {
+			rfs.write("test\n");
+		});
+
+		it("events", () => deq(events, { close: 1, error: ["EACCES"], finish: 1, write: 1 }));
+	});
 });

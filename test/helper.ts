@@ -1,7 +1,7 @@
 "use strict";
 
 import { RotatingFileStream, createStream } from "..";
-import { Stats, close, futimes, mkdir, open, readdir, rmdir, stat, unlink, write } from "fs";
+import { Stats, chmod, close, futimes, mkdir, open, readdir, rmdir, stat, unlink, write } from "fs";
 import { sep } from "path";
 
 const proto: any = RotatingFileStream.prototype;
@@ -25,7 +25,8 @@ function fillFiles(files: any, done: () => void): void {
 				const done = (): void =>
 					close(fd, (error: Error): any => {
 						if(error) return process.stderr.write(`Error closing for '${file}': ${error.message}\n`, end);
-						end();
+						if(typeof value !== "object" || ! value.mode) return end();
+						chmod(file, value.mode, end);
 					});
 				if(typeof value !== "object" || ! value.date) return done();
 				futimes(fd, files[file].date, files[file].date, (error: Error): any => {

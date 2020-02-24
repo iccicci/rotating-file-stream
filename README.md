@@ -28,7 +28,7 @@
 [npm-url]: https://www.npmjs.com/package/rotating-file-stream
 [travis-badge]: https://travis-ci.org/iccicci/rotating-file-stream.png?branch=master
 [travis-url]: https://travis-ci.org/iccicci/rotating-file-stream?branch=master
-[types-badge]: https://badgen.net/npm/types/rotating-file-stream
+[types-badge]: https://badgen.net/npm/types/rotating-file-stream?color=green
 
 ### Description
 
@@ -499,10 +499,10 @@ times for each rotation job.
 If requested through [`options.maxFiles`](#maxfiles) or [`options.maxSize`](#maxsize), at the end of a rotation job, a
 check is performed to ensure that given limits are respected. This means that
 **while rotation job is running both the limits could be not respected**. The same can happen till the end of first
-rotation job* if [`options.maxFiles`](#maxfiles) or [`options.maxSize`](#maxsize) are changed between two runs.
+_rotation job_ if [`options.maxFiles`](#maxfiles) or [`options.maxSize`](#maxsize) are changed between two runs.
 The first check performed is the one against [`options.maxFiles`](#maxfiles), in case some files are removed, then the
 check against [`options.maxSize`](#maxsize) is performed, finally other files can be removed. When
-[`options.maxFiles`](#maxfiles) or [`options.maxSize`](#maxsize) are enabled for first time, an \_history file* can be
+[`options.maxFiles`](#maxfiles) or [`options.maxSize`](#maxsize) are enabled for first time, an _history file_ can be
 created with one _rotated filename_ (as returned by _filename generator function_) at each line.
 
 Once an **error** _event_ is emitted, nothing more can be done: the stream is closed as well.
