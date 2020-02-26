@@ -363,7 +363,7 @@ If set to `true`, the argument `time` of _filename generator_ is no longer the t
 the _lower boundary_ of rotation interval.
 
 **Note:**
-this option has effec only if [`options.interval`](#interval) is used.
+this option has effect only if [`options.interval`](#interval) is used.
 
 ### initialRotation
 
@@ -373,7 +373,7 @@ is performed against the _not-rotated file_ timestamp and, if it falls in a prev
 rotation job is done as well.
 
 **Note:**
-this option has effec only if [`options.intervalBoundary`](#intervalboundary) is used.
+this option has effect only if [`options.intervalBoundary`](#intervalboundary) is used.
 
 ### compress
 
