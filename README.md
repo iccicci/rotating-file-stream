@@ -18,17 +18,17 @@
 [cover-badge]: https://codeclimate.com/github/iccicci/rotating-file-stream/badges/coverage.svg
 [dep-badge]: https://david-dm.org/iccicci/rotating-file-stream.svg
 [dep-url]: https://david-dm.org/iccicci/rotating-file-stream
-[deps-badge]: https://badgen.net/npm/dependents/rotating-file-stream
+[deps-badge]: https://badgen.net/npm/dependents/rotating-file-stream?icon=npm
 [dev-dep-badge]: https://david-dm.org/iccicci/rotating-file-stream/dev-status.svg
 [dev-dep-url]: https://david-dm.org/iccicci/rotating-file-stream?type=dev
-[donate-badge]: https://img.shields.io/badge/donate-bitcoin-blue.svg
+[donate-badge]: https://badgen.net/badge/donate/bitcoin?icon=bitcoin
 [donate-url]: https://blockchain.info/address/12p1p5q7sK75tPyuesZmssiMYr4TKzpSCN
 [npm-downloads-badge]: https://badgen.net/npm/dm/rotating-file-stream
-[npm-badge]: https://badge.fury.io/js/rotating-file-stream.svg
+[npm-badge]: https://badgen.net/npm/v/rotating-file-stream?color=green&icon=npm
 [npm-url]: https://www.npmjs.com/package/rotating-file-stream
-[travis-badge]: https://travis-ci.org/iccicci/rotating-file-stream.png?branch=master
+[travis-badge]: https://badgen.net/travis/iccicci/rotating-file-stream?icon=travis
 [travis-url]: https://travis-ci.org/iccicci/rotating-file-stream?branch=master
-[types-badge]: https://badgen.net/npm/types/rotating-file-stream?color=green
+[types-badge]: https://badgen.net/npm/types/rotating-file-stream?color=green&icon=typescript
 
 ### Description
 
@@ -512,7 +512,7 @@ Once an **error** _event_ is emitted, nothing more can be done: the stream is cl
 Requires **Node.js v10.x**.
 
 The package is tested under [all Node.js versions](https://travis-ci.org/iccicci/rotating-file-stream)
-currently supported accordingly to [Node.js Release](https://github.com/nodejs/Release).
+currently supported accordingly to [Node.js Release](https://github.com/nodejs/Release#readme).
 
 To work with the package under Windows, be sure to configure `bash.exe` as your _script-shell_.
 
