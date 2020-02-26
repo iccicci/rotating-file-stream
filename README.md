@@ -23,7 +23,7 @@
 [dev-dep-url]: https://david-dm.org/iccicci/rotating-file-stream?type=dev
 [donate-badge]: https://badgen.net/badge/donate/bitcoin?icon=bitcoin
 [donate-url]: https://blockchain.info/address/12p1p5q7sK75tPyuesZmssiMYr4TKzpSCN
-[npm-downloads-badge]: https://badgen.net/npm/dm/rotating-file-stream
+[npm-downloads-badge]: https://badgen.net/npm/dm/rotating-file-stream?icon=npm
 [npm-badge]: https://badgen.net/npm/v/rotating-file-stream?color=green&icon=npm
 [npm-url]: https://www.npmjs.com/package/rotating-file-stream
 [travis-badge]: https://badgen.net/travis/iccicci/rotating-file-stream?icon=travis
