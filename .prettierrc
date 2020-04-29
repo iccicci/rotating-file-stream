@@ -1,6 +1,8 @@
 {
+	"arrowParens": "avoid",
 	"jsxBracketSameLine": true,
 	"printWidth": 200,
+	"trailingComma": "none",
 	"useTabs": true,
 	"overrides": [
 		{

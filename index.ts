@@ -35,6 +35,7 @@ export interface Options {
 	path?: string;
 	rotate?: number;
 	size?: string;
+	teeToStdout?: boolean;
 }
 
 interface Opts {
@@ -51,6 +52,7 @@ interface Opts {
 	path?: string;
 	rotate?: number;
 	size?: number;
+	teeToStdout?: boolean;
 }
 
 type Callback = (error?: Error) => void;
@@ -187,6 +189,8 @@ export class RotatingFileStream extends Writable {
 				if(this.options.size && this.size >= this.options.size) return this.rotate(done);
 				done();
 			});
+
+			if(this.options.teeToStdout) process.stdout.write(chunk.chunk, chunk.encoding, () => {});
 		};
 
 		if(this.stream) {
@@ -813,7 +817,9 @@ const checks: any = {
 
 	rotate: buildNumberCheck("rotate"),
 
-	size: buildStringCheck("size", checkSize)
+	size: buildStringCheck("size", checkSize),
+
+	teeToStdout: (): void => {}
 };
 
 function checkOpts(options: Options): Opts {

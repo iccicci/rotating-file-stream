@@ -286,6 +286,9 @@ The `warning` event is emitted once a non blocking error happens.
 - [`size`](#size):
   [&lt;string>](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Data_structures#String_type)
   Specifies the file size to rotate the file. **Default:** `null`.
+- [`teeToStdout`](#teeToStdout):
+  [&lt;boolean>](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Data_structures#Boolean_type)
+  Writes file content to `stdout` as well. **Default:** `null`.
 
 ### encoding
 
@@ -299,6 +302,10 @@ Proxied to [fs.createWriteStream](https://nodejs.org/api/fs.html#fs_fs_createwri
 ### path
 
 If present, it is prepended to generated file names as well as for history file.
+
+### teeToStdout
+
+If `true`, it makes the file content to be written to `stdout` as well. Useful for debugging puposes.
 
 ### size
 
@@ -542,6 +549,7 @@ export interface Options {
   path?: string;
   rotate?: number;
   size?: string;
+  teeToStdout?: boolean;
 }
 export declare class RotatingFileStream extends Writable {}
 export declare function createStream(filename: string | Generator, options?: Options): RotatingFileStream;

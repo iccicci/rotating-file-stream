@@ -1,3 +1,6 @@
+- 2020-04-29 - v2.1.0
+  - **teeToStdout** option added
+  - devDependencies update
 - 2020-01-26 - v2.0.2
   - Fixed two [bugs](https://github.com/iccicci/rotating-file-stream/pull/47)
   - devDependencies update

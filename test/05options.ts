@@ -134,4 +134,33 @@ describe("options", () => {
 		it("second file content", () => eq(readFileSync("2-test.log", "utf8"), "test\ntest\n"));
 		it("third file content", () => eq(readFileSync("3-test.log", "utf8"), ""));
 	});
+
+	describe("teeToStdout", () => {
+		const content = [];
+
+		const events = test({ options: { size: "10B", teeToStdout: true } }, rfs => {
+			const write = process.stdout.write;
+
+			process.stdout.write = (str: string | Uint8Array, encoding?: string | ((err?: Error) => void), cb?: (err?: Error) => void): boolean => {
+				content.push({ str, encoding });
+				cb();
+
+				return false;
+			};
+
+			rfs.write("test\n");
+			rfs.write("test\n");
+			rfs.end("test\n", () => (process.stdout.write = write));
+		});
+
+		it("events", () => deq(events, { finish: 1, open: ["test.log", "test.log"], rotated: ["1-test.log"], rotation: 1, write: 1, writev: 1 }));
+		it("stdout", () =>
+			deq(content, [
+				{ encoding: "buffer", str: Buffer.from("test\n") },
+				{ encoding: "buffer", str: Buffer.from("test\n") },
+				{ encoding: "buffer", str: Buffer.from("test\n") },
+			]));
+		it("file content", () => eq(readFileSync("test.log", "utf8"), "test\n"));
+		it("rotated file content", () => eq(readFileSync("1-test.log", "utf8"), "test\ntest\n"));
+	});
 });
