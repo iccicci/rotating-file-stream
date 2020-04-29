@@ -83,6 +83,7 @@ $ npm install --save rotating-file-stream
     - [path](#path)
     - [rotate](#rotate)
     - [size](#size)
+    - [teeToStdout](#teeToStdout)
 - [Rotation logic](#rotation-logic)
 - [Under the hood](#under-the-hood)
 - [Compatibility](#compatibility)
