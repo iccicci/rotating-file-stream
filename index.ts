@@ -190,7 +190,7 @@ export class RotatingFileStream extends Writable {
 				done();
 			});
 
-			if(this.options.teeToStdout) process.stdout.write(chunk.chunk, chunk.encoding, () => {});
+			if(this.options.teeToStdout) process.stdout.write(chunk.chunk, chunk.encoding);
 		};
 
 		if(this.stream) {
