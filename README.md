@@ -538,7 +538,7 @@ export declare type Compressor = (source: string, dest: string) => string;
 export declare type Generator = (time: number | Date, index?: number) => string;
 export interface Options {
   compress?: boolean | string | Compressor;
-  encoding?: string;
+  encoding?: BufferEncoding;
   history?: string;
   immutable?: boolean;
   initialRotation?: boolean;

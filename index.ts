@@ -23,7 +23,7 @@ export type Generator = (time: number | Date, index?: number) => string;
 
 export interface Options {
 	compress?: boolean | string | Compressor;
-	encoding?: string;
+	encoding?: BufferEncoding;
 	history?: string;
 	immutable?: boolean;
 	initialRotation?: boolean;
@@ -40,7 +40,7 @@ export interface Options {
 
 interface Opts {
 	compress?: string | Compressor;
-	encoding?: string;
+	encoding?: BufferEncoding;
 	history?: string;
 	immutable?: boolean;
 	initialRotation?: boolean;
@@ -59,7 +59,7 @@ type Callback = (error?: Error) => void;
 
 interface Chunk {
 	chunk: Buffer;
-	encoding: string;
+	encoding: BufferEncoding;
 	next: Chunk;
 }
 
@@ -103,7 +103,7 @@ export class RotatingFileStream extends Writable {
 	constructor(generator: Generator, options: Opts) {
 		const { encoding, history, maxFiles, maxSize, path } = options;
 
-		super({ decodeStrings: true, defaultEncoding: encoding });
+		super({ decodeStrings: true, defaultencoding: encoding });
 
 		this.createGzip = createGzip;
 		this.exec = exec;
@@ -153,7 +153,7 @@ export class RotatingFileStream extends Writable {
 		callback();
 	}
 
-	_write(chunk: Buffer, encoding: string, callback: Callback): void {
+	_write(chunk: Buffer, encoding: BufferEncoding, callback: Callback): void {
 		this.rewrite({ chunk, encoding, next: null }, callback);
 	}
 
@@ -190,7 +190,7 @@ export class RotatingFileStream extends Writable {
 				done();
 			});
 
-			if(this.options.teeToStdout) process.stdout.write(chunk.chunk, chunk.encoding);
+			if(this.options.teeToStdout && ! process.stdout.destroyed) process.stdout.write(chunk.chunk, chunk.encoding);
 		};
 
 		if(this.stream) {

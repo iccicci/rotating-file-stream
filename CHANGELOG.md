@@ -1,3 +1,6 @@
+- 2020-05-13 - v2.1.1
+  - Bug fix for **teeToStdout**
+  - devDependencies update
 - 2020-04-29 - v2.1.0
   - **teeToStdout** option added
   - devDependencies update

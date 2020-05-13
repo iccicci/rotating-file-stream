@@ -54,6 +54,6 @@ describe("rfs", () => {
 		it("wrong maxFiles", () => ex(() => createStream("test.log", { maxFiles: {} } as any), Error("'maxFiles' option must be a positive integer number")));
 		it("negative maxFiles", () => ex(() => createStream("test.log", { maxFiles: -23 }), Error("'maxFiles' option must be a positive integer number")));
 		it("wrong maxSize", () => ex(() => createStream("test.log", { maxSize: "-23B" }), Error("A positive integer number is expected for 'options.size'")));
-		it("wrong encoding", () => ex(() => createStream("test.log", { encoding: "test" }), encodingError));
+		it("wrong encoding", () => ex(() => createStream("test.log", { encoding: "test" as BufferEncoding }), encodingError));
 	});
 });
