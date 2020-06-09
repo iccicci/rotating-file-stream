@@ -3,11 +3,12 @@
 [![Build Status][travis-badge]][travis-url]
 [![Code Climate][code-badge]][code-url]
 [![Test Coverage][cover-badge]][code-url]
+[![Donate][donate-badge]][donate-url]
 
 [![NPM version][npm-badge]][npm-url]
 [![NPM downloads][npm-downloads-badge]][npm-url]
+[![Stars][stars-badge]][github-url]
 [![Types][types-badge]][npm-url]
-[![Donate][donate-badge]][donate-url]
 
 [![Dependencies][dep-badge]][dep-url]
 [![Dev Dependencies][dev-dep-badge]][dev-dep-url]
@@ -23,9 +24,11 @@
 [dev-dep-url]: https://david-dm.org/iccicci/rotating-file-stream?type=dev
 [donate-badge]: https://badgen.net/badge/donate/bitcoin?icon=bitcoin
 [donate-url]: https://blockchain.info/address/12p1p5q7sK75tPyuesZmssiMYr4TKzpSCN
+[github-url]: https://github.com/iccicci/rotating-file-stream
 [npm-downloads-badge]: https://badgen.net/npm/dm/rotating-file-stream?icon=npm
 [npm-badge]: https://badgen.net/npm/v/rotating-file-stream?color=green&icon=npm
 [npm-url]: https://www.npmjs.com/package/rotating-file-stream
+[stars-badge]: https://badgen.net/github/stars/iccicci/rotating-file-stream?icon=github
 [travis-badge]: https://badgen.net/travis/iccicci/rotating-file-stream?icon=travis
 [travis-url]: https://travis-ci.org/iccicci/rotating-file-stream?branch=master
 [types-badge]: https://badgen.net/npm/types/rotating-file-stream?color=green&icon=typescript

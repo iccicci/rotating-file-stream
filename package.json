@@ -8,8 +8,7 @@
 		"coverage": "tsc && TZ=\"Europe/Rome\" nyc -r lcov -r text -r text-summary -r html mocha -r ts-node/register test/*ts",
 		"eslint": "eslint index.ts utils.ts test/*ts",
 		"ignore": "node -r ts-node/register utils.ts ignore",
-		"prepare": "npm run ignore && tsc && npm run readme",
-		"readme": "node -r ts-node/register utils.ts readme",
+		"prepare": "npm run ignore && tsc",
 		"test": "npm run clean && mocha -r ts-node/register test/*ts"
 	},
 	"bugs": "https://github.com/iccicci/rotating-file-stream/issues",
@@ -48,5 +47,22 @@
 		"nyc": "15.0.1",
 		"ts-node": "8.10.1",
 		"typescript": "3.9.2"
+	},
+	"prettier": {
+		"arrowParens": "avoid",
+		"jsxBracketSameLine": true,
+		"printWidth": 200,
+		"trailingComma": "none",
+		"useTabs": true,
+		"overrides": [
+			{
+				"files": [
+					"*.md"
+				],
+				"options": {
+					"useTabs": false
+				}
+			}
+		]
 	}
 }

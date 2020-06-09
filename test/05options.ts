@@ -136,7 +136,7 @@ describe("options", () => {
 	});
 
 	describe("teeToStdout", () => {
-		const content = [];
+		const content: { str: string | Uint8Array; encoding: string | ((err?: Error) => void); cb: undefined | ((err?: Error) => void) }[] = [];
 
 		const events = test({ options: { size: "10B", teeToStdout: true } }, rfs => {
 			const write = process.stdout.write;
