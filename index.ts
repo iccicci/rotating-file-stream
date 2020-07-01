@@ -521,7 +521,7 @@ export class RotatingFileStream extends Writable {
 		this.findName(true, (error: Error, found: string): void => {
 			if(error) return callback(error);
 
-			this.fsOpen(found, "w", parseInt("777", 8), (error: Error, fd: number): void => {
+			this.fsOpen(found, "w", 0o777, (error: Error, fd: number): void => {
 				if(error) return callback(error);
 
 				const unlink = (error: Error): void => {
@@ -544,7 +544,7 @@ export class RotatingFileStream extends Writable {
 
 						if(found.indexOf(sep) === -1) found = `.${sep}${found}`;
 
-						this.exec(found, unlink);
+						this.exec(`sh "${found}"`, unlink);
 					});
 				});
 			});
