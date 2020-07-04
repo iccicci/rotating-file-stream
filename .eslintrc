@@ -192,7 +192,7 @@
 		"sort-imports": 2,
 		"sort-vars": 0,
 		"space-before-blocks": [2, "always"],
-		"space-before-function-paren": 0,
+		"space-before-function-paren": ["error", "never"],
 		"space-in-parens": ["error", "never"],
 		"space-infix-ops": 2,
 		"space-unary-ops": ["error", { "words": true, "nonwords": false, "overrides": { "!": true } }],

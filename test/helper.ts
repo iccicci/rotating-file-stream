@@ -1,6 +1,6 @@
 "use strict";
 
-import { RotatingFileStream, createStream } from "..";
+import { Generator, Options, RotatingFileStream, createStream } from "..";
 import { Stats, chmod, close, futimes, mkdir, open, readdir, rmdir, stat, unlink, write } from "fs";
 import { sep } from "path";
 
@@ -81,7 +81,13 @@ function recursiveRemove(path: string, done: () => any): any {
 	});
 }
 
-export function test(opt: any, test: (rfs: any) => void): any {
+interface testOpt {
+	filename?: string | Generator;
+	files?: any;
+	options?: Options;
+}
+
+export function test(opt: testOpt, test: (rfs: any) => void): any {
 	const { filename, files, options } = opt;
 	const events: any = {};
 

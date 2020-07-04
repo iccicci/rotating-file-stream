@@ -103,7 +103,7 @@ export class RotatingFileStream extends Writable {
 	constructor(generator: Generator, options: Opts) {
 		const { encoding, history, maxFiles, maxSize, path } = options;
 
-		super({ decodeStrings: true, defaultencoding: encoding });
+		super({ decodeStrings: true, defaultEncoding: encoding });
 
 		this.createGzip = createGzip;
 		this.exec = exec;

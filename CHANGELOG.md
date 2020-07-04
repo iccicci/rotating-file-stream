@@ -1,3 +1,6 @@
+- 2020-07-04 - v2.1.2
+  - Applied a change to use on mounts with the noexec option (thanks to [jvassev](https://github.com/jvassev))
+  - devDependencies update
 - 2020-05-13 - v2.1.1
   - Bug fix for **teeToStdout**
   - devDependencies update
