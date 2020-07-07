@@ -2,6 +2,7 @@
 
 import { deepStrictEqual as deq, strictEqual as eq } from "assert";
 import { readFileSync, unlink } from "fs";
+import { createStream } from "..";
 import { test } from "./helper";
 
 describe("write(s)", () => {
@@ -104,5 +105,21 @@ describe("write(s)", () => {
 
 		it("events", () => deq(events, { finish: 1, open: ["test.log", "test.log"], write: 2 }));
 		it("file content", () => eq(readFileSync("test.log", "utf8"), "test\n"));
+	});
+
+	describe("two consecutive open in not existing directory", function() {
+		let count = 0;
+
+		before(function(done) {
+			const rfs1 = createStream("log/test1");
+			const rfs2 = createStream("log/test2");
+
+			const open = () => (++count === 2 ? rfs1.end(() => rfs2.end(done)) : null);
+
+			rfs1.on("open", open);
+			rfs2.on("open", open);
+		});
+
+		it("2 opens", () => eq(2, count));
 	});
 });

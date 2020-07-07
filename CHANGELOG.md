@@ -1,3 +1,6 @@
+- 2020-07-07 - v2.1.3
+  - Fixed a bug causing EEXIST opening two files in same not existing directory in a rapid sequence (thanks to [jameslahm](https://github.com/jameslahm))
+  - devDependencies update
 - 2020-07-04 - v2.1.2
   - Applied a change to use on mounts with the noexec option (thanks to [jvassev](https://github.com/jvassev))
   - devDependencies update

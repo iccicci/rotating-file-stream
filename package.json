@@ -5,7 +5,7 @@
 	"scripts": {
 		"all": "npm run eslint && npm run coverage",
 		"clean": "node -r ts-node/register utils.ts clean",
-		"coverage": "tsc && TZ=\"Europe/Rome\" nyc -r lcov -r text -r text-summary -r html mocha -r ts-node/register test/*ts",
+		"coverage": "npm run clean && TZ=\"Europe/Rome\" nyc -r lcov -r text -r text-summary -r html mocha -r ts-node/register test/*ts",
 		"eslint": "eslint index.ts utils.ts test/*ts",
 		"ignore": "node -r ts-node/register utils.ts ignore",
 		"prepare": "npm run ignore && tsc",
@@ -25,12 +25,13 @@
 	"contributors": [
 		"cicci (https://www.trinityteam.it/DanieleRicci#en)",
 		"allevo",
-		"rakshith-ravi",
 		"kbirger",
+		"jvassev",
+		"wangao",
+		"rakshith-ravi",
 		"Jorge Silva <jorgemsrs@gmail.com>",
 		"Jan Christoph Bernack <jc.bernack@gmail.com>",
-		"cchare (https://github.com/cchare)",
-		"jvassev"
+		"cchare (https://github.com/cchare)"
 	],
 	"license": "MIT",
 	"funding": {
@@ -40,9 +41,9 @@
 	"types": "index.d.ts",
 	"devDependencies": {
 		"@types/mocha": "7.0.2",
-		"@types/node": "14.0.14",
-		"@typescript-eslint/eslint-plugin": "3.5.0",
-		"@typescript-eslint/parser": "3.5.0",
+		"@types/node": "14.0.18",
+		"@typescript-eslint/eslint-plugin": "3.6.0",
+		"@typescript-eslint/parser": "3.6.0",
 		"eslint": "7.4.0",
 		"mocha": "8.0.1",
 		"nyc": "15.1.0",
