@@ -239,6 +239,7 @@ export class RotatingFileStream extends Writable {
 		this.fsMkdir(dir, (error: NodeJS.ErrnoException): void => {
 			if(error) {
 				if(error.code === "ENOENT") return this.makePath(dir, (error: Error): void => (error ? callback(error) : this.makePath(name, callback)));
+				if (error.code === "EEXIST") return callback();
 				return callback(error);
 			}
 
