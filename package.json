@@ -1,6 +1,6 @@
 {
 	"name": "rotating-file-stream",
-	"version": "2.1.3",
+	"version": "2.1.4",
 	"description": "Opens a stream.Writable to a file rotated by interval and/or size. A logrotate alternative.",
 	"scripts": {
 		"all": "npm run eslint && npm run coverage",
