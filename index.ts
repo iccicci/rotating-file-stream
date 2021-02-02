@@ -132,6 +132,7 @@ export class RotatingFileStream extends Writable {
 			this.init(error => {
 				this.error = error;
 				if(this.opened) this.opened();
+				else if(this.error) this.emit("error", error);
 			})
 		);
 	}

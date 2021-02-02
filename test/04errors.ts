@@ -117,7 +117,7 @@ describe("errors", () => {
 			rfs.end("test\n");
 		});
 
-		it("events", () => deq(events, { close: 1, error: [`test log${sep}t`], finish: 1, write: 1 }));
+		it("events", () => deq(events, { close: 1, error: [`test log${sep}t`, `test log${sep}t`], finish: 1, write: 1 }));
 	});
 
 	describe("error creating missing path (rotation)", () => {
@@ -150,7 +150,7 @@ describe("errors", () => {
 			rfs.end("test\n");
 		});
 
-		it("events", () => deq(events, { close: 1, error: ["test log"], finish: 1, write: 1 }));
+		it("events", () => deq(events, { close: 1, error: ["test log", "test log"], finish: 1, write: 1 }));
 	});
 
 	describe("error on no rotated file open", () => {
@@ -164,7 +164,7 @@ describe("errors", () => {
 			rfs.write("test\n");
 		});
 
-		it("events", () => deq(events, { close: 1, error: ["TEST"], finish: 1, write: 1 }));
+		it("events", () => deq(events, { close: 1, error: ["TEST", "TEST"], finish: 1, write: 1 }));
 	});
 
 	describe("async error in sub stream", () => {
@@ -260,6 +260,6 @@ describe("errors", () => {
 			rfs.write("test\n");
 		});
 
-		it("events", () => deq(events, { close: 1, error: ["EACCES"], finish: 1, write: 1 }));
+		it("events", () => deq(events, { close: 1, error: ["EACCES", "EACCES"], finish: 1, write: 1 }));
 	});
 });
