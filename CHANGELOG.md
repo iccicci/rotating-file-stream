@@ -1,3 +1,6 @@
+- 2021-02-02 - v2.1.4
+  - Fixed a bug which [requires a write operation to emit errors on open](https://github.com/iccicci/rotating-file-stream/issues/62) (thanks to [Raynos](https://github.com/Raynos))
+  - devDependencies update
 - 2020-07-07 - v2.1.3
   - Fixed a bug causing EEXIST opening two files in same not existing directory in a rapid sequence (thanks to [jameslahm](https://github.com/jameslahm))
   - devDependencies update
