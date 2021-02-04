@@ -4,7 +4,7 @@
 		"module": "commonjs",
 		"noImplicitAny": true,
 		"suppressImplicitAnyIndexErrors": true,
-		"target": "es6"
+		"target": "es5"
 	},
 	"include": ["./index.ts"]
 }
