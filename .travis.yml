@@ -1,6 +1,14 @@
+after_script:
+  - "if [[ `node --version` =~ ^v12 ]] ; then ./cc-test-reporter after-build --exit-code $TRAVIS_TEST_RESULT ; fi"
+
+before_script:
+  - "curl -L https://codeclimate.com/downloads/test-reporter/test-reporter-latest-linux-amd64 > ./cc-test-reporter"
+  - "chmod +x ./cc-test-reporter"
+  - "./cc-test-reporter before-build"
+
 env:
   global:
-    - CODECLIMATE_REPO_TOKEN=b96c8e14d13e6e0eac109776042700ebba5cddd019d9031fc476d8110842920f
+    - CC_TEST_REPORTER_ID=b96c8e14d13e6e0eac109776042700ebba5cddd019d9031fc476d8110842920f
 
 sudo: false
 
@@ -10,5 +18,4 @@ node_js:
   - "12"
   - "10"
 
-after_script:
-  - if [[ `node --version` =~ ^v12 ]] ; then npm run coverage ; npm install codeclimate-test-reporter ; codeclimate-test-reporter < coverage/lcov.info ; fi
+script: "npm run coverage"
