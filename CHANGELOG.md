@@ -1,3 +1,6 @@
+- 2021-02-19 - v2.1.5
+  - Changed \_writev to make it compliant with Node.js v14; this should solve [#67](https://github.com/iccicci/rotating-file-stream/issues/67)
+  - devDependencies update
 - 2021-02-02 - v2.1.4
   - Fixed a bug which [requires a write operation to emit errors on open](https://github.com/iccicci/rotating-file-stream/issues/62) (thanks to [Raynos](https://github.com/Raynos))
   - devDependencies update
