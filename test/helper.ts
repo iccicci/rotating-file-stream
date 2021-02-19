@@ -94,7 +94,7 @@ export function test(opt: testOpt, test: (rfs: any) => void): any {
 	before(function(done): void {
 		let did: boolean;
 
-		const generator = filename ? filename : (time: Date, index?: number): string => (time ? index + "-test.log" : "test.log");
+		const generator = filename ? filename : (time: number | Date, index?: number): string => (time ? index + "-test.log" : "test.log");
 		const timeOut = setTimeout(() => {
 			events.timedOut = true;
 			done();

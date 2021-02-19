@@ -139,13 +139,10 @@ describe("options", () => {
 		const content: { str: string | Uint8Array; encoding: string | ((err?: Error) => void); cb: undefined | ((err?: Error) => void) }[] = [];
 
 		const events = test({ options: { size: "10B", teeToStdout: true } }, rfs => {
-			const write = process.stdout.write;
-
-			process.stdout.write = (str: string | Uint8Array, encoding?: string | ((err?: Error) => void), cb?: (err?: Error) => void): boolean => content.push({ str, encoding, cb }) === 0;
-
+			rfs.writeToStdOut = (str: string | Uint8Array, encoding?: string | ((err?: Error) => void), cb?: (err?: Error) => void): boolean => content.push({ str, encoding, cb }) === 0;
 			rfs.write("test\n");
 			rfs.write("test\n");
-			rfs.end("test\n", () => (process.stdout.write = write));
+			rfs.end("test\n");
 		});
 
 		it("events", () => deq(events, { finish: 1, open: ["test.log", "test.log"], rotated: ["1-test.log"], rotation: 1, write: 1, writev: 1 }));

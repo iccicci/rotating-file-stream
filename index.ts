@@ -60,7 +60,6 @@ type Callback = (error?: Error) => void;
 interface Chunk {
 	chunk: Buffer;
 	encoding: BufferEncoding;
-	next: Chunk;
 }
 
 interface History {
@@ -155,14 +154,14 @@ export class RotatingFileStream extends Writable {
 	}
 
 	_write(chunk: Buffer, encoding: BufferEncoding, callback: Callback): void {
-		this.rewrite({ chunk, encoding, next: null }, callback);
+		this.rewrite([{ chunk, encoding }], 0, callback);
 	}
 
 	_writev(chunks: Chunk[], callback: Callback): void {
-		this.rewrite(chunks[0], callback);
+		this.rewrite(chunks, 0, callback);
 	}
 
-	private rewrite(chunk: Chunk, callback: Callback): void {
+	private rewrite(chunks: Chunk[], index: number, callback: Callback): void {
 		const destroy = (error: Error): void => {
 			this.destroy();
 
@@ -180,18 +179,18 @@ export class RotatingFileStream extends Writable {
 
 			const done: Callback = (error?: Error): void => {
 				if(error) return destroy(error);
-				if(chunk.next) return this.rewrite(chunk.next, callback);
+				if(++index !== chunks.length) return this.rewrite(chunks, index, callback);
 				callback();
 			};
 
-			this.size += chunk.chunk.length;
-			this.stream.write(chunk.chunk, chunk.encoding, (error: Error): void => {
+			this.size += chunks[index].chunk.length;
+			this.stream.write(chunks[index].chunk, chunks[index].encoding, (error: Error): void => {
 				if(error) return done(error);
 				if(this.options.size && this.size >= this.options.size) return this.rotate(done);
 				done();
 			});
 
-			if(this.options.teeToStdout && ! process.stdout.destroyed) process.stdout.write(chunk.chunk, chunk.encoding);
+			if(this.options.teeToStdout && ! process.stdout.destroyed) this.writeToStdOut(chunks[index].chunk, chunks[index].encoding);
 		};
 
 		if(this.stream) {
@@ -204,6 +203,10 @@ export class RotatingFileStream extends Writable {
 		}
 
 		this.opened = rewrite;
+	}
+
+	private writeToStdOut(buffer: Buffer, encoding: BufferEncoding) {
+		process.stdout.write(buffer, encoding);
 	}
 
 	private init(callback: Callback): void {
@@ -444,7 +447,7 @@ export class RotatingFileStream extends Writable {
 	}
 
 	private intervalBoundsBig(now: Date): void {
-		let year = now.getFullYear();
+		const year = now.getFullYear();
 		let month = now.getMonth();
 		let day = now.getDate();
 		let hours = now.getHours();
@@ -582,7 +585,7 @@ export class RotatingFileStream extends Writable {
 	}
 
 	private history(filename: string, callback: Callback): void {
-		let { history } = this.options;
+		const { history } = this.options;
 
 		this.fsReadFile(history, "utf8", (error: NodeJS.ErrnoException, data: string): void => {
 			if(error) {

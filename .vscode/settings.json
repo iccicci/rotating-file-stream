@@ -1,5 +1,5 @@
 {
-	"editor.codeActionsOnSave": { "source.fixAll": true, "source.fixAll.eslint": true },
+	"editor.codeActionsOnSave": ["source.formatDocument", "source.fixAll.eslint"],
 	"editor.defaultFormatter": "esbenp.prettier-vscode",
 	"editor.formatOnSave": true,
 	"eslint.alwaysShowStatus": true,
@@ -11,5 +11,6 @@
 	"files.trimFinalNewlines": true,
 	"git.ignoreMissingGitWarning": true,
 	"window.zoomLevel": 0,
+	"[javascript]": { "editor.formatOnSave": false },
 	"[typescript]": { "editor.formatOnSave": false }
 }
