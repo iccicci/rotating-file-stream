@@ -376,16 +376,6 @@ the _lower boundary_ of rotation interval.
 **Note:**
 this option has effect only if [`options.interval`](#interval) is used.
 
-### initialRotation
-
-When program stops in a rotation period then restarts in a new rotation period, logs of different rotation period will
-go in the next rotated file; in a few words: a rotation job is lost. If this option is set to `true` an initial check
-is performed against the _not-rotated file_ timestamp and, if it falls in a previous rotation period, an initial
-rotation job is done as well.
-
-**Note:**
-this option has effect only if [`options.intervalBoundary`](#intervalboundary) is used.
-
 ### compress
 
 For historical reasons external compression can be used, but the best choice is to use the value `"gzip"`.
