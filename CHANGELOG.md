@@ -1,3 +1,7 @@
+- 2021-09-26 - v2.1.6
+  - Made the [package compliant with Node.js v14 and v16](https://github.com/iccicci/rotating-file-stream/issues/63)
+  - Removed duplicated description for initialRotation option (thanks to [ttoomm318](https://github.com/ttoomm318))
+  - devDependencies update
 - 2021-02-19 - v2.1.5
   - Changed \_writev to make it compliant with Node.js v14; this should solve [#67](https://github.com/iccicci/rotating-file-stream/issues/67)
   - devDependencies update
