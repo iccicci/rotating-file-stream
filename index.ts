@@ -1,8 +1,8 @@
 "use strict";
 
-import { ChildProcess, exec } from "child_process";
+import { exec } from "child_process";
 import { Gzip, createGzip } from "zlib";
-import { Readable, Writable } from "stream";
+import { Writable } from "stream";
 import { Stats, close, createReadStream, createWriteStream, mkdir, open, readFile, rename, stat, unlink, write, writeFile } from "fs";
 import { parse, sep } from "path";
 import { TextDecoder } from "util";
@@ -72,20 +72,20 @@ export class RotatingFileStream extends Writable {
 	private createGzip: () => Gzip;
 	private destroyer: () => void;
 	private error: Error;
-	private exec: (command: string, callback?: (error: Error) => void) => ChildProcess;
+	private exec: typeof exec;
 	private filename: string;
 	private finished: boolean;
-	private fsClose: (fd: number, callback: Callback) => void;
-	private fsCreateReadStream: (path: string, options: { flags?: string; mode?: number }) => Readable;
-	private fsCreateWriteStream: (path: string, options: { flags?: string; mode?: number }) => Writable;
-	private fsMkdir: (path: string, callback: Callback) => void;
-	private fsOpen: (path: string, flags: string, mode: number, callback: (error: NodeJS.ErrnoException, fd: number) => void) => void;
-	private fsReadFile: (path: string, encoding: string, callback: (error: NodeJS.ErrnoException, data: string) => void) => void;
-	private fsRename: (oldPath: string, newPath: string, callback: (error: NodeJS.ErrnoException) => void) => void;
-	private fsStat: (path: string, callback: (error: NodeJS.ErrnoException, stats: Stats) => void) => void;
-	private fsUnlink: (path: string, callback: Callback) => void;
-	private fsWrite: (fd: number, data: string, encoding: string, callback: Callback) => void;
-	private fsWriteFile: (path: string, data: string, encoding: string, callback: Callback) => void;
+	private fsClose: typeof close;
+	private fsCreateReadStream: typeof createReadStream;
+	private fsCreateWriteStream: typeof createWriteStream;
+	private fsMkdir: typeof mkdir;
+	private fsOpen: typeof open;
+	private fsReadFile: typeof readFile;
+	private fsRename: typeof rename;
+	private fsStat: typeof stat;
+	private fsUnlink: typeof unlink;
+	private fsWrite: typeof write;
+	private fsWriteFile: typeof writeFile;
 	private generator: Generator;
 	private last: string;
 	private maxTimeout: number;
@@ -116,7 +116,7 @@ export class RotatingFileStream extends Writable {
 		this.fsRename = rename;
 		this.fsStat = stat;
 		this.fsUnlink = unlink;
-		this.fsWrite = (write as unknown) as (fd: number, data: string, encoding: string, callback: Callback) => void;
+		this.fsWrite = write;
 		this.fsWriteFile = writeFile;
 		this.generator = generator;
 		this.maxTimeout = 2147483640;
@@ -163,9 +163,9 @@ export class RotatingFileStream extends Writable {
 
 	private rewrite(chunks: Chunk[], index: number, callback: Callback): void {
 		const destroy = (error: Error): void => {
-			this.destroy();
+			this.destroy(error);
 
-			return callback(error);
+			return callback();
 		};
 
 		const rewrite = (): void => {
@@ -457,7 +457,7 @@ export class RotatingFileStream extends Writable {
 			day = 1;
 			hours = 0;
 		} else if(unit === "d") hours = 0;
-		else hours = parseInt(((hours / num) as unknown) as string, 10) * num;
+		else hours = parseInt((hours / num) as unknown as string, 10) * num;
 
 		this.prev = new Date(year, month, day, hours, 0, 0, 0).getTime();
 
@@ -477,7 +477,7 @@ export class RotatingFileStream extends Writable {
 
 			if(unit === "m") period *= 60;
 
-			this.prev = parseInt(((now.getTime() / period) as unknown) as string, 10) * period;
+			this.prev = parseInt((now.getTime() / period) as unknown as string, 10) * period;
 			this.next = this.prev + period;
 		}
 
@@ -538,7 +538,7 @@ export class RotatingFileStream extends Writable {
 					});
 				};
 
-				this.fsWrite(fd, cont, "utf8", (error: Error): void => {
+				this.fsWrite(fd, cont, (error: Error): void => {
 					this.fsClose(fd, (error2: Error): void => {
 						if(error) {
 							if(error2) this.emit("warning", error2);
@@ -747,7 +747,7 @@ const intervalUnits: any = {
 };
 
 function checkIntervalUnit(ret: any, unit: string, amount: number): void {
-	if(parseInt(((amount / ret.num) as unknown) as string, 10) * ret.num !== amount) throw new Error(`An integer divider of ${amount} is expected as ${unit} for 'options.interval'`);
+	if(parseInt((amount / ret.num) as unknown as string, 10) * ret.num !== amount) throw new Error(`An integer divider of ${amount} is expected as ${unit} for 'options.interval'`);
 }
 
 function checkInterval(value: string): any {
@@ -793,7 +793,7 @@ const checks: any = {
 		if(type === "boolean") return (options.compress = (source: string, dest: string): string => `cat ${source} | gzip -c9 > ${dest}`);
 		if(type === "function") return;
 		if(type !== "string") throw new Error(`Don't know how to handle 'options.compress' type: ${type}`);
-		if(((value as unknown) as string) !== "gzip") throw new Error(`Don't know how to handle compression method: ${value}`);
+		if((value as unknown as string) !== "gzip") throw new Error(`Don't know how to handle compression method: ${value}`);
 	},
 
 	encoding: (type: string, options: Opts, value: string): any => new TextDecoder(value),
@@ -872,7 +872,7 @@ function createGenerator(filename: string): Generator {
 	const pad = (num: number): string => (num > 9 ? "" : "0") + num;
 
 	return (time: Date, index?: number): string => {
-		if(! time) return (filename as unknown) as string;
+		if(! time) return filename as unknown as string;
 
 		const month = time.getFullYear() + "" + pad(time.getMonth() + 1);
 		const day = pad(time.getDate());

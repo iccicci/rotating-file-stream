@@ -41,7 +41,6 @@ declare type Callback = (error?: Error) => void;
 interface Chunk {
     chunk: Buffer;
     encoding: BufferEncoding;
-    next: Chunk;
 }
 export declare class RotatingFileStream extends Writable {
     private createGzip;
@@ -79,6 +78,7 @@ export declare class RotatingFileStream extends Writable {
     _write(chunk: Buffer, encoding: BufferEncoding, callback: Callback): void;
     _writev(chunks: Chunk[], callback: Callback): void;
     private rewrite;
+    private writeToStdOut;
     private init;
     private makePath;
     private reopen;

@@ -1,5 +1,5 @@
 after_script:
-  - "if [[ `node --version` =~ ^v12 ]] ; then ./cc-test-reporter after-build --exit-code $TRAVIS_TEST_RESULT ; fi"
+  - "if [[ `node --version` =~ ^v16 ]] ; then ./cc-test-reporter after-build --exit-code $TRAVIS_TEST_RESULT ; fi"
 
 before_script:
   - "curl -L https://codeclimate.com/downloads/test-reporter/test-reporter-latest-linux-amd64 > ./cc-test-reporter"
@@ -15,7 +15,8 @@ sudo: false
 language: node_js
 
 node_js:
+  - "16"
+  - "14"
   - "12"
-  - "10"
 
 script: "npm run coverage"

@@ -4,7 +4,7 @@ import { close, mkdir, readFileSync } from "fs";
 import { deepStrictEqual as deq, strictEqual as eq, throws as ex } from "assert";
 import { createStream } from "..";
 import { sep } from "path";
-import { test } from "./helper";
+import { test, v14 } from "./helper";
 
 describe("errors", () => {
 	describe("wrong name generator (first time)", () => {
@@ -21,7 +21,7 @@ describe("errors", () => {
 	describe("wrong name generator (rotation)", () => {
 		const events = test(
 			{
-				filename: (time: Date) => {
+				filename: (time: number | Date) => {
 					if(time) throw new Error("test");
 					return "test.log";
 				},
@@ -40,7 +40,7 @@ describe("errors", () => {
 	describe("wrong name generator (immutable)", () => {
 		const events = test(
 			{
-				filename: (time: Date) => {
+				filename: (time: number | Date) => {
 					if(time) throw new Error("test");
 					return "test.log";
 				},
@@ -110,7 +110,7 @@ describe("errors", () => {
 	describe("error creating missing path (first open)", () => {
 		const filename = `log${sep}t${sep}test.log`;
 		const rotated = `log${sep}t${sep}t${sep}test.log`;
-		const events = test({ filename: (time: Date): string => (time ? rotated : filename), options: { size: "10B" } }, rfs => {
+		const events = test({ filename: (time: number | Date): string => (time ? rotated : filename), options: { size: "10B" } }, rfs => {
 			rfs.fsMkdir = (path: string, callback: (error: Error) => void): void => process.nextTick(() => callback(new Error("test " + path)));
 			rfs.write("test\n");
 			rfs.write("test\n");
@@ -123,7 +123,7 @@ describe("errors", () => {
 	describe("error creating missing path (rotation)", () => {
 		const filename = `log${sep}t${sep}test.log`;
 		const rotated = `log${sep}t${sep}t${sep}test.log`;
-		const events = test({ filename: (time: Date): string => (time ? rotated : filename), options: { size: "10B" } }, rfs => {
+		const events = test({ filename: (time: number | Date): string => (time ? rotated : filename), options: { size: "10B" } }, rfs => {
 			rfs.on("rotation", () => (rfs.fsMkdir = (path: string, callback: (error: Error) => void): void => process.nextTick(() => callback(new Error("test " + path)))));
 			rfs.write("test\n");
 			rfs.write("test\n");
@@ -136,7 +136,7 @@ describe("errors", () => {
 	describe("error creating second missing path", () => {
 		const filename = `log${sep}t${sep}test.log`;
 		const rotated = `log${sep}t${sep}t${sep}test.log`;
-		const events = test({ filename: (time: Date): string => (time ? rotated : filename), options: { size: "10B" } }, rfs => {
+		const events = test({ filename: (time: number | Date): string => (time ? rotated : filename), options: { size: "10B" } }, rfs => {
 			let first = true;
 			rfs.fsMkdir = (path: string, callback: (error: Error) => void): void => {
 				if(first) {
@@ -156,7 +156,7 @@ describe("errors", () => {
 	describe("error on no rotated file open", () => {
 		const filename = `log${sep}t${sep}test.log`;
 		const rotated = `log${sep}t${sep}t${sep}test.log`;
-		const events = test({ filename: (time: Date): string => (time ? rotated : filename), options: { size: "10B" } }, rfs => {
+		const events = test({ filename: (time: number | Date): string => (time ? rotated : filename), options: { size: "10B" } }, rfs => {
 			rfs.fsCreateWriteStream = (): any => ({
 				end:  (): void => {},
 				once: (event: string, callback: (error: any) => void): any => (event === "error" ? setTimeout(() => callback({ code: "TEST" }), 50) : null)
@@ -207,7 +207,7 @@ describe("errors", () => {
 			rfs.end("test\n");
 		});
 
-		it("events", () => deq(events, { finish: 1, open: ["test.log", "test.log"], rotated: ["1-test.log"], rotation: 1, warning: ["test 1-test.log"], write: 1, writev: 1 }));
+		it("events", () => deq(events, { finish: 1, open: ["test.log", "test.log"], rotated: ["1-test.log"], rotation: 1, warning: ["test 1-test.log"], write: 1, writev: 1, ...v14() }));
 		it("file content", () => eq(readFileSync("test.log", "utf8"), "test\n"));
 		it("rotated file content", () => eq(readFileSync("1-test.log", "utf8"), "test\ntest\n"));
 	});

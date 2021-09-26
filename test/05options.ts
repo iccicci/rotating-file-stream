@@ -3,14 +3,14 @@
 import { deepStrictEqual as deq, strictEqual as eq } from "assert";
 import { readFileSync } from "fs";
 import { sep } from "path";
-import { test } from "./helper";
+import { test, v14 } from "./helper";
 
 describe("options", () => {
 	describe("size KiloBytes", () => {
 		let size: number;
 		const events = test({ options: { size: "10K" } }, rfs => rfs.end("test\n", () => (size = rfs.options.size)));
 
-		it("events", () => deq(events, { finish: 1, open: ["test.log"], write: 1 }));
+		it("events", () => deq(events, { finish: 1, open: ["test.log"], write: 1, ...v14() }));
 		it("10K", () => eq(size, 10240));
 	});
 
@@ -18,7 +18,7 @@ describe("options", () => {
 		let size: number;
 		const events = test({ options: { size: "10M" } }, rfs => rfs.end("test\n", () => (size = rfs.options.size)));
 
-		it("events", () => deq(events, { finish: 1, open: ["test.log"], write: 1 }));
+		it("events", () => deq(events, { finish: 1, open: ["test.log"], write: 1, ...v14() }));
 		it("10M", () => eq(size, 10485760));
 	});
 
@@ -26,7 +26,7 @@ describe("options", () => {
 		let size: number;
 		const events = test({ options: { size: "10G" } }, rfs => rfs.end("test\n", () => (size = rfs.options.size)));
 
-		it("events", () => deq(events, { finish: 1, open: ["test.log"], write: 1 }));
+		it("events", () => deq(events, { finish: 1, open: ["test.log"], write: 1, ...v14() }));
 		it("10G", () => eq(size, 10737418240));
 	});
 
@@ -34,7 +34,7 @@ describe("options", () => {
 		let interval: number;
 		const events = test({ options: { interval: "3m" } }, rfs => rfs.end("test\n", () => (interval = rfs.options.interval)));
 
-		it("events", () => deq(events, { finish: 1, open: ["test.log"], write: 1 }));
+		it("events", () => deq(events, { finish: 1, open: ["test.log"], write: 1, ...v14() }));
 		it("3'", () => deq(interval, { num: 3, unit: "m" }));
 	});
 
@@ -48,7 +48,7 @@ describe("options", () => {
 			})
 		);
 
-		it("events", () => deq(events, { finish: 1, open: ["test.log"], write: 1 }));
+		it("events", () => deq(events, { finish: 1, open: ["test.log"], write: 1, ...v14() }));
 		it("3h", () => deq(interval, { num: 3, unit: "h" }));
 		it("hours daylight saving", () => eq(next - prev, 7200000));
 	});
@@ -63,7 +63,7 @@ describe("options", () => {
 			})
 		);
 
-		it("events", () => deq(events, { finish: 1, open: ["test.log"], write: 1 }));
+		it("events", () => deq(events, { finish: 1, open: ["test.log"], write: 1, ...v14() }));
 		it("3h", () => deq(interval, { num: 3, unit: "d" }));
 		it("hours daylight saving", () => eq(next - prev, 255600000));
 	});
@@ -77,7 +77,7 @@ describe("options", () => {
 			rfs.end("test\n");
 		});
 
-		it("events", () => deq(events, { finish: 1, open: [filename, filename], rotated: [rotated], rotation: 1, write: 1, writev: 1 }));
+		it("events", () => deq(events, { finish: 1, open: [filename, filename], rotated: [rotated], rotation: 1, write: 1, writev: 1, ...v14() }));
 		it("file content", () => eq(readFileSync(filename, "utf8"), "test\n"));
 		it("rotated file content", () => eq(readFileSync(rotated, "utf8"), "test\ntest\n"));
 	});
@@ -91,7 +91,7 @@ describe("options", () => {
 			rfs.end("test\n");
 		});
 
-		it("events", () => deq(events, { finish: 1, open: [filename, filename], rotated: [rotated], rotation: 1, write: 1, writev: 1 }));
+		it("events", () => deq(events, { finish: 1, open: [filename, filename], rotated: [rotated], rotation: 1, write: 1, writev: 1, ...v14() }));
 		it("file content", () => eq(readFileSync(filename, "utf8"), "test\n"));
 		it("rotated file content", () => eq(readFileSync(rotated, "utf8"), "test\ntest\n"));
 	});
@@ -106,7 +106,7 @@ describe("options", () => {
 		});
 
 		it("options", () => deq(options, { interval: { num: 1, unit: "d" }, path: "", rotate: 5, size: 10485760 }));
-		it("events", () => deq(events, { finish: 1, open: ["test.log"], write: 1, writev: 1 }));
+		it("events", () => deq(events, { finish: 1, open: ["test.log"], write: 1, writev: 1, ...v14() }));
 		it("file content", () => eq(readFileSync("test.log", "utf8"), "test\ntest\ntest\n"));
 	});
 
@@ -117,7 +117,7 @@ describe("options", () => {
 			rfs.end("test\n");
 		});
 
-		it("events", () => deq(events, { finish: 1, open: ["log/1-test.log", "log/2-test.log"], rotated: ["log/1-test.log"], rotation: 1, write: 1, writev: 1 }));
+		it("events", () => deq(events, { finish: 1, open: ["log/1-test.log", "log/2-test.log"], rotated: ["log/1-test.log"], rotation: 1, write: 1, writev: 1, ...v14() }));
 		it("first file content", () => eq(readFileSync("log/1-test.log", "utf8"), "test\ntest\n"));
 		it("second file content", () => eq(readFileSync("log/2-test.log", "utf8"), "test\n"));
 	});
@@ -129,28 +129,33 @@ describe("options", () => {
 			rfs.end("test\n");
 		});
 
-		it("events", () => deq(events, { finish: 1, open: ["1-test.log", "2-test.log", "3-test.log"], rotated: ["1-test.log", "2-test.log"], rotation: 2, write: 1, writev: 1 }));
+		it("events", () => deq(events, { finish: 1, open: ["1-test.log", "2-test.log", "3-test.log"], rotated: ["1-test.log", "2-test.log"], rotation: 2, write: 1, writev: 1, ...v14() }));
 		it("first file content", () => eq(readFileSync("1-test.log", "utf8"), "test\ntest\n"));
 		it("second file content", () => eq(readFileSync("2-test.log", "utf8"), "test\ntest\n"));
 		it("third file content", () => eq(readFileSync("3-test.log", "utf8"), ""));
 	});
 
 	describe("teeToStdout", () => {
-		const content: { str: string | Uint8Array; encoding: string | ((err?: Error) => void); cb: undefined | ((err?: Error) => void) }[] = [];
+		const content: { buffer: Buffer; encoding: string }[] = [];
 
 		const events = test({ options: { size: "10B", teeToStdout: true } }, rfs => {
-			rfs.writeToStdOut = (str: string | Uint8Array, encoding?: string | ((err?: Error) => void), cb?: (err?: Error) => void): boolean => content.push({ str, encoding, cb }) === 0;
+			const oldw = rfs.writeToStdOut;
+
+			rfs.writeToStdOut = (buffer: Buffer, encoding: BufferEncoding): void => {
+				content.push({ buffer, encoding });
+				oldw.apply(rfs, [buffer, encoding]);
+			};
 			rfs.write("test\n");
 			rfs.write("test\n");
 			rfs.end("test\n");
 		});
 
-		it("events", () => deq(events, { finish: 1, open: ["test.log", "test.log"], rotated: ["1-test.log"], rotation: 1, write: 1, writev: 1 }));
+		it("events", () => deq(events, { finish: 1, open: ["test.log", "test.log"], rotated: ["1-test.log"], rotation: 1, write: 1, writev: 1, ...v14() }));
 		it("stdout", () =>
 			deq(content, [
-				{ str: Buffer.from("test\n"), encoding: "buffer", cb: undefined },
-				{ str: Buffer.from("test\n"), encoding: "buffer", cb: undefined },
-				{ str: Buffer.from("test\n"), encoding: "buffer", cb: undefined }
+				{ buffer: Buffer.from("test\n"), encoding: "buffer" },
+				{ buffer: Buffer.from("test\n"), encoding: "buffer" },
+				{ buffer: Buffer.from("test\n"), encoding: "buffer" }
 			]));
 		it("file content", () => eq(readFileSync("test.log", "utf8"), "test\n"));
 		it("rotated file content", () => eq(readFileSync("1-test.log", "utf8"), "test\ntest\n"));
