@@ -1,3 +1,6 @@
+- 2021-11-04 - v3.0.0
+  - Released v3 - please check the [README.md](https://www.npmjs.com/package/rotating-file-stream#upgrading-from-v2-to-v3)
+  - devDependencies update
 - 2021-09-26 - v2.1.6
   - Made the [package compliant with Node.js v14 and v16](https://github.com/iccicci/rotating-file-stream/issues/63)
   - Removed duplicated description for initialRotation option (thanks to [ttoomm318](https://github.com/ttoomm318))

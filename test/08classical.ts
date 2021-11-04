@@ -1,7 +1,7 @@
 "use strict";
 
 import { deepStrictEqual as deq, strictEqual as eq } from "assert";
-import { readFileSync, rename } from "fs";
+import { readFileSync } from "fs";
 import { gunzipSync } from "zlib";
 import { sep } from "path";
 import { test, v14 } from "./helper";
@@ -16,6 +16,17 @@ describe("classical", function() {
     it("events", () => deq(events, { finish: 1, open: ["log/test.log", "log/test.log"], rotated: ["log/test.log.1"], rotation: 1, write: 2, ...v14() }));
     it("file content", () => eq(readFileSync("log/test.log", "utf8"), "test\n"));
     it("rotated file content", () => eq(readFileSync("log/test.log.1", "utf8"), "test\ntest\n"));
+  });
+
+  describe("classical generator (compress)", () => {
+    const events = test({ filename: "test.log", options: { compress: "gzip", path: "log", rotate: 2, size: "10B" } }, rfs => {
+      rfs.write("test\ntest\n");
+      rfs.end("test\n");
+    });
+
+    it("events", () => deq(events, { finish: 1, open: ["log/test.log", "log/test.log"], rotated: ["log/test.log.1.gz"], rotation: 1, write: 2, ...v14() }));
+    it("file content", () => eq(readFileSync("log/test.log", "utf8"), "test\n"));
+    it("rotated file content", () => eq(gunzipSync(readFileSync("log/test.log.1.gz")).toString(), "test\ntest\n"));
   });
 
   describe("initial rotation with interval", () => {
@@ -99,35 +110,5 @@ describe("classical", function() {
 
     it("events", () => deq(events, { close: 1, error: ["test"], finish: 1, open: ["test.log"], rotation: 1, write: 1 }));
     it("file content", () => eq(readFileSync("test.log", "utf8"), "test\ntest\n"));
-  });
-
-  describe("first rename error", () => {
-    const events = test({ filename: (index?: number | Date): string => (index ? "txt/test.log" : "test.log"), options: { rotate: 2, size: "10B" } }, rfs => {
-      rfs.fsRename = (oldPath: string, newPath: string, callback: (error: Error) => void): void => process.nextTick(() => callback(new Error("test")));
-      rfs.write("test\ntest\n");
-    });
-
-    it("events", () => deq(events, { close: 1, error: ["test"], finish: 1, open: ["test.log"], rotation: 1, write: 1 }));
-  });
-
-  describe("mkdir error", () => {
-    const events = test({ filename: (index?: number | Date): string => (index ? "txt/test.log" : "test.log"), options: { rotate: 2, size: "10B" } }, rfs => {
-      rfs.fsMkdir = (path: string, callback: (error: Error) => void): void => process.nextTick(() => callback(new Error("test")));
-      rfs.write("test\ntest\n");
-    });
-
-    it("events", () => deq(events, { close: 1, error: ["test"], finish: 1, open: ["test.log"], rotation: 1, write: 1 }));
-  });
-
-  describe("second rename error", () => {
-    const events = test({ filename: (index?: number | Date): string => (index ? "txt/test.log" : "test.log"), options: { rotate: 2, size: "10B" } }, rfs => {
-      rfs.fsRename = (oldPath: string, newPath: string, callback: (error: Error) => void): void => {
-        rfs.fsRename = (oldPath: string, newPath: string, callback: (error: Error) => void): void => process.nextTick(() => callback(new Error("test")));
-        rename(oldPath, newPath, callback);
-      };
-      rfs.write("test\ntest\n");
-    });
-
-    it("events", () => deq(events, { close: 1, error: ["test"], finish: 1, open: ["test.log"], rotation: 1, write: 1 }));
   });
 });

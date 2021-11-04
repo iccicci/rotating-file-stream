@@ -1,6 +1,7 @@
 "use strict";
 
 import { deepStrictEqual as deq, strictEqual as eq } from "assert";
+import { gunzipSync } from "zlib";
 import { readFileSync } from "fs";
 import { sep } from "path";
 import { test, v14 } from "./helper";
@@ -126,38 +127,44 @@ describe("options", () => {
     const events = test({ files: { "1-test.log": "test\n" }, options: { immutable: true, interval: "1d", size: "10B" } }, rfs => {
       rfs.write("test\n");
       rfs.write("test\n");
+      rfs.write("test\n");
       rfs.end("test\n");
     });
 
     it("events", () => deq(events, { finish: 1, open: ["1-test.log", "2-test.log", "3-test.log"], rotated: ["1-test.log", "2-test.log"], rotation: 2, write: 1, writev: 1, ...v14() }));
     it("first file content", () => eq(readFileSync("1-test.log", "utf8"), "test\ntest\n"));
     it("second file content", () => eq(readFileSync("2-test.log", "utf8"), "test\ntest\n"));
-    it("third file content", () => eq(readFileSync("3-test.log", "utf8"), ""));
+    it("third file content", () => eq(readFileSync("3-test.log", "utf8"), "test\n"));
   });
 
   describe("teeToStdout", () => {
-    const content: { buffer: Buffer; encoding: string }[] = [];
+    const content: Buffer[] = [];
 
     const events = test({ options: { size: "10B", teeToStdout: true } }, rfs => {
-      const oldw = rfs.writeToStdOut;
-
-      rfs.writeToStdOut = (buffer: Buffer, encoding: BufferEncoding): void => {
-        content.push({ buffer, encoding });
-        oldw.apply(rfs, [buffer, encoding]);
-      };
+      rfs.stdout = { write: (buffer: Buffer): number => content.push(buffer) };
       rfs.write("test\n");
       rfs.write("test\n");
       rfs.end("test\n");
     });
 
     it("events", () => deq(events, { finish: 1, open: ["test.log", "test.log"], rotated: ["1-test.log"], rotation: 1, write: 1, writev: 1, ...v14() }));
-    it("stdout", () =>
-      deq(content, [
-        { buffer: Buffer.from("test\n"), encoding: "buffer" },
-        { buffer: Buffer.from("test\n"), encoding: "buffer" },
-        { buffer: Buffer.from("test\n"), encoding: "buffer" }
-      ]));
+    it("stdout", () => deq(content, [Buffer.from("test\n"), Buffer.from("test\n"), Buffer.from("test\n")]));
     it("file content", () => eq(readFileSync("test.log", "utf8"), "test\n"));
     it("rotated file content", () => eq(readFileSync("1-test.log", "utf8"), "test\ntest\n"));
+  });
+
+  describe("omitExtension", () => {
+    const content: Buffer[] = [];
+
+    const events = test({ options: { compress: "gzip", omitExtension: true, size: "10B" } }, rfs => {
+      rfs.stdout = { write: (buffer: Buffer): number => content.push(buffer) };
+      rfs.write("test\n");
+      rfs.write("test\n");
+      rfs.end("test\n");
+    });
+
+    it("events", () => deq(events, { finish: 1, open: ["test.log", "test.log"], rotated: ["1-test.log"], rotation: 1, write: 1, writev: 1, ...v14() }));
+    it("file content", () => eq(readFileSync("test.log", "utf8"), "test\n"));
+    it("rotated file content", () => eq(gunzipSync(readFileSync("1-test.log")).toString(), "test\ntest\n"));
   });
 });

@@ -3,25 +3,19 @@
 [![Build Status][travis-badge]][travis-url]
 [![Code Climate][code-badge]][code-url]
 [![Test Coverage][cover-badge]][code-url]
-[![Donate][donate-badge]][donate-url]
 
 [![NPM version][npm-badge]][npm-url]
-[![Types][types-badge]][npm-url]
 [![NPM downloads][npm-downloads-badge]][npm-url]
 [![Stars][stars-badge]][github-url]
 
-[![Dependencies][dep-badge]][dep-url]
-[![Dev Dependencies][dev-dep-badge]][dev-dep-url]
+[![Types][types-badge]][npm-url]
 [![Dependents][deps-badge]][npm-url]
+[![Donate][donate-badge]][donate-url]
 
 [code-badge]: https://codeclimate.com/github/iccicci/rotating-file-stream/badges/gpa.svg
 [code-url]: https://codeclimate.com/github/iccicci/rotating-file-stream
 [cover-badge]: https://codeclimate.com/github/iccicci/rotating-file-stream/badges/coverage.svg
-[dep-badge]: https://david-dm.org/iccicci/rotating-file-stream.svg
-[dep-url]: https://david-dm.org/iccicci/rotating-file-stream
 [deps-badge]: https://badgen.net/npm/dependents/rotating-file-stream?icon=npm
-[dev-dep-badge]: https://david-dm.org/iccicci/rotating-file-stream/dev-status.svg
-[dev-dep-url]: https://david-dm.org/iccicci/rotating-file-stream?type=dev
 [donate-badge]: https://badgen.net/badge/donate/bitcoin?icon=bitcoin
 [donate-url]: https://blockchain.info/address/12p1p5q7sK75tPyuesZmssiMYr4TKzpSCN
 [github-url]: https://github.com/iccicci/rotating-file-stream
@@ -59,13 +53,15 @@ $ npm install --save rotating-file-stream
 
 ### Table of contents
 
-- [Upgrading from v1.x.x to v2.x.x](#upgrading-from-v1xx-to-v2xx)
+- [Upgrading from v2 to v3](#upgrading-from-v2-to-v3)
+- [Upgrading from v1 to v2](#upgrading-from-v1-to-v2)
 - [API](#api)
   - [rfs.createStream(filename[, options])](#rfscreatestreamfilename-options)
     - [filename](#filename)
       - [filename(time[, index])](#filenametime-index)
       - [filename(index)](#filenameindex)
   - [Class: RotatingFileStream](#class-rotatingfilestream)
+    - [Event: 'external'](#event-external)
     - [Event: 'history'](#event-history)
     - [Event: 'open'](#event-open)
     - [Event: 'removed'](#event-removed)
@@ -83,6 +79,7 @@ $ npm install --save rotating-file-stream
     - [maxFiles](#maxfiles)
     - [maxSize](#maxsize)
     - [mode](#mode)
+    - [omitExtension](#omitextension)
     - [path](#path)
     - [rotate](#rotate)
     - [size](#size)
@@ -96,7 +93,24 @@ $ npm install --save rotating-file-stream
 - [ChangeLog](#changelog)
 - [Donating](#donating)
 
-# Upgrading from v1.x.x to v2.x.x
+# Upgrading from v2 to v3
+
+In **v3** the package was completely refactored using **async / await**.
+
+**TypeScript** types for events and the [external](#event-external) event were added.
+
+**Breaking change**: by default the `.gz` extension is added to the rotated compressed files.
+
+**Breaking change**: the way the _external compression command_ is executed was slightly changed; possible bracking
+change.
+
+To maintain back compatibility upgrading from **v2** to **v3**, just follow this rules:
+
+- using a _file name generator_ or not using [`options.compress`](#compress): nothing to do
+- using a _file name_ and using [`options.rotation`](#rotation): use [`options.omitExtension`](#omitextension) or check
+  how rotated files are treated.
+
+# Upgrading from v1 to v2
 
 There are two main changes in package interface.
 
@@ -113,8 +127,8 @@ _rotaion job_ started. Later I was asked to add the possibility to restore the d
 introduced `options.rotationTime` option with this purpose. At the end the result was something a bit confusing,
 something I never liked.
 In **v2** the `time` argument passed to the _filename generator_ function is always the time when _rotaion job_
-started, unless [`options.intervalBoundary`](#intervalboundary) option is used. In a few words, to maintain back compatibility
-upgrading from **v1** to **v2**, just follow this rules:
+started, unless [`options.intervalBoundary`](#intervalboundary) option is used. In a few words, to maintain back
+compatibility upgrading from **v1** to **v2**, just follow this rules:
 
 - using [`options.rotation`](#rotation): nothing to do
 - not using [`options.rotation`](#rotation):
@@ -206,6 +220,16 @@ function of `index`.
 Extends [stream.Writable](https://nodejs.org/api/stream.html#stream_class_stream_writable). It should not be directly
 used. Exported only to be used with `instanceof` operator and similar.
 
+### Event: 'external'
+
+- `stdout` [&lt;string>](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Data_structures#String_type) The
+  standard output of the external compression command.
+- `stderr` [&lt;string>](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Data_structures#String_type) The
+  standard error of the external compression command.
+
+The `external` event is emitted once an _external compression command_ completes its execution to give access to the
+command output streams.
+
 ### Event: 'history'
 
 The `history` event is emitted once the _history check job_ is completed.
@@ -281,6 +305,9 @@ The `warning` event is emitted once a non blocking error happens.
   [&lt;number>](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Data_structures#Number_type)
   Proxied to [fs.createWriteStream](https://nodejs.org/api/fs.html#fs_fs_createwritestream_path_options).
   **Default:** `0o666`.
+- [`omitExtension`](#omitextension):
+  [&lt;boolean>](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Data_structures#Boolean_type)
+  Omits the `.gz` extension from compressed rotated files. **Default:** `null`.
 - [`path`](#path):
   [&lt;string>](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Data_structures#String_type)
   Specifies the base path for files. **Default:** `null`.
@@ -409,6 +436,11 @@ this option is ignored if [`options.immutable`](#immutable) is used.
 the shell command to compress the rotated file should not remove the source file, it will be removed by the package
 if rotation job complete with success.
 
+### omitExtension
+
+From **v3** the package adds by default the `.gz` extension to the rotated compressed files. Simultaneously this option
+was added: set this option to `true` to not add the extension, i.e. to keep backward compatibility.
+
 ### initialRotation
 
 When program stops in a rotation period then restarts in a new rotation period, logs of different rotation period will
@@ -510,9 +542,9 @@ Once an **error** _event_ is emitted, nothing more can be done: the stream is cl
 
 # Compatibility
 
-Requires **Node.js v10.x**.
+Requires **Node.js v12.x**.
 
-The package is tested under [all Node.js versions](https://travis-ci.org/iccicci/rotating-file-stream)
+The package is tested under [all Node.js versions](https://app.travis-ci.com/github/iccicci/rotating-file-stream)
 currently supported accordingly to [Node.js Release](https://github.com/nodejs/Release#readme).
 
 To work with the package under Windows, be sure to configure `bash.exe` as your _script-shell_.
@@ -523,31 +555,7 @@ To work with the package under Windows, be sure to configure `bash.exe` as your 
 
 # TypeScript
 
-Exported in **TypeScript**.
-
-```typescript
-import { Writable } from "stream";
-export declare type Compressor = (source: string, dest: string) => string;
-export declare type Generator = (time: number | Date, index?: number) => string;
-export interface Options {
-  compress?: boolean | string | Compressor;
-  encoding?: BufferEncoding;
-  history?: string;
-  immutable?: boolean;
-  initialRotation?: boolean;
-  interval?: string;
-  intervalBoundary?: boolean;
-  maxFiles?: number;
-  maxSize?: string;
-  mode?: number;
-  path?: string;
-  rotate?: number;
-  size?: string;
-  teeToStdout?: boolean;
-}
-export declare class RotatingFileStream extends Writable {}
-export declare function createStream(filename: string | Generator, options?: Options): RotatingFileStream;
-```
+**TypeScript** types are distibuted with the package itself.
 
 # Licence
 

@@ -123,26 +123,4 @@ describe("interval", () => {
     it("file content", () => eq(readFileSync("test.log", "utf8"), "test\n"));
     it("rotated file content", () => eq(readFileSync("1-test.log", "utf8"), "test\ntest\n"));
   });
-
-  describe("timeout while stat", () => {
-    const events = test({ options: { interval: "1s" } }, rfs => {
-      const prev = rfs.fsStat.bind(rfs);
-      let now = 0,
-        stat = 0;
-      rfs.now = (): Date => {
-        now++;
-        return new Date(2015, 0, 23, 0, 0, now < 3 ? 0 : 1, now < 3 ? 990 : now === 3 ? 0 : 500);
-      };
-      rfs.fsStat = (path: string, callback: () => void): void => {
-        if(stat++ !== 1) return prev(path, callback);
-        rfs.stream.once("finish", () => prev(path, callback));
-      };
-
-      rfs.write("test\n", () => rfs.write("test\n", () => rfs.end("test\n")));
-    });
-
-    it("events", () => deq(events, { finish: 1, open: ["test.log", "test.log"], rotated: ["1-test.log"], rotation: 1, write: 3, ...v14() }));
-    it("file content", () => eq(readFileSync("test.log", "utf8"), "test\ntest\n"));
-    it("rotated file content", () => eq(readFileSync("1-test.log", "utf8"), "test\n"));
-  });
 });

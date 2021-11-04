@@ -64,87 +64,24 @@ describe("history", () => {
 
   describe("error reading history file", () => {
     const events = test({ options: { maxSize: "60B", size: "10B" } }, rfs => {
-      rfs.fsReadFile = (path: string, encoding: string, callback: (error: Error) => void): void => process.nextTick(() => callback(new Error(`test ${path} ${encoding}`)));
+      rfs.fsReadFile = async (path: string, encoding: string) => {
+        throw new Error(`test ${path} ${encoding}`);
+      };
       rfs.write("test\ntest\n");
     });
 
     it("events", () => deq(events, { close: 1, error: ["test test.log.txt utf8"], finish: 1, open: ["test.log"], rotation: 1, write: 1 }));
   });
 
-  describe("error writing history file", () => {
-    const events = test({ options: { maxSize: "60B", size: "10B" } }, rfs => {
-      rfs.fsWriteFile = (path: string, data: string, encoding: string, callback: (error: Error) => void): void => process.nextTick(() => callback(new Error(`test ${path} ${data} ${encoding}`)));
-      rfs.write("test\ntest\n");
-    });
-
-    it("events", () => deq(events, { close: 1, error: ["test test.log.txt 1-test.log\n utf8"], finish: 1, open: ["test.log"], rotation: 1, write: 1 }));
-  });
-
   describe("error checking rotated file", () => {
     const events = test({ options: { maxSize: "60B", size: "10B" } }, rfs => {
-      const prev = rfs.history;
-      rfs.history = (filename: string, callback: (error: Error) => void): void => {
-        rfs.fsStat = (path: string, callback: (error: Error) => void): void => process.nextTick(() => callback(new Error(`test ${path}`)));
-        prev.bind(rfs, filename, callback)();
+      rfs.fsStat = async (path: string) => {
+        throw new Error(`test ${path}`);
       };
       rfs.write("test\ntest\n");
     });
 
     it("events", () => deq(events, { close: 1, error: ["test 1-test.log"], finish: 1, open: ["test.log"], rotation: 1, write: 1 }));
-  });
-
-  describe("error removing rotated file (size)", () => {
-    const events = test({ options: { maxSize: "50B", size: "10B" } }, rfs => {
-      const prev = rfs.historyRemove;
-      rfs.historyRemove = (files: any, size: boolean, callback: (error: Error) => void): void => {
-        rfs.fsUnlink = (path: string, callback: (error: Error) => void): void => process.nextTick(() => callback(new Error(`test ${files.map((e: any) => e.name).join(", ")} ${size}`)));
-        prev.bind(rfs, files, size, callback)();
-      };
-      rfs.write("test\ntest\ntest\ntest\n");
-      rfs.write("test\ntest\ntest\ntest\n");
-      rfs.write("test\ntest\ntest\ntest\n");
-      rfs.write("test\ntest\ntest\ntest\n");
-    });
-
-    it("events", () =>
-      deq(events, {
-        close:    1,
-        error:    ["test 2-test.log, 3-test.log true"],
-        finish:   1,
-        history:  2,
-        open:     ["test.log", "test.log", "test.log"],
-        rotation: 3,
-        rotated:  ["1-test.log", "2-test.log"],
-        write:    1,
-        writev:   1
-      }));
-  });
-
-  describe("error removing rotated file (files)", () => {
-    const events = test({ options: { maxFiles: 2, size: "10B" } }, rfs => {
-      const prev = rfs.historyRemove;
-      rfs.historyRemove = (files: any, size: boolean, callback: (error: Error) => void): void => {
-        rfs.fsUnlink = (path: string, callback: (error: Error) => void): void => process.nextTick(() => callback(new Error(`test ${files.map((e: any) => e.name).join(", ")} ${size}`)));
-        prev.bind(rfs, files, size, callback)();
-      };
-      rfs.write("test\ntest\ntest\ntest\n");
-      rfs.write("test\ntest\ntest\ntest\n");
-      rfs.write("test\ntest\ntest\ntest\n");
-      rfs.write("test\ntest\ntest\ntest\n");
-    });
-
-    it("events", () =>
-      deq(events, {
-        close:    1,
-        error:    ["test 2-test.log, 3-test.log false"],
-        finish:   1,
-        history:  2,
-        open:     ["test.log", "test.log", "test.log"],
-        rotation: 3,
-        rotated:  ["1-test.log", "2-test.log"],
-        write:    1,
-        writev:   1
-      }));
   });
 
   describe("immutable", () => {

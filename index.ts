@@ -2,24 +2,55 @@
 
 import { exec } from "child_process";
 import { Gzip, createGzip } from "zlib";
-import { Writable } from "stream";
-import { Stats, close, createReadStream, createWriteStream, mkdir, open, readFile, rename, stat, unlink, write, writeFile } from "fs";
-import { parse, sep } from "path";
+import { Readable, Writable } from "stream";
+import { Stats, access, constants, createReadStream, createWriteStream } from "fs";
+import { FileHandle, mkdir, open, readFile, rename, stat, unlink, writeFile } from "fs/promises";
+import { sep } from "path";
 import { TextDecoder } from "util";
-import { setTimeout } from "timers";
+
+async function exists(filename: string): Promise<boolean> {
+  return new Promise(resolve => access(filename, constants.F_OK, error => resolve(! error)));
+}
 
 class RotatingFileStreamError extends Error {
-  public code: string;
+  public code = "RFS-TOO-MANY";
 
   constructor() {
     super("Too many destination file attempts");
-
-    this.code = "RFS-TOO-MANY";
   }
 }
 
 export type Compressor = (source: string, dest: string) => string;
 export type Generator = (time: number | Date, index?: number) => string;
+
+interface RotatingFileStreamEvents {
+  // Inehrited from Writable
+  close: () => void;
+  drain: () => void;
+  error: (err: Error) => void;
+  finish: () => void;
+  pipe: (src: Readable) => void;
+  unpipe: (src: Readable) => void;
+
+  // RotatingFileStream defined
+  external: (stdout: string, stderr: string) => void;
+  history: () => void;
+  open: (filename: string) => void;
+  removed: (filename: string, number: boolean) => void;
+  rotation: () => void;
+  rotated: (filename: string) => void;
+  warning: (error: Error) => void;
+}
+
+export declare interface RotatingFileStream extends Writable {
+  addListener<Event extends keyof RotatingFileStreamEvents>(event: Event, listener: RotatingFileStreamEvents[Event]): this;
+  emit<Event extends keyof RotatingFileStreamEvents>(event: Event, ...args: Parameters<RotatingFileStreamEvents[Event]>): boolean;
+  on<Event extends keyof RotatingFileStreamEvents>(event: Event, listener: RotatingFileStreamEvents[Event]): this;
+  once<Event extends keyof RotatingFileStreamEvents>(event: Event, listener: RotatingFileStreamEvents[Event]): this;
+  prependListener<Event extends keyof RotatingFileStreamEvents>(event: Event, listener: RotatingFileStreamEvents[Event]): this;
+  prependOnceListener<Event extends keyof RotatingFileStreamEvents>(event: Event, listener: RotatingFileStreamEvents[Event]): this;
+  removeListener<Event extends keyof RotatingFileStreamEvents>(event: Event, listener: RotatingFileStreamEvents[Event]): this;
+}
 
 export interface Options {
   compress?: boolean | string | Compressor;
@@ -32,6 +63,7 @@ export interface Options {
   maxFiles?: number;
   maxSize?: string;
   mode?: number;
+  omitExtension?: boolean;
   path?: string;
   rotate?: number;
   size?: string;
@@ -49,6 +81,7 @@ interface Opts {
   maxFiles?: number;
   maxSize?: number;
   mode?: number;
+  omitExtension?: boolean;
   path?: string;
   rotate?: number;
   size?: number;
@@ -70,34 +103,27 @@ interface History {
 
 export class RotatingFileStream extends Writable {
   private createGzip: () => Gzip;
-  private destroyer: () => void;
-  private error: Error;
   private exec: typeof exec;
+  private file: FileHandle | undefined;
   private filename: string;
   private finished: boolean;
-  private fsClose: typeof close;
   private fsCreateReadStream: typeof createReadStream;
   private fsCreateWriteStream: typeof createWriteStream;
-  private fsMkdir: typeof mkdir;
   private fsOpen: typeof open;
   private fsReadFile: typeof readFile;
-  private fsRename: typeof rename;
   private fsStat: typeof stat;
-  private fsUnlink: typeof unlink;
-  private fsWrite: typeof write;
-  private fsWriteFile: typeof writeFile;
   private generator: Generator;
+  private initPromise: Promise<void> | null;
   private last: string;
   private maxTimeout: number;
   private next: number;
-  private opened: () => void;
   private options: Opts;
   private prev: number;
-  private rotatedName: string;
   private rotation: Date;
   private size: number;
-  private stream: Writable;
-  private timer: NodeJS.Timeout;
+  private stdout: typeof process.stdout;
+  private timeout: NodeJS.Timeout;
+  private timeoutPromise: Promise<void> | null;
 
   constructor(generator: Generator, options: Opts) {
     const { encoding, history, maxFiles, maxSize, path } = options;
@@ -107,50 +133,41 @@ export class RotatingFileStream extends Writable {
     this.createGzip = createGzip;
     this.exec = exec;
     this.filename = path + generator(null);
-    this.fsClose = close;
     this.fsCreateReadStream = createReadStream;
     this.fsCreateWriteStream = createWriteStream;
-    this.fsMkdir = mkdir;
     this.fsOpen = open;
     this.fsReadFile = readFile;
-    this.fsRename = rename;
     this.fsStat = stat;
-    this.fsUnlink = unlink;
-    this.fsWrite = write;
-    this.fsWriteFile = writeFile;
     this.generator = generator;
     this.maxTimeout = 2147483640;
     this.options = options;
+    this.stdout = process.stdout;
 
     if(maxFiles || maxSize) options.history = path + (history ? history : this.generator(null) + ".txt");
 
     this.on("close", () => (this.finished ? null : this.emit("finish")));
     this.on("finish", () => (this.finished = this.clear()));
 
-    process.nextTick(() =>
-      this.init(error => {
-        this.error = error;
-        if(this.opened) this.opened();
-        else if(this.error) this.emit("error", error);
-      })
-    );
+    // In v15 was introduced the _constructor method to delay any _write(), _final() and _destroy() calls
+    // Untill v16 will be not deprecated we still need this.initPromise
+    // https://nodejs.org/api/stream.html#stream_writable_construct_callback
+
+    (async () => {
+      try {
+        this.initPromise = this.init();
+
+        await this.initPromise;
+        delete this.initPromise;
+      } catch(e) {}
+    })();
   }
 
   _destroy(error: Error, callback: Callback): void {
-    const destroyer = (): void => {
-      this.clear();
-      this.reclose(() => {});
-    };
-
-    if(this.stream) destroyer();
-    else this.destroyer = destroyer;
-
-    callback(error);
+    this.refinal(error, callback);
   }
 
   _final(callback: Callback): void {
-    if(this.stream) return this.stream.end(callback);
-    callback();
+    this.refinal(undefined, callback);
   }
 
   _write(chunk: Buffer, encoding: BufferEncoding, callback: Callback): void {
@@ -161,286 +178,201 @@ export class RotatingFileStream extends Writable {
     this.rewrite(chunks, 0, callback);
   }
 
-  private rewrite(chunks: Chunk[], index: number, callback: Callback): void {
-    const destroy = (error: Error): void => {
-      this.destroy(error);
+  private async refinal(error: Error | undefined, callback: Callback): Promise<void> {
+    try {
+      this.clear();
 
-      return callback();
-    };
+      if(this.initPromise) await this.initPromise;
+      if(this.timeoutPromise) await this.timeoutPromise;
 
-    const rewrite = (): void => {
-      if(this.destroyed) return callback(this.error);
-      if(this.error) return destroy(this.error);
-
-      if(! this.stream) {
-        this.opened = rewrite;
-        return;
-      }
-
-      const done: Callback = (error?: Error): void => {
-        if(error) return destroy(error);
-        if(++index !== chunks.length) return this.rewrite(chunks, index, callback);
-        callback();
-      };
-
-      this.size += chunks[index].chunk.length;
-      this.stream.write(chunks[index].chunk, chunks[index].encoding, (error: Error): void => {
-        if(error) return done(error);
-        if(this.options.size && this.size >= this.options.size) return this.rotate(done);
-        done();
-      });
-
-      if(this.options.teeToStdout && ! process.stdout.destroyed) this.writeToStdOut(chunks[index].chunk, chunks[index].encoding);
-    };
-
-    if(this.stream) {
-      return this.fsStat(this.filename, (error: NodeJS.ErrnoException): void => {
-        if(! error) return rewrite();
-        if(error.code !== "ENOENT") return destroy(error);
-
-        this.reclose(() => this.reopen(false, 0, () => rewrite()));
-      });
+      await this.reclose();
+    } catch(e) {
+      return callback(error || e);
     }
 
-    this.opened = rewrite;
+    callback(error);
   }
 
-  private writeToStdOut(buffer: Buffer, encoding: BufferEncoding) {
-    process.stdout.write(buffer, encoding);
+  private async rewrite(chunks: Chunk[], index: number, callback: Callback): Promise<void> {
+    const { size, teeToStdout } = this.options;
+
+    try {
+      if(this.initPromise) await this.initPromise;
+      if(this.timeoutPromise) await this.timeoutPromise;
+
+      for(let i = 0; i < chunks.length; ++i) {
+        const { chunk } = chunks[i];
+
+        this.size += chunk.length;
+        await this.file.write(chunk);
+
+        if(teeToStdout && ! this.stdout.destroyed) this.stdout.write(chunk);
+        if(size && this.size >= size) await this.rotate();
+      }
+    } catch(e) {
+      return callback(e);
+    }
+
+    callback();
   }
 
-  private init(callback: Callback): void {
+  private async init(): Promise<void> {
     const { immutable, initialRotation, interval, size } = this.options;
 
-    if(immutable) return this.immutate(true, callback);
+    // In v15 was introduced the _constructor method to delay any _write(), _final() and _destroy() calls
+    // Once v16 will be deprecated we can restore only following line
+    // if(immutable) return this.immutate(true);
+    if(immutable) return new Promise<void>((resolve, reject) => process.nextTick(() => this.immutate(true).then(resolve).catch(reject)));
 
-    this.fsStat(this.filename, (error, stats) => {
-      if(error) return error.code === "ENOENT" ? this.reopen(false, 0, callback) : callback(error);
+    let stats: Stats;
 
-      if(! stats.isFile()) return callback(new Error(`Can't write on: ${this.filename} (it is not a file)`));
+    try {
+      stats = await stat(this.filename);
+    } catch(e) {
+      if(e.code !== "ENOENT") throw e;
 
-      if(initialRotation) {
-        this.intervalBounds(this.now());
-        const prev = this.prev;
-        this.intervalBounds(new Date(stats.mtime.getTime()));
+      return this.reopen(0);
+    }
 
-        if(prev !== this.prev) return this.rotate(callback);
-      }
+    if(! stats.isFile()) throw new Error(`Can't write on: ${this.filename} (it is not a file)`);
 
-      this.size = stats.size;
+    if(initialRotation) {
+      this.intervalBounds(this.now());
+      const prev = this.prev;
+      this.intervalBounds(new Date(stats.mtime.getTime()));
 
-      if(! size || stats.size < size) return this.reopen(false, stats.size, callback);
+      if(prev !== this.prev) return this.rotate();
+    }
 
-      if(interval) this.intervalBounds(this.now());
+    this.size = stats.size;
+    if(! size || stats.size < size) return this.reopen(stats.size);
+    if(interval) this.intervalBounds(this.now());
 
-      this.rotate(callback);
-    });
+    return this.rotate();
   }
 
-  private makePath(name: string, callback: Callback): void {
-    const dir = parse(name).dir;
-
-    this.fsMkdir(dir, (error: NodeJS.ErrnoException): void => {
-      if(error) {
-        if(error.code === "ENOENT") return this.makePath(dir, (error: Error): void => (error ? callback(error) : this.makePath(name, callback)));
-        if(error.code === "EEXIST") return callback();
-
-        return callback(error);
-      }
-
-      callback();
-    });
+  private async makePath(name: string): Promise<string> {
+    return mkdir(name.split(sep).slice(0, -1).join(sep), { recursive: true });
   }
 
-  private reopen(retry: boolean, size: number, callback: Callback): void {
-    const options: any = { flags: "a" };
+  private async reopen(size: number): Promise<void> {
+    let file: FileHandle;
 
-    if("mode" in this.options) options.mode = this.options.mode;
+    try {
+      file = await open(this.filename, "a", this.options.mode);
+    } catch(e) {
+      if(e.code !== "ENOENT") throw e;
 
-    let called: boolean;
-    const stream = this.fsCreateWriteStream(this.filename, options);
+      await this.makePath(this.filename);
+      file = await open(this.filename, "a", this.options.mode);
+    }
 
-    const end: Callback = (error?: Error): void => {
-      if(called) {
-        this.error = error;
-        return;
-      }
-
-      called = true;
-      this.stream = stream;
-
-      if(this.opened) {
-        process.nextTick(this.opened);
-        this.opened = null;
-      }
-
-      if(this.destroyer) process.nextTick(this.destroyer);
-
-      callback(error);
-    };
-
-    stream.once("open", () => {
-      this.size = size;
-      end();
-      this.interval();
-      this.emit("open", this.filename);
-    });
-
-    stream.once("error", (error: NodeJS.ErrnoException) =>
-      error.code !== "ENOENT" || retry ? end(error) : this.makePath(this.filename, (error: Error): void => (error ? end(error) : this.reopen(true, size, callback)))
-    );
+    this.file = file;
+    this.size = size;
+    this.interval();
+    this.emit("open", this.filename);
   }
 
-  private reclose(callback: Callback): void {
-    const { stream } = this;
+  private async reclose(): Promise<void> {
+    const { file } = this;
 
-    if(! stream) return callback();
+    if(! file) return;
 
-    this.stream = null;
-    stream.once("finish", callback);
-    stream.end();
+    delete this.file;
+    return file.close();
   }
 
   private now(): Date {
     return new Date();
   }
 
-  private rotate(callback: Callback): void {
+  private async rotate(): Promise<void> {
     const { immutable, rotate } = this.options;
 
     this.size = 0;
     this.rotation = this.now();
 
     this.clear();
-    this.reclose(() => (rotate ? this.classical(rotate, callback) : immutable ? this.immutate(false, callback) : this.move(callback)));
     this.emit("rotation");
+    await this.reclose();
+
+    if(rotate) return this.classical();
+    if(immutable) return this.immutate(false);
+
+    return this.move();
   }
 
-  private findName(tmp: boolean, callback: (error: Error, filename?: string) => void, index?: number): void {
-    if(! index) index = 1;
-
+  private async findName(): Promise<string> {
     const { interval, path, intervalBoundary } = this.options;
-    let filename = `${this.filename}.${index}.rfs.tmp`;
 
-    if(index >= 1000) return callback(new RotatingFileStreamError());
+    for(let index = 1; index < 1000; ++index) {
+      const filename = path + this.generator(interval && intervalBoundary ? new Date(this.prev) : this.rotation, index);
 
-    if(! tmp) {
-      try {
-        filename = path + this.generator(interval && intervalBoundary ? new Date(this.prev) : this.rotation, index);
-      } catch(e) {
-        return callback(e);
-      }
+      if(! (await exists(filename))) return filename;
     }
 
-    this.fsStat(filename, error => {
-      if(! error || error.code !== "ENOENT") return this.findName(tmp, callback, index + 1);
-
-      callback(null, filename);
-    });
+    throw new RotatingFileStreamError();
   }
 
-  private move(callback: Callback): void {
+  private async move(): Promise<void> {
     const { compress } = this.options;
-    let filename: string;
 
-    const open = (error?: Error): void => {
-      if(error) return callback(error);
+    const filename = await this.findName();
+    await this.touch(filename);
 
-      this.rotated(filename, callback);
-    };
+    if(compress) await this.compress(filename);
+    else await rename(this.filename, filename);
 
-    this.findName(false, (error: Error, found: string): void => {
-      if(error) return callback(error);
-
-      filename = found;
-
-      this.touch(filename, false, (error: Error): void => {
-        if(error) return callback(error);
-
-        if(compress) return this.compress(filename, open);
-        this.fsRename(this.filename, filename, open);
-      });
-    });
+    return this.rotated(filename);
   }
 
-  private touch(filename: string, retry: boolean, callback: Callback): void {
-    this.fsOpen(filename, "a", parseInt("666", 8), (error: NodeJS.ErrnoException, fd: number) => {
-      if(error) {
-        if(error.code !== "ENOENT" || retry) return callback(error);
-
-        return this.makePath(filename, error => {
-          if(error) return callback(error);
-
-          this.touch(filename, true, callback);
-        });
-      }
-
-      return this.fsClose(fd, (error: Error): void => {
-        if(error) return callback(error);
-
-        this.fsUnlink(filename, (error: Error): void => {
-          if(error) this.emit("warning", error);
-          callback();
-        });
-      });
-    });
-  }
-
-  private classical(count: number, callback: Callback): void {
-    const { compress, path, rotate } = this.options;
-    let prevName: string;
-    let thisName: string;
-
-    if(rotate === count) delete this.rotatedName;
-
-    const open = (error?: Error): void => {
-      if(error) return callback(error);
-
-      this.rotated(this.rotatedName, callback);
-    };
+  private async touch(filename: string): Promise<void> {
+    let file: FileHandle;
 
     try {
-      prevName = count === 1 ? this.filename : path + this.generator(count - 1);
-      thisName = path + this.generator(count);
+      file = await this.fsOpen(filename, "a");
     } catch(e) {
-      return callback(e);
+      if(e.code !== "ENOENT") throw e;
+
+      await this.makePath(filename);
+      file = await open(filename, "a");
     }
 
-    const next = count === 1 ? open : (): void => this.classical(count - 1, callback);
+    await file.close();
+    return unlink(filename);
+  }
 
-    const move = (): void => {
-      if(count === 1 && compress) return this.compress(thisName, open);
+  private async classical(): Promise<void> {
+    const { compress, path, rotate } = this.options;
+    let rotatedName = "";
 
-      this.fsRename(prevName, thisName, (error: NodeJS.ErrnoException): void => {
-        if(! error) return next();
+    for(let count = rotate; count > 0; --count) {
+      const currName = path + this.generator(count);
+      const prevName = count === 1 ? this.filename : path + this.generator(count - 1);
 
-        if(error.code !== "ENOENT") return callback(error);
+      if(! (await exists(prevName))) continue;
+      if(! rotatedName) rotatedName = currName;
 
-        this.makePath(thisName, (error: Error): void => {
-          if(error) return callback(error);
+      if(count === 1 && compress) await this.compress(currName);
+      else {
+        try {
+          await rename(prevName, currName);
+        } catch(e) {
+          if(e.code !== "ENOENT") throw e;
 
-          this.fsRename(prevName, thisName, (error: Error): void => (error ? callback(error) : next()));
-        });
-      });
-    };
-
-    this.fsStat(prevName, (error: NodeJS.ErrnoException): void => {
-      if(error) {
-        if(error.code !== "ENOENT") return callback(error);
-
-        return next();
+          await this.makePath(currName);
+          await rename(prevName, currName);
+        }
       }
+    }
 
-      if(! this.rotatedName) this.rotatedName = thisName;
-
-      move();
-    });
+    return this.rotated(rotatedName);
   }
 
   private clear(): boolean {
-    if(this.timer) {
-      clearTimeout(this.timer);
-      this.timer = null;
+    if(this.timeout) {
+      clearTimeout(this.timeout);
+      this.timeout = null;
     }
 
     return true;
@@ -489,220 +421,157 @@ export class RotatingFileStream extends Writable {
 
     this.intervalBounds(this.now());
 
-    const set = (): void => {
+    const set = async (): Promise<void> => {
       const time = this.next - this.now().getTime();
 
-      if(time <= 0) return this.rotate(error => (this.error = error));
+      if(time <= 0) {
+        try {
+          this.timeoutPromise = this.rotate();
 
-      this.timer = setTimeout(set, time > this.maxTimeout ? this.maxTimeout : time);
-      this.timer.unref();
+          await this.timeoutPromise;
+          delete this.timeoutPromise;
+        } catch(e) {}
+      } else {
+        this.timeout = setTimeout(set, time > this.maxTimeout ? this.maxTimeout : time);
+        this.timeout.unref();
+      }
     };
 
     set();
   }
 
-  private compress(filename: string, callback: Callback): void {
+  private async compress(filename: string): Promise<void> {
     const { compress } = this.options;
 
-    const done = (error?: Error): void => {
-      if(error) return callback(error);
+    if(typeof compress === "function") {
+      await new Promise<void>((resolve, reject) => {
+        this.exec(compress(this.filename, filename), (error, stdout, stderr) => {
+          if(error) return reject(error);
 
-      this.fsUnlink(this.filename, callback);
-    };
-
-    if(typeof compress === "function") this.external(filename, done);
-    else this.gzip(filename, done);
-  }
-
-  private external(filename: string, callback: Callback): void {
-    const compress: Compressor = this.options.compress as Compressor;
-    let cont: string;
-
-    try {
-      cont = compress(this.filename, filename);
-    } catch(e) {
-      return callback(e);
-    }
-
-    this.findName(true, (error: Error, found: string): void => {
-      if(error) return callback(error);
-
-      this.fsOpen(found, "w", 0o777, (error: Error, fd: number): void => {
-        if(error) return callback(error);
-
-        const unlink = (error: Error): void => {
-          this.fsUnlink(found, (error2: Error): void => {
-            if(error2) this.emit("warning", error2);
-
-            callback(error);
-          });
-        };
-
-        this.fsWrite(fd, cont, (error: Error): void => {
-          this.fsClose(fd, (error2: Error): void => {
-            if(error) {
-              if(error2) this.emit("warning", error2);
-
-              return unlink(error);
-            }
-
-            if(error2) return unlink(error2);
-
-            if(found.indexOf(sep) === -1) found = `.${sep}${found}`;
-
-            this.exec(`sh "${found}"`, unlink);
-          });
+          this.emit("external", stdout, stderr);
+          resolve();
         });
       });
-    });
+    } else await this.gzip(filename);
+
+    return unlink(this.filename);
   }
 
-  private gzip(filename: string, callback: Callback): void {
+  private async gzip(filename: string): Promise<void> {
     const { mode } = this.options;
     const options = mode ? { mode } : {};
     const inp = this.fsCreateReadStream(this.filename, {});
     const out = this.fsCreateWriteStream(filename, options);
     const zip = this.createGzip();
 
-    [inp, out, zip].map(stream => stream.once("error", callback));
-    out.once("finish", callback);
-
-    inp.pipe(zip).pipe(out);
+    return new Promise((resolve, reject) => {
+      [inp, out, zip].map(stream => stream.once("error", reject));
+      out.once("finish", resolve);
+      inp.pipe(zip).pipe(out);
+    });
   }
 
-  private rotated(filename: string, callback: Callback): void {
+  private async rotated(filename: string): Promise<void> {
     const { maxFiles, maxSize } = this.options;
 
-    const open = (error?: Error): void => {
-      if(error) return callback(error);
+    if(maxFiles || maxSize) await this.history(filename);
 
-      this.reopen(false, 0, callback);
-      this.emit("rotated", filename);
-    };
+    this.emit("rotated", filename);
 
-    if(maxFiles || maxSize) return this.history(filename, open);
-    open();
+    return this.reopen(0);
   }
 
-  private history(filename: string, callback: Callback): void {
-    const { history } = this.options;
-
-    this.fsReadFile(history, "utf8", (error: NodeJS.ErrnoException, data: string): void => {
-      if(error) {
-        if(error.code !== "ENOENT") return callback(error);
-
-        return this.historyGather([filename], 0, [], callback);
-      }
-
-      const files = data.split("\n");
-
-      files.push(filename);
-      this.historyGather(files, 0, [], callback);
-    });
-  }
-
-  private historyGather(files: string[], index: number, res: History[], callback: Callback): void {
-    if(index === files.length) return this.historyCheckFiles(res, callback);
-
-    this.fsStat(files[index], (error: NodeJS.ErrnoException, stats: Stats): void => {
-      if(error) {
-        if(error.code !== "ENOENT") return callback(error);
-      } else if(stats.isFile()) {
-        res.push({
-          name: files[index],
-          size: stats.size,
-          time: stats.ctime.getTime()
-        });
-      } else this.emit("warning", new Error(`File '${files[index]}' contained in history is not a regular file`));
-
-      this.historyGather(files, index + 1, res, callback);
-    });
-  }
-
-  private historyRemove(files: History[], size: boolean, callback: Callback): void {
-    const file = files.shift();
-
-    this.fsUnlink(file.name, (error: NodeJS.ErrnoException): void => {
-      if(error) return callback(error);
-
-      this.emit("removed", file.name, ! size);
-      callback();
-    });
-  }
-
-  private historyCheckFiles(files: History[], callback: Callback): void {
-    const { maxFiles } = this.options;
-
-    files.sort((a, b) => a.time - b.time);
-
-    if(! maxFiles || files.length <= maxFiles) return this.historyCheckSize(files, callback);
-
-    this.historyRemove(files, false, (error: Error): void => (error ? callback(error) : this.historyCheckFiles(files, callback)));
-  }
-
-  private historyCheckSize(files: History[], callback: Callback): void {
-    const { maxSize } = this.options;
-    let size = 0;
-
-    if(! maxSize) return this.historyWrite(files, callback);
-
-    files.map(e => (size += e.size));
-
-    if(size <= maxSize) return this.historyWrite(files, callback);
-
-    this.historyRemove(files, true, (error: Error): void => (error ? callback(error) : this.historyCheckSize(files, callback)));
-  }
-
-  private historyWrite(files: History[], callback: Callback): void {
-    this.fsWriteFile(this.options.history, files.map(e => e.name).join("\n") + "\n", "utf8", (error: NodeJS.ErrnoException): void => {
-      if(error) return callback(error);
-
-      this.emit("history");
-      callback();
-    });
-  }
-
-  private immutate(first: boolean, callback: Callback, index?: number, now?: Date): void {
-    if(! index) {
-      index = 1;
-      now = this.now();
-    }
-
-    if(index >= 1001) return callback(new RotatingFileStreamError());
+  private async history(filename: string): Promise<void> {
+    const { history, maxFiles, maxSize } = this.options;
+    const res: History[] = [];
+    let files = [filename];
 
     try {
-      this.filename = this.options.path + this.generator(now, index);
+      const content = await this.fsReadFile(history, "utf8");
+
+      files = [...content.toString().split("\n"), filename];
     } catch(e) {
-      return callback(e);
+      if(e.code !== "ENOENT") throw e;
     }
 
-    const open = (size: number, callback: Callback): void => {
+    for(const file of files) {
+      if(file) {
+        try {
+          const stats = await this.fsStat(file);
+
+          if(stats.isFile()) {
+            res.push({
+              name: file,
+              size: stats.size,
+              time: stats.ctime.getTime()
+            });
+          } else this.emit("warning", new Error(`File '${file}' contained in history is not a regular file`));
+        } catch(e) {
+          if(e.code !== "ENOENT") throw e;
+        }
+      }
+    }
+
+    res.sort((a, b) => a.time - b.time);
+
+    if(maxFiles) {
+      while(res.length > maxFiles) {
+        const file = res.shift();
+
+        await unlink(file.name);
+        this.emit("removed", file.name, true);
+      }
+    }
+
+    if(maxSize) {
+      while(res.reduce((size, file) => size + file.size, 0) > maxSize) {
+        const file = res.shift();
+
+        await unlink(file.name);
+        this.emit("removed", file.name, false);
+      }
+    }
+
+    await writeFile(history, res.map(e => e.name).join("\n") + "\n", "utf-8");
+    this.emit("history");
+  }
+
+  private async immutate(first: boolean): Promise<void> {
+    const { size } = this.options;
+    const now = this.now();
+
+    for(let index = 1; index < 1000; ++index) {
+      let fileSize = 0;
+      let stats: Stats = undefined;
+
+      this.filename = this.options.path + this.generator(now, index);
+
+      try {
+        stats = await this.fsStat(this.filename);
+      } catch(e) {
+        if(e.code !== "ENOENT") throw e;
+      }
+
+      if(stats) {
+        fileSize = stats.size;
+
+        if(! stats.isFile()) throw new Error(`Can't write on: '${this.filename}' (it is not a file)`);
+        if(size && fileSize >= size) continue;
+      }
+
       if(first) {
         this.last = this.filename;
-        return this.reopen(false, size, callback);
+
+        return this.reopen(fileSize);
       }
 
-      this.rotated(this.last, (error: Error): void => {
-        this.last = this.filename;
-        callback(error);
-      });
-    };
+      await this.rotated(this.last);
+      this.last = this.filename;
 
-    this.fsStat(this.filename, (error: NodeJS.ErrnoException, stats: Stats): void => {
-      const { size } = this.options;
+      return;
+    }
 
-      if(error) {
-        if(error.code === "ENOENT") return open(0, callback);
-
-        return callback(error);
-      }
-
-      if(! stats.isFile()) return callback(new Error(`Can't write on: '${this.filename}' (it is not a file)`));
-
-      if(size && stats.size >= size) return this.immutate(first, callback, index + 1, now);
-
-      open(stats.size, callback);
-    });
+    throw new RotatingFileStreamError();
   }
 }
 
@@ -738,13 +607,7 @@ function checkMeasure(value: string, what: string, units: any): any {
   return ret;
 }
 
-const intervalUnits: any = {
-  M: true,
-  d: true,
-  h: true,
-  m: true,
-  s: true
-};
+const intervalUnits: any = { M: true, d: true, h: true, m: true, s: true };
 
 function checkIntervalUnit(ret: any, unit: string, amount: number): void {
   if(parseInt((amount / ret.num) as unknown as string, 10) * ret.num !== amount) throw new Error(`An integer divider of ${amount} is expected as ${unit} for 'options.interval'`);
@@ -770,12 +633,7 @@ function checkInterval(value: string): any {
   return ret;
 }
 
-const sizeUnits: any = {
-  B: true,
-  G: true,
-  K: true,
-  M: true
-};
+const sizeUnits: any = { B: true, G: true, K: true, M: true };
 
 function checkSize(value: string): any {
   const ret = checkMeasure(value, "size", sizeUnits);
@@ -788,6 +646,19 @@ function checkSize(value: string): any {
 }
 
 const checks: any = {
+  encoding:         (type: string, options: Opts, value: string): any => new TextDecoder(value),
+  immutable:        (): void => {},
+  initialRotation:  (): void => {},
+  interval:         buildStringCheck("interval", checkInterval),
+  intervalBoundary: (): void => {},
+  maxFiles:         buildNumberCheck("maxFiles"),
+  maxSize:          buildStringCheck("maxSize", checkSize),
+  mode:             (): void => {},
+  omitExtension:    (): void => {},
+  rotate:           buildNumberCheck("rotate"),
+  size:             buildStringCheck("size", checkSize),
+  teeToStdout:      (): void => {},
+
   compress: (type: string, options: Opts, value: boolean | string | Compressor): any => {
     if(! value) throw new Error("A value for 'options.compress' must be specified");
     if(type === "boolean") return (options.compress = (source: string, dest: string): string => `cat ${source} | gzip -c9 > ${dest}`);
@@ -796,36 +667,14 @@ const checks: any = {
     if((value as unknown as string) !== "gzip") throw new Error(`Don't know how to handle compression method: ${value}`);
   },
 
-  encoding: (type: string, options: Opts, value: string): any => new TextDecoder(value),
-
   history: (type: string): void => {
     if(type !== "string") throw new Error(`Don't know how to handle 'options.history' type: ${type}`);
   },
 
-  immutable: (): void => {},
-
-  initialRotation: (): void => {},
-
-  interval: buildStringCheck("interval", checkInterval),
-
-  intervalBoundary: (): void => {},
-
-  maxFiles: buildNumberCheck("maxFiles"),
-
-  maxSize: buildStringCheck("maxSize", checkSize),
-
-  mode: (): void => {},
-
   path: (type: string, options: Opts, value: string): void => {
     if(type !== "string") throw new Error(`Don't know how to handle 'options.path' type: ${type}`);
     if(value[value.length - 1] !== sep) options.path = value + sep;
-  },
-
-  rotate: buildNumberCheck("rotate"),
-
-  size: buildStringCheck("size", checkSize),
-
-  teeToStdout: (): void => {}
+  }
 };
 
 function checkOpts(options: Options): Opts {
@@ -858,17 +707,16 @@ function checkOpts(options: Options): Opts {
   }
 
   if(ret.immutable) delete ret.compress;
-
   if(! ret.intervalBoundary) delete ret.initialRotation;
 
   return ret;
 }
 
-function createClassical(filename: string): Generator {
-  return (index: number): string => (index ? `${filename}.${index}` : filename);
+function createClassical(filename: string, compress: boolean, omitExtension: boolean): Generator {
+  return (index: number): string => (index ? `${filename}.${index}${compress && ! omitExtension ? ".gz" : ""}` : filename);
 }
 
-function createGenerator(filename: string): Generator {
+function createGenerator(filename: string, compress: boolean, omitExtension: boolean): Generator {
   const pad = (num: number): string => (num > 9 ? "" : "0") + num;
 
   return (time: Date, index?: number): string => {
@@ -879,7 +727,7 @@ function createGenerator(filename: string): Generator {
     const hour = pad(time.getHours());
     const minute = pad(time.getMinutes());
 
-    return month + day + "-" + hour + minute + "-" + pad(index) + "-" + filename;
+    return month + day + "-" + hour + minute + "-" + pad(index) + "-" + filename + (compress && ! omitExtension ? ".gz" : "");
   };
 }
 
@@ -888,10 +736,10 @@ export function createStream(filename: string | Generator, options?: Options): R
   else if(typeof options !== "object") throw new Error(`The "options" argument must be of type object. Received type ${typeof options}`);
 
   const opts = checkOpts(options);
-
+  const { compress, omitExtension } = opts;
   let generator: Generator;
 
-  if(typeof filename === "string") generator = options.rotate ? createClassical(filename) : createGenerator(filename);
+  if(typeof filename === "string") generator = options.rotate ? createClassical(filename, compress !== undefined, omitExtension) : createGenerator(filename, compress !== undefined, omitExtension);
   else if(typeof filename === "function") generator = filename;
   else throw new Error(`The "filename" argument must be one of type string or function. Received type ${typeof filename}`);
 

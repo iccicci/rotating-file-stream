@@ -1,7 +1,7 @@
 "use strict";
 
 import { deepStrictEqual as deq, strictEqual as eq } from "assert";
-import { readFileSync, unlink } from "fs";
+import { readFileSync } from "fs";
 import { createStream } from "..";
 import { gte14, test, v14 } from "./helper";
 
@@ -90,7 +90,7 @@ describe("write(s)", () => {
     );
 
     it("events", () => deq(events, { close: 1, finish: 1, open: ["test.log"], write: 1 }));
-    it("file content", () => eq(readFileSync("test.log", "utf8"), ""));
+    it("file content", () => eq(readFileSync("test.log", "utf8"), "test\n"));
   });
 
   describe("destroy after write", function() {
@@ -101,13 +101,6 @@ describe("write(s)", () => {
     );
 
     it("events", () => deq(events, { close: 1, finish: 1, open: ["test.log"], write: 1 }));
-    it("file content", () => eq(readFileSync("test.log", "utf8"), "test\n"));
-  });
-
-  describe("remove file between writes", function() {
-    const events = test({}, rfs => rfs.write("test\n", () => unlink("test.log", () => rfs.end("test\n"))));
-
-    it("events", () => deq(events, { finish: 1, open: ["test.log", "test.log"], write: 2, ...v14() }));
     it("file content", () => eq(readFileSync("test.log", "utf8"), "test\n"));
   });
 

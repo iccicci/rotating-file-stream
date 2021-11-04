@@ -1,89 +1,54 @@
 "use strict";
 
-import { Generator, Options, RotatingFileStream, createStream } from "..";
-import { Stats, chmod, close, futimes, mkdir, open, readdir, rmdir, stat, unlink, write } from "fs";
-import { sep } from "path";
+import { Generator, Options, createStream } from "..";
+import { chmod, mkdir, readdir, rm, rmdir, stat, unlink, utimes, writeFile } from "fs/promises";
 
-const proto: any = RotatingFileStream.prototype;
-const pseudo = { fsMkdir: mkdir, makePath: proto.makePath };
+type FilesOpt = { [key: string]: string | { content: string; date?: Date; mode?: number } };
 
-function fillFiles(files: any, done: () => void): void {
-  if(! files) return done();
+async function fillFiles(files: FilesOpt): Promise<void> {
+  if(! files) return;
 
-  let empty = 0;
-  let filled = 0;
-
-  const end = (): void => (++filled === empty ? done() : null);
-
-  Object.keys(files).map((file: string) => {
+  for(const file in files) {
     const value = files[file];
     const content = typeof value === "string" ? value : value.content;
+    const tokens = file.split("/");
 
-    const fill = (fd: number): void =>
-      write(fd, content, (error: Error): any => {
-        if(error) return process.stderr.write(`Error writing on '${file}': ${error.message}\n`, end);
-        const done = (): void =>
-          close(fd, (error: Error): any => {
-            if(error) return process.stderr.write(`Error closing for '${file}': ${error.message}\n`, end);
-            if(typeof value !== "object" || ! value.mode) return end();
-            chmod(file, value.mode, end);
-          });
-        if(typeof value !== "object" || ! value.date) return done();
-        futimes(fd, files[file].date, files[file].date, (error: Error): any => {
-          if(error) return process.stderr.write(`Error changing date for '${file}': ${error.message}\n`, end);
-          done();
-        });
-      });
+    if(tokens.length > 1) await mkdir(tokens.slice(0, -1).join("/"), { recursive: true });
+    await writeFile(file, content);
 
-    const reopen = (file: string, retry?: boolean): void =>
-      open(file, "w", (error: NodeJS.ErrnoException, fd: number): any => {
-        if(error) {
-          if(error.code === "ENOENT" && ! retry) return pseudo.makePath(file, () => reopen(file, true));
-          return process.stderr.write(`Error opening '${file}': ${error.message}\n`, end);
-        }
-        fill(fd);
-      });
+    if(typeof value !== "string") {
+      const { date, mode } = value;
 
-    ++empty;
-    reopen(file);
-  });
-
-  if(empty === 0) done();
+      if(date) await utimes(file, date, date);
+      if(mode) await chmod(file, mode);
+    }
+  }
 }
 
-function recursiveRemove(path: string, done: () => any): any {
-  const notRoot: boolean = path !== ".";
+async function recursiveRemove(): Promise<void> {
+  const files = await readdir(".");
+  const versions = process.version
+    .replace("v", "")
+    .split(".")
+    .map(_ => parseInt(_, 10));
+  const ge14_14 = versions[0] > 14 || (versions[0] === 14 && versions[1] >= 14);
 
-  stat(path, (error: Error, stats: Stats): any => {
-    const rm = (): void => (notRoot ? (stats.isFile() ? unlink : rmdir)(path, error => (error ? process.stderr.write(`Error deleting '${path}': ${error.message}\n`, done) : done())) : done());
+  for(const file of files) {
+    if(file.match(/(gz|log|tmp|txt)$/)) {
+      if(ge14_14) await rm(file, { recursive: true });
+      else {
+        const stats = await stat(file);
 
-    if(error) return process.stderr.write(`Error getting stats for '${path}': ${error.message}\n`, done);
-    if(stats.isFile()) return rm();
-    if(! stats.isDirectory()) return process.stderr.write(`'${path}': Unknown file type`, done);
-
-    readdir(path, (error, files) => {
-      if(error) return process.stderr.write(`Error reading dir '${path}': ${error.message}\n`, done);
-
-      let count = 0;
-      let total = 0;
-
-      const callback: () => void = () => (++count === total ? rm() : null);
-
-      files.map(file => {
-        if(notRoot || file.match(/(gz|log|tmp|txt)$/)) {
-          total++;
-          recursiveRemove(path + sep + file, callback);
-        }
-      });
-
-      if(total === 0) rm();
-    });
-  });
+        if(stats.isDirectory()) await rmdir(file, { recursive: true });
+        else await unlink(file);
+      }
+    }
+  }
 }
 
 interface testOpt {
   filename?: string | Generator;
-  files?: any;
+  files?: FilesOpt;
   options?: Options;
 }
 
@@ -145,7 +110,11 @@ export function test(opt: testOpt, test: (rfs: any) => void): any {
       test(rfs);
     };
 
-    recursiveRemove(".", () => fillFiles(files, create));
+    (async () => {
+      await recursiveRemove();
+      await fillFiles(files);
+      create();
+    })();
   });
 
   return events;
