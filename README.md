@@ -101,13 +101,13 @@ In **v3** the package was completely refactored using **async / await**.
 
 **Breaking change**: by default the `.gz` extension is added to the rotated compressed files.
 
-**Breaking change**: the way the _external compression command_ is executed was slightly changed; possible bracking
+**Breaking change**: the way the _external compression command_ is executed was slightly changed; possible breacking
 change.
 
 To maintain back compatibility upgrading from **v2** to **v3**, just follow this rules:
 
 - using a _file name generator_ or not using [`options.compress`](#compress): nothing to do
-- using a _file name_ and using [`options.rotation`](#rotation): use [`options.omitExtension`](#omitextension) or check
+- using a _file name_ and using [`options.compress`](#compress): use [`options.omitExtension`](#omitextension) or check
   how rotated files are treated.
 
 # Upgrading from v1 to v2

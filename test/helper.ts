@@ -85,6 +85,10 @@ export function test(opt: testOpt, test: (rfs: any) => void): any {
 
       rfs.on("close", () => inc("close"));
       rfs.on("error", error => push("error", "code" in error ? error["code"] : error.message));
+      rfs.on("external", (stdout, stderr) => {
+        push("stdout", stdout);
+        push("stderr", stderr);
+      });
       rfs.on("finish", end);
       rfs.on("finish", () => inc("finish"));
       rfs.on("history", () => inc("history"));

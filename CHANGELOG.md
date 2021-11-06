@@ -1,3 +1,8 @@
+- 2021-11-06 - v3.0.1
+  - `external` event emitted even if in error
+  - exported `class RotatingFileStreamError`
+  - Minor [README.md](https://github.com/iccicci/rotating-file-stream/blob/master/README.md) fixes
+  - devDependencies update
 - 2021-11-04 - v3.0.0
   - Released v3 - please check the [README.md](https://www.npmjs.com/package/rotating-file-stream#upgrading-from-v2-to-v3)
   - devDependencies update

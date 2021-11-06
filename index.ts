@@ -12,7 +12,7 @@ async function exists(filename: string): Promise<boolean> {
   return new Promise(resolve => access(filename, constants.F_OK, error => resolve(! error)));
 }
 
-class RotatingFileStreamError extends Error {
+export class RotatingFileStreamError extends Error {
   public code = "RFS-TOO-MANY";
 
   constructor() {
@@ -446,10 +446,8 @@ export class RotatingFileStream extends Writable {
     if(typeof compress === "function") {
       await new Promise<void>((resolve, reject) => {
         this.exec(compress(this.filename, filename), (error, stdout, stderr) => {
-          if(error) return reject(error);
-
           this.emit("external", stdout, stderr);
-          resolve();
+          error ? reject(error) : resolve();
         });
       });
     } else await this.gzip(filename);

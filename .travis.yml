@@ -10,12 +10,10 @@ env:
   global:
     - CC_TEST_REPORTER_ID=b96c8e14d13e6e0eac109776042700ebba5cddd019d9031fc476d8110842920f
 
-sudo: false
-
-language: node_js
-
 node_js:
   - "16"
   - "14"
 
+language: node_js
 script: "npm run coverage"
+sudo: false
