@@ -101,7 +101,7 @@ In **v3** the package was completely refactored using **async / await**.
 
 **Breaking change**: by default the `.gz` extension is added to the rotated compressed files.
 
-**Breaking change**: the way the _external compression command_ is executed was slightly changed; possible breacking
+**Breaking change**: the way the _external compression command_ is executed was slightly changed; possible breaking
 change.
 
 To maintain back compatibility upgrading from **v2** to **v3**, just follow this rules:
