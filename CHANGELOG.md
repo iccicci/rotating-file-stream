@@ -1,3 +1,6 @@
+- 2021-11-20 - v3.0.2
+  - Required **Node.js v14**
+  - devDependencies update
 - 2021-11-06 - v3.0.1
   - `external` event emitted even if in error
   - exported `class RotatingFileStreamError`
