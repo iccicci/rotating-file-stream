@@ -3,8 +3,8 @@
 import { exec } from "child_process";
 import { Gzip, createGzip } from "zlib";
 import { Readable, Writable } from "stream";
-import { Stats, access, constants, createReadStream, createWriteStream } from "fs";
-import { FileHandle, mkdir, open, readFile, rename, stat, unlink, writeFile } from "fs/promises";
+import { Stats, access, constants, createReadStream, createWriteStream, promises as fsp } from "fs";
+const { FileHandle, mkdir, open, readFile, rename, stat, unlink, writeFile } = fsp;
 import { sep } from "path";
 import { TextDecoder } from "util";
 
