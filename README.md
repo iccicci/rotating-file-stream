@@ -23,7 +23,7 @@
 [npm-badge]: https://badgen.net/npm/v/rotating-file-stream?color=green&icon=npm
 [npm-url]: https://www.npmjs.com/package/rotating-file-stream
 [stars-badge]: https://badgen.net/github/stars/iccicci/rotating-file-stream?icon=github
-[travis-badge]: https://badgen.net/travis/iccicci/rotating-file-stream?icon=travis
+[travis-badge]: https://badgen.net/travis/iccicci/rotating-file-stream/master?icon=travis
 [travis-url]: https://app.travis-ci.com/github/iccicci/rotating-file-stream
 [types-badge]: https://badgen.net/npm/types/rotating-file-stream?color=green&icon=typescript
 
