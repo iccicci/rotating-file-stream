@@ -1,3 +1,6 @@
+- 2022-02-22 - v3.0.3
+  - Experimental ESM dist
+  - devDependencies update
 - 2021-11-20 - v3.0.2
   - Required **Node.js v14**
   - devDependencies update
