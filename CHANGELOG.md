@@ -1,3 +1,6 @@
+- 2022-05-25 - v3.0.4
+  - Fixed required Node.js version in README.md
+  - devDependencies update
 - 2022-02-22 - v3.0.3
   - Experimental ESM dist
   - devDependencies update
