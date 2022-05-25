@@ -6,6 +6,8 @@ before_script:
   - "chmod +x ./cc-test-reporter"
   - "./cc-test-reporter before-build"
 
+dist: focal
+
 env:
   global:
     - CC_TEST_REPORTER_ID=b96c8e14d13e6e0eac109776042700ebba5cddd019d9031fc476d8110842920f
