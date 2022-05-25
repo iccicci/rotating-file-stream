@@ -542,7 +542,7 @@ Once an **error** _event_ is emitted, nothing more can be done: the stream is cl
 
 # Compatibility
 
-Requires **Node.js v12.x**.
+Requires **Node.js v14**.
 
 The package is tested under [all Node.js versions](https://app.travis-ci.com/github/iccicci/rotating-file-stream)
 currently supported accordingly to [Node.js Release](https://github.com/nodejs/Release#readme).

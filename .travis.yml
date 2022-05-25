@@ -1,5 +1,5 @@
 after_script:
-  - "if [[ `node --version` =~ ^v16 ]] ; then ./cc-test-reporter after-build --exit-code $TRAVIS_TEST_RESULT ; fi"
+  - "if [[ `node --version` =~ ^v18 ]] ; then ./cc-test-reporter after-build --exit-code $TRAVIS_TEST_RESULT ; fi"
 
 before_script:
   - "curl -L https://codeclimate.com/downloads/test-reporter/test-reporter-latest-linux-amd64 > ./cc-test-reporter"
@@ -11,6 +11,7 @@ env:
     - CC_TEST_REPORTER_ID=b96c8e14d13e6e0eac109776042700ebba5cddd019d9031fc476d8110842920f
 
 node_js:
+  - "18"
   - "16"
   - "14"
 
