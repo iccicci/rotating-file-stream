@@ -197,7 +197,7 @@ const generator = (time, index) => {
 };
 
 const rfs = require("rotating-file-stream");
-const stream = rfs(generator, {
+const stream = rfs.createStream(generator, {
   size: "10M",
   interval: "30m"
 });
@@ -415,7 +415,7 @@ The two following code snippets have exactly the same effect:
 
 ```javascript
 var rfs = require("rotating-file-stream");
-var stream = rfs("file.log", {
+var stream = rfs.createStream("file.log", {
   size: "10M",
   compress: true
 });
@@ -423,7 +423,7 @@ var stream = rfs("file.log", {
 
 ```javascript
 var rfs = require("rotating-file-stream");
-var stream = rfs("file.log", {
+var stream = rfs.createStream("file.log", {
   size: "10M",
   compress: (source, dest) => "cat " + source + " | gzip -c9 > " + dest
 });
