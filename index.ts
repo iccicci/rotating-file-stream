@@ -24,7 +24,7 @@ export type Compressor = (source: string, dest: string) => string;
 export type Generator = (time: number | Date, index?: number) => string;
 
 interface RotatingFileStreamEvents {
-  // Inehrited from Writable
+  // Inherited from Writable
   close: () => void;
   drain: () => void;
   error: (err: Error) => void;
@@ -112,6 +112,7 @@ export class RotatingFileStream extends Writable {
   private fsOpen: typeof open;
   private fsReadFile: typeof readFile;
   private fsStat: typeof stat;
+  private fsUnlink: typeof unlink;
   private generator: Generator;
   private initPromise: Promise<void> | null;
   private last: string;
@@ -138,6 +139,7 @@ export class RotatingFileStream extends Writable {
     this.fsOpen = open;
     this.fsReadFile = readFile;
     this.fsStat = stat;
+    this.fsUnlink = unlink;
     this.generator = generator;
     this.maxTimeout = 2147483640;
     this.options = options;
@@ -339,7 +341,7 @@ export class RotatingFileStream extends Writable {
     }
 
     await file.close();
-    return unlink(filename);
+    return this.unlink(filename);
   }
 
   private async classical(): Promise<void> {
@@ -452,7 +454,7 @@ export class RotatingFileStream extends Writable {
       });
     } else await this.gzip(filename);
 
-    return unlink(this.filename);
+    return this.unlink(this.filename);
   }
 
   private async gzip(filename: string): Promise<void> {
@@ -516,7 +518,7 @@ export class RotatingFileStream extends Writable {
       while(res.length > maxFiles) {
         const file = res.shift();
 
-        await unlink(file.name);
+        await this.unlink(file.name);
         this.emit("removed", file.name, true);
       }
     }
@@ -525,7 +527,7 @@ export class RotatingFileStream extends Writable {
       while(res.reduce((size, file) => size + file.size, 0) > maxSize) {
         const file = res.shift();
 
-        await unlink(file.name);
+        await this.unlink(file.name);
         this.emit("removed", file.name, false);
       }
     }
@@ -570,6 +572,16 @@ export class RotatingFileStream extends Writable {
     }
 
     throw new RotatingFileStreamError();
+  }
+
+  private async unlink(filename: string): Promise<void> {
+    try {
+      await this.fsUnlink(filename);
+    } catch(e) {
+      if(e.code !== "ENOENT") throw e;
+
+      this.emit("warning", e);
+    }
   }
 }
 

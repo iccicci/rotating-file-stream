@@ -6,7 +6,7 @@
 
 [![NPM version][npm-badge]][npm-url]
 [![NPM downloads][npm-downloads-badge]][npm-url]
-[![Stars][stars-badge]][github-url]
+[![Stars][stars-badge]][stars-url]
 
 [![Types][types-badge]][npm-url]
 [![Dependents][deps-badge]][npm-url]
@@ -16,6 +16,7 @@
 [code-url]: https://codeclimate.com/github/iccicci/rotating-file-stream
 [cover-badge]: https://codeclimate.com/github/iccicci/rotating-file-stream/badges/coverage.svg
 [deps-badge]: https://badgen.net/npm/dependents/rotating-file-stream?icon=npm
+[deps-url]: https://www.npmjs.com/package/rotating-file-stream?activeTab=dependents
 [donate-badge]: https://badgen.net/badge/donate/bitcoin?icon=bitcoin
 [donate-url]: https://blockchain.info/address/12p1p5q7sK75tPyuesZmssiMYr4TKzpSCN
 [github-url]: https://github.com/iccicci/rotating-file-stream
@@ -23,6 +24,7 @@
 [npm-badge]: https://badgen.net/npm/v/rotating-file-stream?color=green&icon=npm
 [npm-url]: https://www.npmjs.com/package/rotating-file-stream
 [stars-badge]: https://badgen.net/github/stars/iccicci/rotating-file-stream?icon=github
+[stars-url]: https://github.com/iccicci/rotating-file-stream/stargazers
 [travis-badge]: https://badgen.net/travis/iccicci/rotating-file-stream/master?icon=travis
 [travis-url]: https://app.travis-ci.com/github/iccicci/rotating-file-stream
 [types-badge]: https://badgen.net/npm/types/rotating-file-stream?color=green&icon=typescript
@@ -555,11 +557,11 @@ To work with the package under Windows, be sure to configure `bash.exe` as your 
 
 # TypeScript
 
-**TypeScript** types are distibuted with the package itself.
+**TypeScript** types are distributed with the package itself.
 
-# Licence
+# License
 
-[MIT Licence](https://github.com/iccicci/rotating-file-stream/blob/master/LICENSE)
+[MIT License](https://github.com/iccicci/rotating-file-stream/blob/master/LICENSE)
 
 # Bugs
 

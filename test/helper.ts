@@ -5,7 +5,7 @@ import { chmod, mkdir, readdir, rm, rmdir, stat, unlink, utimes, writeFile } fro
 
 type FilesOpt = { [key: string]: string | { content: string; date?: Date; mode?: number } };
 
-async function fillFiles(files: FilesOpt): Promise<void> {
+async function fillFiles(files?: FilesOpt): Promise<void> {
   if(! files) return;
 
   for(const file in files) {
@@ -52,6 +52,14 @@ interface testOpt {
   options?: Options;
 }
 
+interface ErrorWithCode {
+  code: string;
+}
+
+function isErrorWithCode(error: any): error is ErrorWithCode {
+  return "code" in error;
+}
+
 export function test(opt: testOpt, test: (rfs: any) => void): any {
   const { filename, files, options } = opt;
   const events: any = {};
@@ -84,7 +92,7 @@ export function test(opt: testOpt, test: (rfs: any) => void): any {
       };
 
       rfs.on("close", () => inc("close"));
-      rfs.on("error", error => push("error", "code" in error ? error["code"] : error.message));
+      rfs.on("error", error => push("error", isErrorWithCode(error) ? error.code : error.message));
       rfs.on("external", (stdout, stderr) => {
         push("stdout", stdout);
         push("stderr", stderr);

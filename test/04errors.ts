@@ -120,4 +120,34 @@ describe("errors", () => {
 
     it("events", () => deq(events, { close: 1, error: ["test"], finish: 1, open: ["test.log"], rotation: 1 }));
   });
+
+  describe("error while unlinking file", () => {
+    const events = test({ options: { size: "10B" } }, rfs => {
+      rfs.fsUnlink = async () => {
+        throw new Error("test");
+      };
+      rfs.write("test\n");
+      rfs.write("test\n");
+      rfs.write("test\n");
+    });
+
+    it("events", () => deq(events, { close: 1, error: ["test"], finish: 1, open: ["test.log"], rotation: 1, write: 1, writev: 1 }));
+  });
+
+  describe("ENOENT error while unlinking file", () => {
+    const events = test({ options: { size: "10B" } }, rfs => {
+      rfs.fsUnlink = async () => {
+        const e = new Error("test");
+
+        (e as any).code = "ENOENT";
+
+        throw e;
+      };
+      rfs.write("test\n");
+      rfs.write("test\n");
+      rfs.end("test\n");
+    });
+
+    it("events", () => deq(events, { close: 1, finish: 1, open: ["test.log", "test.log"], rotated: ["1-test.log"], rotation: 1, warning: ["test"], write: 1, writev: 1 }));
+  });
 });

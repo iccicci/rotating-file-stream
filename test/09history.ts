@@ -35,6 +35,34 @@ describe("history", () => {
     it("history file content", () => eq(readFileSync("log/files.txt", "utf8"), "log/3-test.log\nlog/4-test.log\nlog/1-test.log\n"));
   });
 
+  describe("maxFiles 1", () => {
+    const events = test({ files: { "log/files.txt": "test\nnone\n" }, options: { history: "files.txt", maxFiles: 1, path: "log", size: "10B" } }, rfs => {
+      rfs.write("test\ntest\n");
+      rfs.write("test\ntest\ntest\n");
+      rfs.write("test\ntest\ntest\ntest\n");
+      rfs.write("test\ntest\ntest\ntest\ntest\n");
+      rfs.write("test\ntest\ntest\ntest\ntest\ntest\n");
+      rfs.end("test\n");
+    });
+
+    it("events", () =>
+      deq(events, {
+        finish:   1,
+        history:  5,
+        open:     ["log/test.log", "log/test.log", "log/test.log", "log/test.log", "log/test.log", "log/test.log"],
+        removedn: ["log/1-test.log", "log/2-test.log", "log/1-test.log", "log/2-test.log"],
+        rotated:  ["log/1-test.log", "log/2-test.log", "log/1-test.log", "log/2-test.log", "log/1-test.log"],
+        rotation: 5,
+        warning:  ["File 'test' contained in history is not a regular file"],
+        write:    1,
+        writev:   1,
+        ...v14()
+      }));
+    it("file content", () => eq(readFileSync("log/test.log", "utf8"), "test\n"));
+    it("first rotated file content", () => eq(readFileSync("log/1-test.log", "utf8"), "test\ntest\ntest\ntest\ntest\ntest\n"));
+    it("history file content", () => eq(readFileSync("log/files.txt", "utf8"), "log/1-test.log\n"));
+  });
+
   describe("maxSize", () => {
     const events = test({ options: { maxSize: "60B", size: "10B" } }, rfs => {
       rfs.write("test\ntest\n");
