@@ -1,12 +1,11 @@
-"use strict";
-
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { exec } from "child_process";
-import { Gzip, createGzip } from "zlib";
-import { Readable, Writable } from "stream";
-import { Stats, access, constants, createReadStream, createWriteStream } from "fs";
+import { access, constants, createReadStream, createWriteStream, Stats } from "fs";
 import { FileHandle, mkdir, open, readFile, rename, stat, unlink, writeFile } from "fs/promises";
 import { sep } from "path";
+import { Readable, Writable } from "stream";
 import { TextDecoder } from "util";
+import { createGzip, Gzip } from "zlib";
 
 async function exists(filename: string): Promise<boolean> {
   return new Promise(resolve => access(filename, constants.F_OK, error => resolve(! error)));
@@ -21,9 +20,9 @@ export class RotatingFileStreamError extends Error {
 }
 
 export type Compressor = (source: string, dest: string) => string;
-export type Generator = (time: number | Date, index?: number) => string;
+export type Generator = (time: number | Date | null, index?: number) => string;
 
-interface RotatingFileStreamEvents {
+interface Events {
   // Inherited from Writable
   close: () => void;
   drain: () => void;
@@ -43,13 +42,13 @@ interface RotatingFileStreamEvents {
 }
 
 export declare interface RotatingFileStream extends Writable {
-  addListener<Event extends keyof RotatingFileStreamEvents>(event: Event, listener: RotatingFileStreamEvents[Event]): this;
-  emit<Event extends keyof RotatingFileStreamEvents>(event: Event, ...args: Parameters<RotatingFileStreamEvents[Event]>): boolean;
-  on<Event extends keyof RotatingFileStreamEvents>(event: Event, listener: RotatingFileStreamEvents[Event]): this;
-  once<Event extends keyof RotatingFileStreamEvents>(event: Event, listener: RotatingFileStreamEvents[Event]): this;
-  prependListener<Event extends keyof RotatingFileStreamEvents>(event: Event, listener: RotatingFileStreamEvents[Event]): this;
-  prependOnceListener<Event extends keyof RotatingFileStreamEvents>(event: Event, listener: RotatingFileStreamEvents[Event]): this;
-  removeListener<Event extends keyof RotatingFileStreamEvents>(event: Event, listener: RotatingFileStreamEvents[Event]): this;
+  addListener<Event extends keyof Events>(event: Event, listener: Events[Event]): this;
+  emit<Event extends keyof Events>(event: Event, ...args: Parameters<Events[Event]>): boolean;
+  on<Event extends keyof Events>(event: Event, listener: Events[Event]): this;
+  once<Event extends keyof Events>(event: Event, listener: Events[Event]): this;
+  prependListener<Event extends keyof Events>(event: Event, listener: Events[Event]): this;
+  prependOnceListener<Event extends keyof Events>(event: Event, listener: Events[Event]): this;
+  removeListener<Event extends keyof Events>(event: Event, listener: Events[Event]): this;
 }
 
 export interface Options {
@@ -106,7 +105,7 @@ export class RotatingFileStream extends Writable {
   private exec: typeof exec;
   private file: FileHandle | undefined;
   private filename: string;
-  private finished: boolean;
+  private finished = false;
   private fsCreateReadStream: typeof createReadStream;
   private fsCreateWriteStream: typeof createWriteStream;
   private fsOpen: typeof open;
@@ -114,17 +113,17 @@ export class RotatingFileStream extends Writable {
   private fsStat: typeof stat;
   private fsUnlink: typeof unlink;
   private generator: Generator;
-  private initPromise: Promise<void> | null;
-  private last: string;
+  private initPromise?: Promise<void>;
+  private last = "";
   private maxTimeout: number;
-  private next: number;
+  private next = 0;
   private options: Opts;
-  private prev: number;
-  private rotation: Date;
-  private size: number;
+  private prev = 0;
+  private rotation: Date = new Date();
+  private size = 0;
   private stdout: typeof process.stdout;
-  private timeout: NodeJS.Timeout;
-  private timeoutPromise: Promise<void> | null;
+  private timeout: NodeJS.Timeout | undefined;
+  private timeoutPromise?: Promise<void>;
 
   constructor(generator: Generator, options: Opts) {
     const { encoding, history, maxFiles, maxSize, path } = options;
@@ -189,7 +188,7 @@ export class RotatingFileStream extends Writable {
 
       await this.reclose();
     } catch(e) {
-      return callback(error || e);
+      return callback(error || (e as Error));
     }
 
     callback(error);
@@ -206,13 +205,13 @@ export class RotatingFileStream extends Writable {
         const { chunk } = chunks[i];
 
         this.size += chunk.length;
-        await this.file.write(chunk);
+        await this.file?.write(chunk);
 
         if(teeToStdout && ! this.stdout.destroyed) this.stdout.write(chunk);
         if(size && this.size >= size) await this.rotate();
       }
     } catch(e) {
-      return callback(e);
+      return callback(e as Error);
     }
 
     callback();
@@ -224,13 +223,17 @@ export class RotatingFileStream extends Writable {
     // In v15 was introduced the _constructor method to delay any _write(), _final() and _destroy() calls
     // Once v16 will be deprecated we can restore only following line
     // if(immutable) return this.immutate(true);
-    if(immutable) return new Promise<void>((resolve, reject) => process.nextTick(() => this.immutate(true).then(resolve).catch(reject)));
+    if(immutable) {
+      return new Promise<void>((resolve, reject) =>
+        process.nextTick(() => this.immutate(true).then(resolve).catch(reject))
+      );
+    }
 
     let stats: Stats;
 
     try {
       stats = await stat(this.filename);
-    } catch(e) {
+    } catch(e: any) {
       if(e.code !== "ENOENT") throw e;
 
       return this.reopen(0);
@@ -253,7 +256,7 @@ export class RotatingFileStream extends Writable {
     return this.rotate();
   }
 
-  private async makePath(name: string): Promise<string> {
+  private async makePath(name: string): Promise<string | undefined> {
     return mkdir(name.split(sep).slice(0, -1).join(sep), { recursive: true });
   }
 
@@ -262,7 +265,7 @@ export class RotatingFileStream extends Writable {
 
     try {
       file = await open(this.filename, "a", this.options.mode);
-    } catch(e) {
+    } catch(e: any) {
       if(e.code !== "ENOENT") throw e;
 
       await this.makePath(this.filename);
@@ -333,7 +336,7 @@ export class RotatingFileStream extends Writable {
 
     try {
       file = await this.fsOpen(filename, "a");
-    } catch(e) {
+    } catch(e: any) {
       if(e.code !== "ENOENT") throw e;
 
       await this.makePath(filename);
@@ -348,9 +351,9 @@ export class RotatingFileStream extends Writable {
     const { compress, path, rotate } = this.options;
     let rotatedName = "";
 
-    for(let count = rotate; count > 0; --count) {
-      const currName = path + this.generator(count);
-      const prevName = count === 1 ? this.filename : path + this.generator(count - 1);
+    for(let count = rotate; count! > 0; --count!) {
+      const currName = path + this.generator(count!);
+      const prevName = count === 1 ? this.filename : path + this.generator(count! - 1);
 
       if(! (await exists(prevName))) continue;
       if(! rotatedName) rotatedName = currName;
@@ -359,7 +362,7 @@ export class RotatingFileStream extends Writable {
       else {
         try {
           await rename(prevName, currName);
-        } catch(e) {
+        } catch(e: any) {
           if(e.code !== "ENOENT") throw e;
 
           await this.makePath(currName);
@@ -374,7 +377,7 @@ export class RotatingFileStream extends Writable {
   private clear(): boolean {
     if(this.timeout) {
       clearTimeout(this.timeout);
-      this.timeout = null;
+      delete this.timeout;
     }
 
     return true;
@@ -385,7 +388,7 @@ export class RotatingFileStream extends Writable {
     let month = now.getMonth();
     let day = now.getDate();
     let hours = now.getHours();
-    const { num, unit } = this.options.interval;
+    const { num, unit } = this.options.interval!;
 
     if(unit === "M") {
       day = 1;
@@ -403,11 +406,11 @@ export class RotatingFileStream extends Writable {
   }
 
   private intervalBounds(now: Date): Date {
-    const unit = this.options.interval.unit;
+    const unit = this.options.interval!.unit;
 
     if(unit === "M" || unit === "d" || unit === "h") this.intervalBoundsBig(now);
     else {
-      let period = 1000 * this.options.interval.num;
+      let period = 1000 * this.options.interval!.num;
 
       if(unit === "m") period *= 60;
 
@@ -487,10 +490,10 @@ export class RotatingFileStream extends Writable {
     let files = [filename];
 
     try {
-      const content = await this.fsReadFile(history, "utf8");
+      const content = await this.fsReadFile(history!, "utf8");
 
       files = [...content.toString().split("\n"), filename];
-    } catch(e) {
+    } catch(e: any) {
       if(e.code !== "ENOENT") throw e;
     }
 
@@ -506,7 +509,7 @@ export class RotatingFileStream extends Writable {
               time: stats.ctime.getTime()
             });
           } else this.emit("warning", new Error(`File '${file}' contained in history is not a regular file`));
-        } catch(e) {
+        } catch(e: any) {
           if(e.code !== "ENOENT") throw e;
         }
       }
@@ -518,8 +521,8 @@ export class RotatingFileStream extends Writable {
       while(res.length > maxFiles) {
         const file = res.shift();
 
-        await this.unlink(file.name);
-        this.emit("removed", file.name, true);
+        await this.unlink(file!.name);
+        this.emit("removed", file!.name, true);
       }
     }
 
@@ -527,12 +530,12 @@ export class RotatingFileStream extends Writable {
       while(res.reduce((size, file) => size + file.size, 0) > maxSize) {
         const file = res.shift();
 
-        await this.unlink(file.name);
-        this.emit("removed", file.name, false);
+        await this.unlink(file!.name);
+        this.emit("removed", file!.name, false);
       }
     }
 
-    await writeFile(history, res.map(e => e.name).join("\n") + "\n", "utf-8");
+    await writeFile(history!, res.map(e => e.name).join("\n") + "\n", "utf-8");
     this.emit("history");
   }
 
@@ -542,13 +545,13 @@ export class RotatingFileStream extends Writable {
 
     for(let index = 1; index < 1000; ++index) {
       let fileSize = 0;
-      let stats: Stats = undefined;
+      let stats: Stats | undefined = undefined;
 
       this.filename = this.options.path + this.generator(now, index);
 
       try {
         stats = await this.fsStat(this.filename);
-      } catch(e) {
+      } catch(e: any) {
         if(e.code !== "ENOENT") throw e;
       }
 
@@ -577,7 +580,7 @@ export class RotatingFileStream extends Writable {
   private async unlink(filename: string): Promise<void> {
     try {
       await this.fsUnlink(filename);
-    } catch(e) {
+    } catch(e: any) {
       if(e.code !== "ENOENT") throw e;
 
       this.emit("warning", e);
@@ -593,7 +596,7 @@ function buildNumberCheck(field: string): (type: string, options: Options, value
   };
 }
 
-function buildStringCheck(field: string, check: (value: string) => any) {
+function buildStringCheck(field: keyof Options, check: (value: string) => any) {
   return (type: string, options: Options, value: string): void => {
     if(type !== "string") throw new Error(`Don't know how to handle 'options.${field}' type: ${type}`);
 
@@ -656,7 +659,17 @@ function checkSize(value: string): any {
 }
 
 const checks: any = {
-  encoding:         (type: string, options: Opts, value: string): any => new TextDecoder(value),
+  compress: (type: string, options: Opts, value: boolean | string | Compressor): any => {
+    if(! value) throw new Error("A value for 'options.compress' must be specified");
+    if(type === "boolean") return (options.compress = (source: string, dest: string): string => `cat ${source} | gzip -c9 > ${dest}`);
+    if(type === "function") return;
+    if(type !== "string") throw new Error(`Don't know how to handle 'options.compress' type: ${type}`);
+    if((value as unknown as string) !== "gzip") throw new Error(`Don't know how to handle compression method: ${value}`);
+  },
+  encoding: (type: string, options: Opts, value: string): any => new TextDecoder(value),
+  history:  (type: string): void => {
+    if(type !== "string") throw new Error(`Don't know how to handle 'options.history' type: ${type}`);
+  },
   immutable:        (): void => {},
   initialRotation:  (): void => {},
   interval:         buildStringCheck("interval", checkInterval),
@@ -665,38 +678,28 @@ const checks: any = {
   maxSize:          buildStringCheck("maxSize", checkSize),
   mode:             (): void => {},
   omitExtension:    (): void => {},
-  rotate:           buildNumberCheck("rotate"),
-  size:             buildStringCheck("size", checkSize),
-  teeToStdout:      (): void => {},
-
-  compress: (type: string, options: Opts, value: boolean | string | Compressor): any => {
-    if(! value) throw new Error("A value for 'options.compress' must be specified");
-    if(type === "boolean") return (options.compress = (source: string, dest: string): string => `cat ${source} | gzip -c9 > ${dest}`);
-    if(type === "function") return;
-    if(type !== "string") throw new Error(`Don't know how to handle 'options.compress' type: ${type}`);
-    if((value as unknown as string) !== "gzip") throw new Error(`Don't know how to handle compression method: ${value}`);
-  },
-
-  history: (type: string): void => {
-    if(type !== "string") throw new Error(`Don't know how to handle 'options.history' type: ${type}`);
-  },
-
-  path: (type: string, options: Opts, value: string): void => {
+  path:             (type: string, options: Opts, value: string): void => {
     if(type !== "string") throw new Error(`Don't know how to handle 'options.path' type: ${type}`);
     if(value[value.length - 1] !== sep) options.path = value + sep;
-  }
+  },
+
+  rotate: buildNumberCheck("rotate"),
+
+  size: buildStringCheck("size", checkSize),
+
+  teeToStdout: (): void => {}
 };
 
 function checkOpts(options: Options): Opts {
   const ret: Opts = {};
 
   for(const opt in options) {
-    const value = options[opt];
+    const value = options[opt as keyof Options];
     const type = typeof value;
 
     if(! (opt in checks)) throw new Error(`Unknown option: ${opt}`);
 
-    ret[opt] = options[opt];
+    (ret as any)[opt] = options[opt as keyof Options];
     checks[opt](type, ret, value);
   }
 
@@ -723,22 +726,23 @@ function checkOpts(options: Options): Opts {
 }
 
 function createClassical(filename: string, compress: boolean, omitExtension: boolean): Generator {
-  return (index: number): string => (index ? `${filename}.${index}${compress && ! omitExtension ? ".gz" : ""}` : filename);
+  return (index: number | Date | null): string =>
+    index ? `${filename}.${index}${compress && ! omitExtension ? ".gz" : ""}` : filename;
 }
 
 function createGenerator(filename: string, compress: boolean, omitExtension: boolean): Generator {
   const pad = (num: number): string => (num > 9 ? "" : "0") + num;
 
-  return (time: Date, index?: number): string => {
-    if(! time) return filename as unknown as string;
+  return ((time: Date | null, index?: number): string => {
+    if(! time) return filename;
 
     const month = time.getFullYear() + "" + pad(time.getMonth() + 1);
     const day = pad(time.getDate());
     const hour = pad(time.getHours());
     const minute = pad(time.getMinutes());
 
-    return month + day + "-" + hour + minute + "-" + pad(index) + "-" + filename + (compress && ! omitExtension ? ".gz" : "");
-  };
+    return `${month}${day}-${hour}${minute}-${pad(index!)}-${filename}${compress && ! omitExtension ? ".gz" : ""}`;
+  }) as Generator;
 }
 
 export function createStream(filename: string | Generator, options?: Options): RotatingFileStream {
@@ -749,8 +753,11 @@ export function createStream(filename: string | Generator, options?: Options): R
   const { compress, omitExtension } = opts;
   let generator: Generator;
 
-  if(typeof filename === "string") generator = options.rotate ? createClassical(filename, compress !== undefined, omitExtension) : createGenerator(filename, compress !== undefined, omitExtension);
-  else if(typeof filename === "function") generator = filename;
+  if(typeof filename === "string") {
+    generator = options.rotate
+      ? createClassical(filename, compress !== undefined, omitExtension!)
+      : createGenerator(filename, compress !== undefined, omitExtension!);
+  } else if(typeof filename === "function") generator = filename;
   else throw new Error(`The "filename" argument must be one of type string or function. Received type ${typeof filename}`);
 
   return new RotatingFileStream(generator, opts);

@@ -1,8 +1,18 @@
 {
   "compilerOptions": {
-    "lib": ["es2019", "es2020.bigint", "es2020.string", "es2020.symbol.wellknown"],
+    "alwaysStrict": true,
+    "declaration": false,
+    "esModuleInterop": true,
+    "moduleResolution": "Node",
     "noImplicitAny": true,
-    "suppressImplicitAnyIndexErrors": true
+    "noImplicitReturns": true,
+    "noImplicitThis": true,
+    "strict": true,
+    "strictBindCallApply": true,
+    "strictFunctionTypes": true,
+    "strictNullChecks": true,
+    "strictPropertyInitialization": true,
+    "target": "ESNext"
   },
-  "include": ["./index.ts"]
+  "include": ["./*.ts", "./test/*.ts"]
 }

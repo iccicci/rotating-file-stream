@@ -161,7 +161,7 @@ following _options_ rules.
 
 ### filename
 
-The most complex problem about file name is: "how to call the rotated file name?"
+The most complex problem about file name is: _how to call the rotated file name?_
 
 The answer to this question may vary in many forms depending on application requirements and/or specifications.
 If there are no requirements, a `string` can be used and _default rotated file name generator_ will be used;
@@ -407,7 +407,9 @@ this option has effect only if [`options.interval`](#interval) is used.
 
 ### compress
 
-For historical reasons external compression can be used, but the best choice is to use the value `"gzip"`.
+The best choice here is to use the value `"gzip"` to use **Node.js** internal compression library.
+
+For historical reasons external compression can be used.
 
 To enable external compression, a _function_ can be used or simply the _boolean_ `true` value to use default
 external compression.
@@ -427,7 +429,7 @@ var stream = rfs.createStream("file.log", {
 var rfs = require("rotating-file-stream");
 var stream = rfs.createStream("file.log", {
   size: "10M",
-  compress: (source, dest) => "cat " + source + " | gzip -c9 > " + dest
+  compress: (source, dest) => `cat ${source} | gzip -c9 > ${dest}`
 });
 ```
 

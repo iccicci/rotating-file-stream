@@ -4,5 +4,5 @@
     "outDir": "dist/es",
     "target": "esnext"
   },
-  "extends": "./tsconfig.json"
+  "extends": "./tsconfig.build.json"
 }

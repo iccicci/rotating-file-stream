@@ -3,13 +3,11 @@
   "version": "3.1.0",
   "description": "Opens a stream.Writable to a file rotated by interval and/or size. A logrotate alternative.",
   "scripts": {
-    "all": "npm run eslint && npm run coverage",
-    "clean": "node -r ts-node/register utils.ts clean",
-    "coverage": "npm run clean && TZ=\"Europe/Rome\" nyc -r lcov -r text -r text-summary -r html mocha -r ts-node/register test/*ts",
-    "eslint": "eslint index.ts utils.ts test/*ts",
-    "ignore": "node -r ts-node/register utils.ts ignore",
-    "prepare": "npm run ignore && tsc -p tsconfig.cjs.json && tsc -p tsconfig.es.json && tsc -p tsconfig.types.json",
-    "test": "npm run clean && mocha -r ts-node/register test/*ts"
+    "build": "yarn ignore && tsc -p tsconfig.cjs.json && tsc -p tsconfig.es.json && tsc -p tsconfig.types.json",
+    "clean": "ts-node utils.ts clean",
+    "coverage": "TZ=Europe/Rome jest --coverage",
+    "ignore": "ts-node utils.ts ignore",
+    "test": "TZ=Europe/Rome jest"
   },
   "bugs": "https://github.com/iccicci/rotating-file-stream/issues",
   "repository": "https://github.com/iccicci/rotating-file-stream",
@@ -42,21 +40,24 @@
   "module": "./dist/es/index.js",
   "types": "./dist/types/index.d.ts",
   "devDependencies": {
-    "@types/mocha": "10.0.1",
-    "@types/node": "18.13.0",
-    "@typescript-eslint/eslint-plugin": "5.51.0",
-    "@typescript-eslint/parser": "5.51.0",
-    "eslint": "8.33.0",
-    "mocha": "10.2.0",
-    "nyc": "15.1.0",
-    "prettier": "2.8.4",
+    "@types/jest": "29.5.2",
+    "@types/node": "20.4.1",
+    "@typescript-eslint/eslint-plugin": "5.61.0",
+    "@typescript-eslint/parser": "5.61.0",
+    "eslint": "8.44.0",
+    "eslint-plugin-import": "2.27.5",
+    "eslint-plugin-simple-import-sort": "10.0.0",
+    "eslint-plugin-sort-keys-fix": "1.1.2",
+    "jest": "29.6.1",
+    "prettier": "3.0.0",
+    "ts-jest": "29.1.1",
     "ts-node": "10.9.1",
-    "typescript": "4.9.5"
+    "typescript": "5.1.6"
   },
   "prettier": {
     "arrowParens": "avoid",
     "jsxBracketSameLine": true,
-    "printWidth": 200,
+    "printWidth": 120,
     "trailingComma": "none"
   }
 }
