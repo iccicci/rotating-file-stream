@@ -200,12 +200,12 @@ export class RotatingFileStream extends Writable {
 
     try {
       if(this.initPromise) await this.initPromise;
-      if(this.timeoutPromise) await this.timeoutPromise;
 
       for(let i = 0; i < chunks.length; ++i) {
         const { chunk } = chunks[i];
 
         this.size += chunk.length;
+        if(this.timeoutPromise) await this.timeoutPromise;
         await this.file.write(chunk);
 
         if(teeToStdout && ! this.stdout.destroyed) this.stdout.write(chunk);
