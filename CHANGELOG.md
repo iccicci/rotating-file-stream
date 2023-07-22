@@ -1,3 +1,5 @@
+- 2023-07-22 - v3.1.1
+  - Fixed a bug which [causes occasional crashes on rotation by timer](https://github.com/iccicci/rotating-file-stream/issues/84) (thanks to [diwic](https://github.com/diwic))
 - 2023-02-09 - v3.1.0
   - `ENOENT` errors while unlinking files now emits `"warning"` events rather than `"error"`.
 - 2022-05-25 - v3.0.4

@@ -32,7 +32,7 @@
 ### Description
 
 Creates a [stream.Writable](https://nodejs.org/api/stream.html#stream_class_stream_writable) to a file which is
-rotated. Rotation behaviour can be deeply customized; optionally, classical UNIX **logrotate** behaviour can be used.
+rotated. Rotation behavior can be deeply customized; optionally, classical UNIX **logrotate** behavior can be used.
 
 ### Usage
 
@@ -90,7 +90,7 @@ $ npm install --save rotating-file-stream
 - [Under the hood](#under-the-hood)
 - [Compatibility](#compatibility)
 - [TypeScript](#typescript)
-- [Licence](#licence)
+- [License](#license)
 - [Bugs](#bugs)
 - [ChangeLog](#changelog)
 - [Donating](#donating)
@@ -116,19 +116,19 @@ To maintain back compatibility upgrading from **v2** to **v3**, just follow this
 
 There are two main changes in package interface.
 
-In **v1** the _default export_ of the packege was directly the **RotatingFileStream** _constructor_ and the caller
+In **v1** the _default export_ of the package was directly the **RotatingFileStream** _constructor_ and the caller
 have to use it; while in **v2** there is no _default export_ and the caller should use the
 [createStream](#rfscreatestreamfilename-options) exported function and should not directly use
 [RotatingFileStream](#class-rotatingfilestream) class.
 This is quite easy to discover: if this change is not applied, nothing than a runtime error can happen.
 
 The other important change is the removal of option **rotationTime** and the introduction of **intervalBoundary**.
-In **v1** the `time` argument passed to the _filename generator_ function, by default, is the time when _rotaion job_
+In **v1** the `time` argument passed to the _filename generator_ function, by default, is the time when _rotation job_
 started, while if [`options.interval`](#interval) option is used, it is the lower boundary of the time interval within
-_rotaion job_ started. Later I was asked to add the possibility to restore the default value for this argument so I
+_rotation job_ started. Later I was asked to add the possibility to restore the default value for this argument so I
 introduced `options.rotationTime` option with this purpose. At the end the result was something a bit confusing,
 something I never liked.
-In **v2** the `time` argument passed to the _filename generator_ function is always the time when _rotaion job_
+In **v2** the `time` argument passed to the _filename generator_ function is always the time when _rotation job_
 started, unless [`options.intervalBoundary`](#intervalboundary) option is used. In a few words, to maintain back
 compatibility upgrading from **v1** to **v2**, just follow this rules:
 
@@ -161,7 +161,7 @@ following _options_ rules.
 
 ### filename
 
-The most complex problem about file name is: "how to call the rotated file name?"
+The most complex problem about file name is: _how to call the rotated file name?_
 
 The answer to this question may vary in many forms depending on application requirements and/or specifications.
 If there are no requirements, a `string` can be used and _default rotated file name generator_ will be used;
@@ -214,7 +214,7 @@ function of both arguments `time` and `index`.
 - `index` [&lt;number>](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Data_structures#Number_type) The
   progressive index of rotation. If `null`, the _not-rotated file name_ must be returned.
 
-If classical **logrotate** behaviour is enabled (by [`options.rotate`](#rotate)), _rotated file name_ is only a
+If classical **logrotate** behavior is enabled (by [`options.rotate`](#rotate)), _rotated file name_ is only a
 function of `index`.
 
 ## Class: RotatingFileStream
@@ -305,7 +305,7 @@ The `warning` event is emitted once a non blocking error happens.
   Specifies the maximum size of rotated files to keep. **Default:** `null`.
 - [`mode`](#mode):
   [&lt;number>](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Data_structures#Number_type)
-  Proxied to [fs.createWriteStream](https://nodejs.org/api/fs.html#fs_fs_createwritestream_path_options).
+  Forwarded to [fs.createWriteStream](https://nodejs.org/api/fs.html#fs_fs_createwritestream_path_options).
   **Default:** `0o666`.
 - [`omitExtension`](#omitextension):
   [&lt;boolean>](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Data_structures#Boolean_type)
@@ -315,7 +315,7 @@ The `warning` event is emitted once a non blocking error happens.
   Specifies the base path for files. **Default:** `null`.
 - [`rotate`](#rotate):
   [&lt;number>](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Data_structures#Number_type)
-  Enables the classical UNIX **logrotate** behaviour. **Default:** `null`.
+  Enables the classical UNIX **logrotate** behavior. **Default:** `null`.
 - [`size`](#size):
   [&lt;string>](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Data_structures#String_type)
   Specifies the file size to rotate the file. **Default:** `null`.
@@ -330,7 +330,7 @@ Specifies the default encoding that is used when no encoding is specified as an 
 
 ### mode
 
-Proxied to [fs.createWriteStream](https://nodejs.org/api/fs.html#fs_fs_createwritestream_path_options).
+Forwarded to [fs.createWriteStream](https://nodejs.org/api/fs.html#fs_fs_createwritestream_path_options).
 
 ### path
 
@@ -338,7 +338,7 @@ If present, it is prepended to generated file names as well as for history file.
 
 ### teeToStdout
 
-If `true`, it makes the file content to be written to `stdout` as well. Useful for debugging puposes.
+If `true`, it makes the file content to be written to `stdout` as well. Useful for debugging purposes.
 
 ### size
 
@@ -407,7 +407,9 @@ this option has effect only if [`options.interval`](#interval) is used.
 
 ### compress
 
-For historical reasons external compression can be used, but the best choice is to use the value `"gzip"`.
+The best choice here is to use the value `"gzip"` to use **Node.js** internal compression library.
+
+For historical reasons external compression can be used.
 
 To enable external compression, a _function_ can be used or simply the _boolean_ `true` value to use default
 external compression.
@@ -427,7 +429,7 @@ var stream = rfs.createStream("file.log", {
 var rfs = require("rotating-file-stream");
 var stream = rfs.createStream("file.log", {
   size: "10M",
-  compress: (source, dest) => "cat " + source + " | gzip -c9 > " + dest
+  compress: (source, dest) => `cat ${source} | gzip -c9 > ${dest}`
 });
 ```
 
@@ -459,11 +461,11 @@ this option is ignored if [`options.rotate`](#rotate) is used.
 
 ### rotate
 
-If specified, classical UNIX **logrotate** behaviour is enabled and the value of this option has same effect in
+If specified, classical UNIX **logrotate** behavior is enabled and the value of this option has same effect in
 _logrotate.conf_ file.
 
 **Note:**
-if this optoin is used following ones take no effect: [`options.history`](#history), [`options.immutable`](#immutable),
+if this option is used following ones take no effect: [`options.history`](#history), [`options.immutable`](#immutable),
 [`options.initialRotation`](#initialrotation), [`options.intervalBoundary`](#intervalboundary),
 [`options.maxFiles`](#maxfiles), [`options.maxSize`](#maxsize).
 
@@ -475,7 +477,7 @@ determinate the _history file_ name; this can happen if [`options.history`](#his
 [`options.maxFiles`](#maxfiles) or [`options.maxSize`](#maxsize) are used.
 The `filename` argument passed to [`'open'`](#event-open) _event_ evaluates now as the newly created file name.
 
-Useful to send logs to logstash through filebeat.
+Useful to send logs to logstash through [filebeat](https://www.elastic.co/beats/filebeat).
 
 **Note:**
 if this option is used, [`options.compress`](#compress) is ignored.
