@@ -1,3 +1,5 @@
+- 2023-12-27 - v3.2.0
+  - Added `intervalUTC` as [requested](https://github.com/iccicci/rotating-file-stream/issues/97).
 - 2023-07-22 - v3.1.1
   - Fixed a bug which [causes occasional crashes on rotation by timer](https://github.com/iccicci/rotating-file-stream/issues/84) (thanks to [diwic](https://github.com/diwic))
 - 2023-02-09 - v3.1.0

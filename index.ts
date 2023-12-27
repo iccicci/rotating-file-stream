@@ -60,6 +60,7 @@ export interface Options {
   initialRotation?: boolean;
   interval?: string;
   intervalBoundary?: boolean;
+  intervalUTC?: boolean;
   maxFiles?: number;
   maxSize?: string;
   mode?: number;
@@ -78,6 +79,7 @@ interface Opts {
   initialRotation?: boolean;
   interval?: { num: number; unit: string };
   intervalBoundary?: boolean;
+  intervalUTC?: boolean;
   maxFiles?: number;
   maxSize?: number;
   mode?: number;
@@ -151,7 +153,7 @@ export class RotatingFileStream extends Writable {
     this.on("finish", () => (this.finished = this.clear()));
 
     // In v15 was introduced the _constructor method to delay any _write(), _final() and _destroy() calls
-    // Untill v16 will be not deprecated we still need this.initPromise
+    // Until v16 will be not deprecated we still need this.initPromise
     // https://nodejs.org/api/stream.html#stream_writable_construct_callback
 
     (async () => {
@@ -381,10 +383,10 @@ export class RotatingFileStream extends Writable {
   }
 
   private intervalBoundsBig(now: Date): void {
-    const year = now.getFullYear();
-    let month = now.getMonth();
-    let day = now.getDate();
-    let hours = now.getHours();
+    const year = this.options.intervalUTC ? now.getUTCFullYear() : now.getFullYear();
+    let month = this.options.intervalUTC ? now.getUTCMonth() : now.getMonth();
+    let day = this.options.intervalUTC ? now.getUTCDate() : now.getDate();
+    let hours = this.options.intervalUTC ? now.getUTCHours() : now.getHours();
     const { num, unit } = this.options.interval;
 
     if(unit === "M") {
@@ -593,11 +595,11 @@ function buildNumberCheck(field: string): (type: string, options: Options, value
   };
 }
 
-function buildStringCheck(field: string, check: (value: string) => any) {
+function buildStringCheck(field: keyof Options, check: (value: string) => any) {
   return (type: string, options: Options, value: string): void => {
     if(type !== "string") throw new Error(`Don't know how to handle 'options.${field}' type: ${type}`);
 
-    options[field] = check(value);
+    options[field] = check(value) as never;
   };
 }
 
@@ -661,6 +663,7 @@ const checks: any = {
   initialRotation:  (): void => {},
   interval:         buildStringCheck("interval", checkInterval),
   intervalBoundary: (): void => {},
+  intervalUTC:      (): void => {},
   maxFiles:         buildNumberCheck("maxFiles"),
   maxSize:          buildStringCheck("maxSize", checkSize),
   mode:             (): void => {},
@@ -668,35 +671,35 @@ const checks: any = {
   rotate:           buildNumberCheck("rotate"),
   size:             buildStringCheck("size", checkSize),
   teeToStdout:      (): void => {},
-
-  compress: (type: string, options: Opts, value: boolean | string | Compressor): any => {
-    if(! value) throw new Error("A value for 'options.compress' must be specified");
-    if(type === "boolean") return (options.compress = (source: string, dest: string): string => `cat ${source} | gzip -c9 > ${dest}`);
-    if(type === "function") return;
-    if(type !== "string") throw new Error(`Don't know how to handle 'options.compress' type: ${type}`);
-    if((value as unknown as string) !== "gzip") throw new Error(`Don't know how to handle compression method: ${value}`);
-  },
-
-  history: (type: string): void => {
-    if(type !== "string") throw new Error(`Don't know how to handle 'options.history' type: ${type}`);
-  },
-
-  path: (type: string, options: Opts, value: string): void => {
-    if(type !== "string") throw new Error(`Don't know how to handle 'options.path' type: ${type}`);
-    if(value[value.length - 1] !== sep) options.path = value + sep;
+  ...{
+    compress: (type: string, options: Opts, value: boolean | string | Compressor): any => {
+      if(! value) throw new Error("A value for 'options.compress' must be specified");
+      if(type === "boolean") return (options.compress = (source: string, dest: string): string => `cat ${source} | gzip -c9 > ${dest}`);
+      if(type === "function") return;
+      if(type !== "string") throw new Error(`Don't know how to handle 'options.compress' type: ${type}`);
+      if((value as unknown as string) !== "gzip") throw new Error(`Don't know how to handle compression method: ${value}`);
+    },
+    history: (type: string): void => {
+      if(type !== "string") throw new Error(`Don't know how to handle 'options.history' type: ${type}`);
+    },
+    path: (type: string, options: Opts, value: string): void => {
+      if(type !== "string") throw new Error(`Don't know how to handle 'options.path' type: ${type}`);
+      if(value[value.length - 1] !== sep) options.path = value + sep;
+    }
   }
 };
 
 function checkOpts(options: Options): Opts {
   const ret: Opts = {};
+  let opt: keyof Options;
 
-  for(const opt in options) {
+  for(opt in options) {
     const value = options[opt];
     const type = typeof value;
 
     if(! (opt in checks)) throw new Error(`Unknown option: ${opt}`);
 
-    ret[opt] = options[opt];
+    ret[opt] = options[opt] as never;
     checks[opt](type, ret, value);
   }
 
@@ -706,6 +709,7 @@ function checkOpts(options: Options): Opts {
     delete ret.immutable;
     delete ret.initialRotation;
     delete ret.intervalBoundary;
+    delete ret.intervalUTC;
   }
 
   if(ret.rotate) {
@@ -714,6 +718,7 @@ function checkOpts(options: Options): Opts {
     delete ret.maxFiles;
     delete ret.maxSize;
     delete ret.intervalBoundary;
+    delete ret.intervalUTC;
   }
 
   if(ret.immutable) delete ret.compress;

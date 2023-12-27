@@ -78,6 +78,7 @@ $ npm install --save rotating-file-stream
     - [initialRotation](#initialrotation)
     - [interval](#interval)
     - [intervalBoundary](#intervalboundary)
+    - [intervalUTC](#intervalutc)
     - [maxFiles](#maxfiles)
     - [maxSize](#maxsize)
     - [mode](#mode)
@@ -297,6 +298,9 @@ The `warning` event is emitted once a non blocking error happens.
 - [`intervalBoundary`](#intervalBoundary):
   [&lt;boolean>](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Data_structures#Boolean_type)
   Makes rotated file name with lower boundary of rotation period. **Default:** `null`.
+- [`intervalUTC`](#intervalutc):
+  [&lt;boolean>](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Data_structures#Boolean_type)
+  Boundaries for rotation are computed in UTC. **Default:** `null`.
 - [`maxFiles`](#maxFiles):
   [&lt;number>](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Data_structures#Number_type)
   Specifies the maximum number of rotated files to keep. **Default:** `null`.
@@ -404,6 +408,14 @@ the _lower boundary_ of rotation interval.
 
 **Note:**
 this option has effect only if [`options.interval`](#interval) is used.
+
+### intervalUTC
+
+If set to `true`, the boundaries of the rotation interval are computed against UTC time rather than against system time
+zone.
+
+**Note:**
+this option has effect only if [`options.intervalBoundary`](#intervalboundary) is used.
 
 ### compress
 

@@ -3,17 +3,13 @@
 import { deepStrictEqual as deq, strictEqual as eq } from "assert";
 import { readFileSync } from "fs";
 import { createStream } from "..";
-import { gte14, test, v14 } from "./helper";
-
-export function v14Error(): { error?: string[] } {
-  return gte14 ? {} : { error: ["ERR_STREAM_DESTROYED"] };
-}
+import { test } from "./helper";
 
 describe("write(s)", () => {
   describe("single write", () => {
     const events = test({}, rfs => rfs.end("test\n"));
 
-    it("events", () => deq(events, { finish: 1, open: ["test.log"], write: 1, ...v14() }));
+    it("events", () => deq(events, { close: 1, finish: 1, open: ["test.log"], write: 1 }));
     it("file content", () => eq(readFileSync("test.log", "utf8"), "test\n"));
   });
 
@@ -24,7 +20,7 @@ describe("write(s)", () => {
       rfs.end("test\n");
     });
 
-    it("events", () => deq(events, { finish: 1, open: ["test.log"], write: 1, writev: 1, ...v14() }));
+    it("events", () => deq(events, { close: 1, finish: 1, open: ["test.log"], write: 1, writev: 1 }));
     it("file content", () => eq(readFileSync("test.log", "utf8"), "test\ntest\ntest\ntest\n"));
   });
 
@@ -33,14 +29,14 @@ describe("write(s)", () => {
       rfs.end("test\n", "utf8", () => (events.endcb = true));
     });
 
-    it("events", () => deq(events, { endcb: true, finish: 1, open: ["test.log"], write: 1, ...v14() }));
+    it("events", () => deq(events, { close: 1, endcb: true, finish: 1, open: ["test.log"], write: 1 }));
     it("file content", () => eq(readFileSync("test.log", "utf8"), "test\n"));
   });
 
   describe("write after open", function() {
     const events = test({}, rfs => rfs.once("open", () => rfs.end("test\n", "utf8")));
 
-    it("events", () => deq(events, { finish: 1, open: ["test.log"], write: 1, ...v14() }));
+    it("events", () => deq(events, { close: 1, finish: 1, open: ["test.log"], write: 1 }));
     it("file content", () => eq(readFileSync("test.log", "utf8"), "test\n"));
   });
 
@@ -65,7 +61,7 @@ describe("write(s)", () => {
       stream.on("open", () => event(done));
     });
 
-    it("events", () => deq(events, { close: 1, finish: 1, open: ["test.log"], ...v14Error() }));
+    it("events", () => deq(events, { close: 1, finish: 1, open: ["test.log"] }));
     it("file content", () => eq(readFileSync("test.log", "utf8"), ""));
   });
 
@@ -77,7 +73,7 @@ describe("write(s)", () => {
       })
     );
 
-    it("events", () => deq(events, { close: 1, finish: 1, open: ["test.log"], ...v14Error() }));
+    it("events", () => deq(events, { close: 1, finish: 1, open: ["test.log"] }));
     it("file content", () => eq(readFileSync("test.log", "utf8"), ""));
   });
 

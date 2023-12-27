@@ -2,27 +2,27 @@
 
 import { deepStrictEqual as deq, strictEqual as eq } from "assert";
 import { readFileSync } from "fs";
-import { test, v14 } from "./helper";
+import { test } from "./helper";
 
 describe("interval", () => {
   describe("initial rotation with interval", () => {
-    const events = test({ filename: "test.log", files: { "test.log": "test\ntest\n" }, options: { size: "10B", interval: "1M", intervalBoundary: true } }, rfs => {
+    const events = test({ filename: "test.log", files: { "test.log": "test\ntest\n" }, options: { interval: "1M", intervalBoundary: true, size: "10B" } }, rfs => {
       rfs.now = (): Date => new Date(2015, 2, 29, 1, 29, 23, 123);
       rfs.end("test\n");
     });
 
-    it("events", () => deq(events, { finish: 1, open: ["test.log"], rotated: ["20150301-0000-01-test.log"], rotation: 1, write: 1, ...v14() }));
+    it("events", () => deq(events, { close: 1, finish: 1, open: ["test.log"], rotated: ["20150301-0000-01-test.log"], rotation: 1, write: 1 }));
     it("file content", () => eq(readFileSync("test.log", "utf8"), "test\n"));
     it("rotated file content", () => eq(readFileSync("20150301-0000-01-test.log", "utf8"), "test\ntest\n"));
   });
 
   describe("intervalBoundary option", () => {
-    const events = test({ filename: "test.log", files: { "test.log": "test\n" }, options: { size: "10B", interval: "1d", initialRotation: true } }, rfs => {
+    const events = test({ filename: "test.log", files: { "test.log": "test\n" }, options: { initialRotation: true, interval: "1d", size: "10B" } }, rfs => {
       rfs.now = (): Date => new Date(2015, 2, 29, 1, 29, 23, 123);
       rfs.end("test\n");
     });
 
-    it("events", () => deq(events, { finish: 1, open: ["test.log", "test.log"], rotated: ["20150329-0129-01-test.log"], rotation: 1, write: 1, ...v14() }));
+    it("events", () => deq(events, { close: 1, finish: 1, open: ["test.log", "test.log"], rotated: ["20150329-0129-01-test.log"], rotation: 1, write: 1 }));
     it("file content", () => eq(readFileSync("test.log", "utf8"), ""));
     it("rotated file content", () => eq(readFileSync("20150329-0129-01-test.log", "utf8"), "test\ntest\n"));
   });
@@ -32,15 +32,33 @@ describe("interval", () => {
       {
         filename: "test.log",
         files:    { "test.log": { content: "test\n", date: new Date(2015, 0, 23, 1, 29, 23, 123) } },
-        options:  { size: "10B", interval: "1d", intervalBoundary: true, initialRotation: true }
+        options:  { initialRotation: true, interval: "1d", intervalBoundary: true, size: "10B" }
       },
       rfs => {
-        rfs.now = (): Date => new Date(2015, 2, 29, 1, 29, 23, 123);
+        rfs.now = (): Date => new Date(2015, 0, 29, 1, 29, 23, 123);
         rfs.end("test\n");
       }
     );
 
-    it("events", () => deq(events, { finish: 1, open: ["test.log"], rotated: ["20150123-0000-01-test.log"], rotation: 1, write: 1, ...v14() }));
+    it("events", () => deq(events, { close: 1, finish: 1, open: ["test.log"], rotated: ["20150123-0000-01-test.log"], rotation: 1, write: 1 }));
+    it("file content", () => eq(readFileSync("test.log", "utf8"), "test\n"));
+    it("rotated file content", () => eq(readFileSync("20150123-0000-01-test.log", "utf8"), "test\n"));
+  });
+
+  describe("initialRotation with intervalUTC", () => {
+    const events = test(
+      {
+        filename: "test.log",
+        files:    { "test.log": { content: "test\n", date: new Date(2015, 0, 23, 12, 45) } },
+        options:  { initialRotation: true, interval: "12h", intervalBoundary: true, intervalUTC: true, size: "10B" }
+      },
+      rfs => {
+        rfs.now = (): Date => new Date(2015, 0, 23, 13, 45);
+        rfs.end("test\n");
+      }
+    );
+
+    it("events", () => deq(events, { close: 1, finish: 1, open: ["test.log"], rotated: ["20150123-0000-01-test.log"], rotation: 1, write: 1 }));
     it("file content", () => eq(readFileSync("test.log", "utf8"), "test\n"));
     it("rotated file content", () => eq(readFileSync("20150123-0000-01-test.log", "utf8"), "test\n"));
   });
@@ -50,7 +68,7 @@ describe("interval", () => {
       {
         filename: "test.log",
         files:    { "test.log": { content: "test\n", date: new Date(2015, 2, 29, 1, 0, 0, 0) } },
-        options:  { size: "10B", interval: "1d", intervalBoundary: true, initialRotation: true }
+        options:  { initialRotation: true, interval: "1d", intervalBoundary: true, size: "10B" }
       },
       rfs => {
         rfs.now = (): Date => new Date(2015, 2, 29, 1, 29, 23, 123);
@@ -58,7 +76,7 @@ describe("interval", () => {
       }
     );
 
-    it("events", () => deq(events, { finish: 1, open: ["test.log", "test.log"], rotated: ["20150329-0000-01-test.log"], rotation: 1, write: 1, ...v14() }));
+    it("events", () => deq(events, { close: 1, finish: 1, open: ["test.log", "test.log"], rotated: ["20150329-0000-01-test.log"], rotation: 1, write: 1 }));
     it("file content", () => eq(readFileSync("test.log", "utf8"), ""));
     it("rotated file content", () => eq(readFileSync("20150329-0000-01-test.log", "utf8"), "test\ntest\n"));
   });
@@ -70,7 +88,7 @@ describe("interval", () => {
       rfs.once("rotation", () => rfs.end("test\n"));
     });
 
-    it("events", () => deq(events, { finish: 1, open: ["test.log", "test.log"], rotated: ["1-test.log"], rotation: 1, write: 1, ...v14() }));
+    it("events", () => deq(events, { close: 1, finish: 1, open: ["test.log", "test.log"], rotated: ["1-test.log"], rotation: 1, write: 1 }));
     it("file content", () => eq(readFileSync("test.log", "utf8"), "test\n"));
     it("rotated file content", () => eq(readFileSync("1-test.log", "utf8"), "test\ntest\n"));
   });
@@ -85,7 +103,7 @@ describe("interval", () => {
       rfs.end("test\n");
     });
 
-    it("events", () => deq(events, { finish: 1, open: ["test.log", "test.log"], rotated: ["1-test.log"], rotation: 1, write: 1, ...v14() }));
+    it("events", () => deq(events, { close: 1, finish: 1, open: ["test.log", "test.log"], rotated: ["1-test.log"], rotation: 1, write: 1 }));
     it("file content", () => eq(readFileSync("test.log", "utf8"), "test\n"));
     it("rotated file content", () => eq(readFileSync("1-test.log", "utf8"), "test\ntest\n"));
   });
@@ -119,7 +137,7 @@ describe("interval", () => {
     });
 
     it("events", () =>
-      deq(events, { finish: 1, open: ["test.log", "test.log", "test.log", "test.log"], rotated: ["1-test.log", "2-test.log", "3-test.log"], rotation: 3, write: 3, writev: 1, ...v14() }));
+      deq(events, { close: 1, finish: 1, open: ["test.log", "test.log", "test.log", "test.log"], rotated: ["1-test.log", "2-test.log", "3-test.log"], rotation: 3, write: 3, writev: 1 }));
     it("file content", () => eq(readFileSync("test.log", "utf8"), "test\n"));
     it("rotated file content", () => eq(readFileSync("1-test.log", "utf8"), "test\ntest\n"));
   });

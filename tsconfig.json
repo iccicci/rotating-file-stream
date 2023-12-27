@@ -1,8 +1,9 @@
 {
   "compilerOptions": {
     "lib": ["es2019", "es2020.bigint", "es2020.string", "es2020.symbol.wellknown"],
-    "noImplicitAny": true,
-    "suppressImplicitAnyIndexErrors": true
+    "module": "NodeNext",
+    "moduleResolution": "NodeNext",
+    "noImplicitAny": true
   },
   "include": ["./index.ts"]
 }

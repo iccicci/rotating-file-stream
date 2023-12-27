@@ -2,7 +2,7 @@
 
 import { deepStrictEqual as deq, strictEqual as eq } from "assert";
 import { readFileSync } from "fs";
-import { test, v14 } from "./helper";
+import { test } from "./helper";
 
 describe("history", () => {
   describe("maxFiles", () => {
@@ -17,6 +17,7 @@ describe("history", () => {
 
     it("events", () =>
       deq(events, {
+        close:    1,
         finish:   1,
         history:  5,
         open:     ["log/test.log", "log/test.log", "log/test.log", "log/test.log", "log/test.log", "log/test.log"],
@@ -25,8 +26,7 @@ describe("history", () => {
         rotation: 5,
         warning:  ["File 'test' contained in history is not a regular file"],
         write:    1,
-        writev:   1,
-        ...v14()
+        writev:   1
       }));
     it("file content", () => eq(readFileSync("log/test.log", "utf8"), "test\n"));
     it("first rotated file content", () => eq(readFileSync("log/3-test.log", "utf8"), "test\ntest\ntest\ntest\n"));
@@ -47,6 +47,7 @@ describe("history", () => {
 
     it("events", () =>
       deq(events, {
+        close:    1,
         finish:   1,
         history:  5,
         open:     ["log/test.log", "log/test.log", "log/test.log", "log/test.log", "log/test.log", "log/test.log"],
@@ -55,8 +56,7 @@ describe("history", () => {
         rotation: 5,
         warning:  ["File 'test' contained in history is not a regular file"],
         write:    1,
-        writev:   1,
-        ...v14()
+        writev:   1
       }));
     it("file content", () => eq(readFileSync("log/test.log", "utf8"), "test\n"));
     it("first rotated file content", () => eq(readFileSync("log/1-test.log", "utf8"), "test\ntest\ntest\ntest\ntest\ntest\n"));
@@ -75,6 +75,7 @@ describe("history", () => {
 
     it("events", () =>
       deq(events, {
+        close:    1,
         finish:   1,
         history:  5,
         open:     ["test.log", "test.log", "test.log", "test.log", "test.log", "test.log"],
@@ -82,8 +83,7 @@ describe("history", () => {
         rotated:  ["1-test.log", "2-test.log", "3-test.log", "4-test.log", "1-test.log"],
         rotation: 5,
         write:    1,
-        writev:   1,
-        ...v14()
+        writev:   1
       }));
     it("file content", () => eq(readFileSync("test.log", "utf8"), "test\n"));
     it("first rotated file content", () => eq(readFileSync("4-test.log", "utf8"), "test\ntest\ntest\ntest\ntest\n"));
@@ -125,6 +125,7 @@ describe("history", () => {
 
     it("events", () =>
       deq(events, {
+        close:    1,
         finish:   1,
         history:  4,
         open:     ["20150123-0101-01-test.log", "20150123-0105-01-test.log", "20150123-0109-01-test.log", "20150123-0113-01-test.log", "20150123-0117-01-test.log"],
@@ -132,8 +133,7 @@ describe("history", () => {
         rotated:  ["20150123-0101-01-test.log", "20150123-0105-01-test.log", "20150123-0109-01-test.log", "20150123-0113-01-test.log"],
         rotation: 4,
         write:    1,
-        writev:   1,
-        ...v14()
+        writev:   1
       }));
     it("file content", () => eq(readFileSync("20150123-0117-01-test.log", "utf8"), "test\n"));
     it("first rotated file content", () => eq(readFileSync("20150123-0109-01-test.log", "utf8"), "test\ntest\ntest\ntest\n"));
