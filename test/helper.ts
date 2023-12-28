@@ -131,3 +131,9 @@ export function test(opt: testOpt, test: (rfs: any) => void): any {
 
   return events;
 }
+
+export const gte14 = parseInt(process.versions.node.split(".")[0], 10) >= 14;
+
+export function v14(): { close?: number } {
+  return gte14 ? { close: 1 } : {};
+}

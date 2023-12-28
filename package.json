@@ -19,7 +19,7 @@
     "logrotate"
   ],
   "engines": {
-    "node": ">=18.0"
+    "node": ">=14.0"
   },
   "author": "Daniele Ricci <daniele.icc@gmail.com> (https://github.com/iccicci)",
   "contributors": [

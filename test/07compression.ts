@@ -3,7 +3,7 @@
 import { readFileSync } from "fs";
 import { deepStrictEqual as deq, strictEqual as eq } from "assert";
 import { gunzipSync } from "zlib";
-import { test } from "./helper";
+import { test, v14 } from "./helper";
 
 describe("compression", () => {
   describe("external", () => {
@@ -15,7 +15,7 @@ describe("compression", () => {
       rfs => rfs.end("test\ntest\n")
     );
 
-    it("events", () => deq(events, { close: 1, finish: 1, open: ["test.log/log", "test.log/log"], rotated: ["test.log/1"], rotation: 1, stderr: [""], stdout: [""], write: 1 }));
+    it("events", () => deq(events, { finish: 1, open: ["test.log/log", "test.log/log"], rotated: ["test.log/1"], rotation: 1, stderr: [""], stdout: [""], write: 1, ...v14() }));
     it("file content", () => eq(readFileSync("test.log/log", "utf8"), ""));
     it("rotated file content", () => eq(gunzipSync(readFileSync("test.log/1")).toString(), "test\ntest\n"));
   });
@@ -29,7 +29,7 @@ describe("compression", () => {
       rfs => rfs.end("test\ntest\n")
     );
 
-    it("events", () => deq(events, { close: 1, error: [23], finish: 1, open: ["test.log/log"], rotation: 1, stderr: ["test.log/1\n"], stdout: ["test.log/log\n"], write: 1 }));
+    it("events", () => deq(events, { error: [23], finish: 1, open: ["test.log/log"], rotation: 1, stderr: ["test.log/1\n"], stdout: ["test.log/log\n"], write: 1, ...v14() }));
     it("file content", () => eq(readFileSync("test.log/log", "utf8"), "test\ntest\n"));
   });
 
@@ -42,7 +42,7 @@ describe("compression", () => {
       rfs => rfs.end("test\ntest\n")
     );
 
-    it("events", () => deq(events, { close: 1, finish: 1, open: ["test.log", "test.log"], rotated: ["test1.log"], rotation: 1, stderr: [""], stdout: [""], write: 1 }));
+    it("events", () => deq(events, { finish: 1, open: ["test.log", "test.log"], rotated: ["test1.log"], rotation: 1, stderr: [""], stdout: [""], write: 1, ...v14() }));
     it("file content", () => eq(readFileSync("test.log", "utf8"), ""));
     it("rotated file content", () => eq(gunzipSync(readFileSync("test1.log")).toString(), "test\ntest\n"));
   });
@@ -53,7 +53,7 @@ describe("compression", () => {
       rfs.end("test\ntest\n");
     });
 
-    it("events", () => deq(events, { close: 1, finish: 1, open: ["test.log", "test.log"], rotated: ["20150329-0129-01-test.log.gz"], rotation: 1, write: 1 }));
+    it("events", () => deq(events, { finish: 1, open: ["test.log", "test.log"], rotated: ["20150329-0129-01-test.log.gz"], rotation: 1, write: 1, ...v14() }));
     it("file content", () => eq(readFileSync("test.log", "utf8"), ""));
     it("rotated file content", () => eq(gunzipSync(readFileSync("20150329-0129-01-test.log.gz")).toString(), "test\ntest\n"));
   });
@@ -63,7 +63,7 @@ describe("compression", () => {
       rfs.end("test\ntest\n")
     );
 
-    it("events", () => deq(events, { close: 1, finish: 1, open: ["test.log", "test.log"], rotated: ["log/log/test.gz1"], rotation: 1, write: 1 }));
+    it("events", () => deq(events, { finish: 1, open: ["test.log", "test.log"], rotated: ["log/log/test.gz1"], rotation: 1, write: 1, ...v14() }));
     it("file content", () => eq(readFileSync("test.log", "utf8"), ""));
     it("rotated file content", () => eq(gunzipSync(readFileSync("log/log/test.gz1")).toString(), "test\ntest\n"));
   });

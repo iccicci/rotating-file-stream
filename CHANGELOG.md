@@ -1,3 +1,6 @@
+- 2023-12-28 - v3.2.1
+  - Restored support for **Node.js v14**.
+  - Badges (but dependents) from [shields.io](https://shields.io/).
 - 2023-12-27 - v3.2.0
   - Added `intervalUTC` as [requested](https://github.com/iccicci/rotating-file-stream/issues/97).
 - 2023-07-22 - v3.1.1
