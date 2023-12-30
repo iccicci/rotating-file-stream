@@ -4,12 +4,11 @@
   "description": "Opens a stream.Writable to a file rotated by interval and/or size. A logrotate alternative.",
   "scripts": {
     "all": "npm run eslint && npm run coverage",
-    "clean": "node -r ts-node/register utils.ts clean",
-    "coverage": "npm run clean && TZ=\"Europe/Rome\" nyc -r lcov -r text -r text-summary -r html mocha -r ts-node/register test/*ts",
+    "coverage": "rm -rf dist && TZ=\"Europe/Rome\" nyc -r lcov -r text -r text-summary -r html mocha -r ts-node/register test/*ts",
     "eslint": "eslint index.ts utils.ts test/*ts",
-    "ignore": "node -r ts-node/register utils.ts ignore",
+    "ignore": "ts-node utils.ts ignore",
     "prepare": "npm run ignore && tsc -p tsconfig.cjs.json && tsc -p tsconfig.es.json && tsc -p tsconfig.types.json",
-    "test": "npm run clean && mocha -r ts-node/register test/*ts"
+    "test": "rm -rf dist && mocha -r ts-node/register test/*ts"
   },
   "bugs": "https://github.com/iccicci/rotating-file-stream/issues",
   "repository": "https://github.com/iccicci/rotating-file-stream",
