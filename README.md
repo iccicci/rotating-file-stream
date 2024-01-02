@@ -15,8 +15,7 @@
 [code-badge]: https://codeclimate.com/github/iccicci/rotating-file-stream/badges/gpa.svg
 [code-url]: https://codeclimate.com/github/iccicci/rotating-file-stream
 [cover-badge]: https://codeclimate.com/github/iccicci/rotating-file-stream/badges/coverage.svg
-[deps-badge]: https://badgen.net/npm/dependents/rotating-file-stream?icon=npm
-[deps-badge2]: https://img.shields.io/librariesio/dependents/npm/rotating-file-stream?logo=npm
+[deps-badge]: https://img.shields.io/librariesio/dependents/npm/rotating-file-stream?logo=npm
 [deps-url]: https://www.npmjs.com/package/rotating-file-stream?activeTab=dependents
 [donate-badge]: https://img.shields.io/static/v1?label=donate&message=bitcoin&color=blue&logo=bitcoin
 [donate-url]: https://blockchain.info/address/12p1p5q7sK75tPyuesZmssiMYr4TKzpSCN
@@ -24,7 +23,7 @@
 [npm-downloads-badge]: https://img.shields.io/npm/dw/rotating-file-stream?logo=npm
 [npm-badge]: https://img.shields.io/npm/v/rotating-file-stream?color=green&logo=npm
 [npm-url]: https://www.npmjs.com/package/rotating-file-stream
-[stars-badge]: https://img.shields.io/github/stars/iccicci/rotating-file-stream?logo=github
+[stars-badge]: https://img.shields.io/github/stars/iccicci/rotating-file-stream?logo=github&style=flat&color=green
 [stars-url]: https://github.com/iccicci/rotating-file-stream/stargazers
 [travis-badge]: https://img.shields.io/travis/com/iccicci/rotating-file-stream?logo=travis
 [travis-url]: https://app.travis-ci.com/github/iccicci/rotating-file-stream
