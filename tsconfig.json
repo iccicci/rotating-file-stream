@@ -1,9 +1,11 @@
 {
   "compilerOptions": {
+    "forceConsistentCasingInFileNames": true,
     "lib": ["es2019", "es2020.bigint", "es2020.string", "es2020.symbol.wellknown"],
-    "module": "NodeNext",
-    "moduleResolution": "NodeNext",
-    "noImplicitAny": true
+    "module": "commonjs",
+    "noImplicitAny": true,
+    "skipLibCheck": true,
+    "target": "es2020"
   },
   "include": ["./index.ts"]
 }

@@ -1,7 +1,6 @@
 {
   "compilerOptions": {
     "module": "commonjs",
-    "moduleResolution": "Node",
     "outDir": "dist/cjs",
     "target": "es2019"
   },

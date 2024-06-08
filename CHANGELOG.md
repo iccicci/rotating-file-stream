@@ -1,3 +1,5 @@
+- 2024-06-08 - v3.2.2
+  - Fixed ESM dist.
 - 2023-12-28 - v3.2.1
   - Restored support for **Node.js v14**.
   - Badges (but dependents) from [shields.io](https://shields.io/).

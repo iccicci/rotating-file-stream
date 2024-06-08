@@ -24,19 +24,10 @@ const rules = {
 };
 
 module.exports = {
-  env: {
-    amd:     true,
-    browser: true,
-    es6:     true,
-    jquery:  true,
-    node:    true
-  },
+  env:           { amd: true, browser: true, es6: true, jquery: true, node: true },
   extends:       ["plugin:@typescript-eslint/recommended"],
   parser:        "@typescript-eslint/parser",
-  parserOptions: {
-    ecmaVersion: 9,
-    sourceType:  "module"
-  },
-  plugins: ["sort-keys"],
+  parserOptions: { ecmaVersion: 9, sourceType: "module" },
+  plugins:       ["sort-keys"],
   rules
 };

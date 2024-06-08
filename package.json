@@ -4,10 +4,10 @@
   "description": "Opens a stream.Writable to a file rotated by interval and/or size. A logrotate alternative.",
   "scripts": {
     "all": "npm run eslint && npm run coverage",
-    "coverage": "rm -rf dist && TZ=\"Europe/Rome\" nyc -r lcov -r text -r text-summary -r html mocha -r ts-node/register test/*ts",
+    "coverage": "rm -rf dist && NODE_OPTIONS=--max_old_space_size=10240 TZ=\"Europe/Rome\" nyc -r lcov -r text -r text-summary -r html mocha -r ts-node/register test/*ts",
     "eslint": "eslint index.ts utils.ts test/*ts",
     "ignore": "ts-node utils.ts ignore",
-    "prepare": "npm run ignore && tsc -p tsconfig.cjs.json && tsc -p tsconfig.es.json && tsc -p tsconfig.types.json",
+    "prepare": "npm run ignore && tsc -p tsconfig.cjs.json && tsc -p tsconfig.esm.json && tsc -p tsconfig.types.json",
     "test": "rm -rf dist && mocha -r ts-node/register test/*ts"
   },
   "bugs": "https://github.com/iccicci/rotating-file-stream/issues",
@@ -38,20 +38,20 @@
   },
   "readmeFilename": "README.md",
   "main": "./dist/cjs/index.js",
-  "module": "./dist/es/index.js",
+  "module": "./dist/esm/index.js",
   "types": "./dist/types/index.d.ts",
   "devDependencies": {
     "@types/mocha": "10.0.6",
-    "@types/node": "20.10.5",
+    "@types/node": "20.14.2",
     "@typescript-eslint/eslint-plugin": "6.16.0",
     "@typescript-eslint/parser": "6.16.0",
     "eslint": "8.56.0",
     "eslint-plugin-sort-keys": "2.3.5",
     "mocha": "10.2.0",
     "nyc": "15.1.0",
-    "prettier": "3.1.1",
+    "prettier": "3.3.1",
     "ts-node": "10.9.2",
-    "typescript": "5.3.3"
+    "typescript": "5.4.5"
   },
   "prettier": {
     "arrowParens": "avoid",
