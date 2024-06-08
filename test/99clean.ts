@@ -1,5 +1,3 @@
-"use strict";
-
 import { deepStrictEqual as deq } from "assert";
 import { test } from "./helper";
 

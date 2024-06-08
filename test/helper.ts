@@ -1,5 +1,3 @@
-"use strict";
-
 import { Generator, Options, createStream } from "..";
 import { chmod, mkdir, readdir, rm, rmdir, stat, unlink, utimes, writeFile } from "fs/promises";
 
@@ -101,22 +99,22 @@ export function test(opt: testOpt, test: (rfs: any) => void): any {
       rfs.on("finish", () => inc("finish"));
       rfs.on("history", () => inc("history"));
       rfs.on("open", filename => push("open", filename));
-      rfs.on("removed", (filename, number) => push("removed" + (number ? "n" : "s"), filename));
+      rfs.on("removed", (filename, number) => push("removed" + (number ? "N" : "S"), filename));
       rfs.on("rotated", filename => push("rotated", filename));
       rfs.on("rotation", () => inc("rotation"));
       rfs.on("warning", error => push("warning", error.message));
 
-      const oldw = rfs._write;
-      const oldv = rfs._writev;
+      const oldW = rfs._write;
+      const oldV = rfs._writev;
 
       rfs._write = (chunk: Buffer, encoding: string, callback: (error?: Error) => void): void => {
         inc("write");
-        oldw.call(rfs, chunk, encoding, callback);
+        oldW.call(rfs, chunk, encoding, callback);
       };
 
       rfs._writev = (chunks: any, callback: (error?: Error) => void): void => {
         inc("writev");
-        oldv.call(rfs, chunks, callback);
+        oldV.call(rfs, chunks, callback);
       };
 
       test(rfs);
@@ -130,10 +128,4 @@ export function test(opt: testOpt, test: (rfs: any) => void): any {
   });
 
   return events;
-}
-
-export const gte14 = parseInt(process.versions.node.split(".")[0], 10) >= 14;
-
-export function v14(): { close?: number } {
-  return gte14 ? { close: 1 } : {};
 }

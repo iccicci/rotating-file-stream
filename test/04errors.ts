@@ -1,5 +1,3 @@
-"use strict";
-
 import { readFileSync } from "fs";
 import { deepStrictEqual as deq, strictEqual as eq, throws as ex } from "assert";
 import { createStream } from "..";

@@ -1,5 +1,3 @@
-"use strict";
-
 import { exec } from "child_process";
 import { Gzip, createGzip } from "zlib";
 import { Readable, Writable } from "stream";
