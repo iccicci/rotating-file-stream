@@ -54,7 +54,7 @@ describe("write(s)", () => {
       rfs.write("test\n");
     });
 
-    before(done => {
+    beforeAll(done => {
       if(open) return done();
       stream.on("open", () => event(done));
     });
@@ -101,7 +101,7 @@ describe("write(s)", () => {
   describe("two consecutive open in not existing directory", function() {
     let count = 0;
 
-    before(function(done) {
+    beforeAll(function(done) {
       const rfs1 = createStream("log/test1");
       const rfs2 = createStream("log/test2");
 

@@ -8,7 +8,7 @@ describe("rfs", () => {
   describe("new", () => {
     let rfs: any;
 
-    before(done => {
+    beforeAll(done => {
       rfs = createStream("test.log", { mode: parseInt("666", 8) });
       rfs.end(done);
     });
@@ -20,7 +20,9 @@ describe("rfs", () => {
   });
 
   describe("no options", () => {
-    before(done => createStream("test.log").end(done));
+    beforeAll(done => {
+      createStream("test.log").end(done);
+    });
 
     it("no error", () => eq(true, true));
   });

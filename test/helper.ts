@@ -62,14 +62,14 @@ export function test(opt: testOpt, test: (rfs: any) => void): any {
   const { filename, files, options } = opt;
   const events: any = {};
 
-  before(function(done): void {
+  beforeAll(function(done): void {
     let did: boolean;
 
     const generator = filename ? filename : (time: number | Date, index?: number): string => (time ? index + "-test.log" : "test.log");
     const timeOut = setTimeout(() => {
-      events.timedOut = true;
+      did = events.timedOut = true;
       done();
-    }, this.timeout() - 500);
+    }, 5000);
 
     const end = (): void => {
       clearTimeout(timeOut);
@@ -90,12 +90,12 @@ export function test(opt: testOpt, test: (rfs: any) => void): any {
       };
 
       rfs.on("close", () => inc("close"));
+      rfs.on("close", end);
       rfs.on("error", error => push("error", isErrorWithCode(error) ? error.code : error.message));
       rfs.on("external", (stdout, stderr) => {
         push("stdout", stdout);
         push("stderr", stderr);
       });
-      rfs.on("finish", end);
       rfs.on("finish", () => inc("finish"));
       rfs.on("history", () => inc("history"));
       rfs.on("open", filename => push("open", filename));

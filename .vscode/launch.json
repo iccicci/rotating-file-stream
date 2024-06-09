@@ -4,9 +4,9 @@
     {
       "type": "node",
       "request": "launch",
-      "name": "Mocha All",
-      "program": "${workspaceFolder}/node_modules/mocha/bin/mocha",
-      "args": ["-r", "ts-node/register", "--timeout", "999999", "--colors", "${workspaceFolder}/test/*.ts"],
+      "name": "Debug Jest Tests",
+      "program": "${workspaceFolder}/node_modules/.bin/jest",
+      "args": ["-i"],
       "console": "integratedTerminal",
       "internalConsoleOptions": "neverOpen"
     }
