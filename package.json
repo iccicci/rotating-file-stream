@@ -6,8 +6,8 @@
     "all": "npm run eslint && npm run coverage",
     "coverage": "rm -rf dist && TZ=Europe/Rome jest --coverage --runInBand",
     "eslint": "eslint index.ts utils.ts test/*ts",
-    "ignore": "ts-node utils.ts ignore",
-    "prepare": "npm run ignore && tsc -p tsconfig.cjs.json && tsc -p tsconfig.esm.json && tsc -p tsconfig.types.json",
+    "ignore": "tsx utils ignore",
+    "prepare": "npm run ignore && tsc -p tsconfig.cjs.json && echo '{\"type\":\"commonjs\"}' > dist/cjs/package.json && tsc -p tsconfig.esm.json && tsc -p tsconfig.types.json",
     "test": "rm -rf dist && TZ=Europe/Rome jest --runInBand"
   },
   "bugs": "https://github.com/iccicci/rotating-file-stream/issues",
@@ -47,6 +47,7 @@
       "types": "./dist/types/index.d.ts"
     }
   },
+  "type": "module",
   "devDependencies": {
     "@types/jest": "29.5.12",
     "@types/node": "20.14.2",
@@ -58,7 +59,7 @@
     "jest-environment-node-single-context": "29.4.0",
     "prettier": "3.3.1",
     "ts-jest": "29.1.4",
-    "ts-node": "10.9.2",
+    "tsx": "4.15.1",
     "typescript": "5.4.5"
   },
   "prettier": {

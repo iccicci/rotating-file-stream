@@ -15,7 +15,6 @@ env:
 node_js:
   - "20"
   - "18"
-  - "16"
 
 language: node_js
 script: "yarn coverage"
