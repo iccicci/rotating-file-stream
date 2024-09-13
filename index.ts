@@ -6,6 +6,9 @@ import { FileHandle, mkdir, open, readFile, rename, stat, unlink, writeFile } fr
 import { sep } from "path";
 import { TextDecoder } from "util";
 
+// Do not remove: https://github.com/iccicci/rotating-file-stream/issues/106
+import { setTimeout } from "timers";
+
 async function exists(filename: string): Promise<boolean> {
   return new Promise(resolve => access(filename, constants.F_OK, error => resolve(! error)));
 }
