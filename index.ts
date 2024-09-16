@@ -506,7 +506,7 @@ export class RotatingFileStream extends Writable {
             res.push({
               name: file,
               size: stats.size,
-              time: stats.ctime.getTime()
+              time: stats.mtime.getTime()
             });
           } else this.emit("warning", new Error(`File '${file}' contained in history is not a regular file`));
         } catch(e) {
