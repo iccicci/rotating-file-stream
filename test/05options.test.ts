@@ -165,4 +165,19 @@ describe("options", () => {
     it("file content", () => eq(readFileSync("test.log", "utf8"), "test\n"));
     it("rotated file content", () => eq(gunzipSync(readFileSync("1-test.log")).toString(), "test\ntest\n"));
   });
+
+  describe("explicit false compress", () => {
+    const content: Buffer[] = [];
+
+    const events = test({ options: { compress: false, size: "10B" } }, rfs => {
+      rfs.stdout = { write: (buffer: Buffer): number => content.push(buffer) };
+      rfs.write("test\n");
+      rfs.write("test\n");
+      rfs.end("test\n");
+    });
+
+    it("events", () => deq(events, { close: 1, finish: 1, open: ["test.log", "test.log"], rotated: ["1-test.log"], rotation: 1, write: 1, writev: 1 }));
+    it("file content", () => eq(readFileSync("test.log", "utf8"), "test\n"));
+    it("rotated file content", () => eq(readFileSync("1-test.log", "utf8"), "test\ntest\n"));
+  });
 });

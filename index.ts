@@ -73,7 +73,7 @@ export interface Options {
 }
 
 interface Opts {
-  compress?: string | Compressor;
+  compress?: boolean | string | Compressor;
   encoding?: BufferEncoding;
   history?: string;
   immutable?: boolean;
@@ -468,7 +468,9 @@ export class RotatingFileStream extends Writable {
     const zip = this.createGzip();
 
     return new Promise((resolve, reject) => {
-      [inp, out, zip].map(stream => stream.once("error", reject));
+      inp.once("error", reject);
+      out.once("error", reject);
+      zip.once("error", reject);
       out.once("finish", resolve);
       inp.pipe(zip).pipe(out);
     });
@@ -674,6 +676,7 @@ const checks: any = {
   teeToStdout:      (): void => {},
   ...{
     compress: (type: string, options: Opts, value: boolean | string | Compressor): any => {
+      if(value === false) return;
       if(! value) throw new Error("A value for 'options.compress' must be specified");
       if(type === "boolean") return (options.compress = (source: string, dest: string): string => `cat ${source} | gzip -c9 > ${dest}`);
       if(type === "function") return;
@@ -755,7 +758,7 @@ export function createStream(filename: string | Generator, options?: Options): R
   const { compress, omitExtension } = opts;
   let generator: Generator;
 
-  if(typeof filename === "string") generator = options.rotate ? createClassical(filename, compress !== undefined, omitExtension) : createGenerator(filename, compress !== undefined, omitExtension);
+  if(typeof filename === "string") generator = options.rotate ? createClassical(filename, !! compress, omitExtension) : createGenerator(filename, !! compress, omitExtension);
   else if(typeof filename === "function") generator = filename;
   else throw new Error(`The "filename" argument must be one of type string or function. Received type ${typeof filename}`);
 

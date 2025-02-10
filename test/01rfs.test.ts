@@ -35,7 +35,7 @@ describe("rfs", () => {
     it("wrong filename type", () => ex(() => createStream({} as string), Error('The "filename" argument must be one of type string or function. Received type object')));
     it("wrong options type", () => ex(() => createStream("test.log", "test.log" as never), Error('The "options" argument must be of type object. Received type string')));
     it("unknown option", () => ex(() => createStream("test.log", { test: true } as any), Error("Unknown option: test")));
-    it("no compress value", () => ex(() => createStream("test.log", { compress: false }), Error("A value for 'options.compress' must be specified")));
+    it("no compress value", () => ex(() => createStream("test.log", { compress: undefined }), Error("A value for 'options.compress' must be specified")));
     it("wrong compress type", () => ex(() => createStream("test.log", { compress: 23 } as any), Error("Don't know how to handle 'options.compress' type: number")));
     it("wrong compress method", () => ex(() => createStream("test.log", { compress: "test" }), Error("Don't know how to handle compression method: test")));
     it("wrong interval type", () => ex(() => createStream("test.log", { interval: 23 } as any), Error("Don't know how to handle 'options.interval' type: number")));

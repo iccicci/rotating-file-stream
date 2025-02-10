@@ -1,3 +1,11 @@
+- 2025-02-10 - v3.2.6
+  - Fixed a bug [when using explicit false value for compress option](https://github.com/iccicci/rotating-file-stream/issues/110) (thanks to [eranbetzalel](https://github.com/eranbetzalel))
+- 2024-09-16 - v3.2.5
+  - Use `mtime` rather than `ctime` to sort files history.
+- 2024-09-13 - v3.2.4
+  - Fixed a bug [with electron](https://github.com/iccicci/rotating-file-stream/issues/106) (thanks to [mrawji](https://github.com/mrawji))
+- 2024-06-10 - v3.2.3
+  - Fixed ESM dist.
 - 2024-06-08 - v3.2.2
   - Fixed ESM dist.
 - 2023-12-28 - v3.2.1
