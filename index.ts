@@ -22,7 +22,17 @@ export class RotatingFileStreamError extends Error {
 }
 
 export type Compressor = (source: string, dest: string) => string;
-export type Generator = (time: number | Date, index?: number) => string;
+
+/**
+ * Generates a filename for the rotated file.
+ * @param time - The rotation time or timestamp.
+ * @param index - Optional index for the filename (for multiple rotations in the same period).
+ * @param needsCompressExt - If true, the filename should include the compression extension (e.g., ".gz").
+ *   This helps custom generators decide whether to append a compression extension or not.
+ *   If false or omitted, the generator should not add the compression extension.
+ * @returns The generated filename as a string.
+ */
+export type Generator = (time: number | Date, index?: number, needsCompressExt?: boolean) => string;
 
 interface RotatingFileStreamEvents {
   // Inherited from Writable
@@ -308,10 +318,10 @@ export class RotatingFileStream extends Writable {
   }
 
   private async findName(): Promise<string> {
-    const { interval, path, intervalBoundary } = this.options;
+    const { interval, path, intervalBoundary,compress, omitExtension} = this.options;
 
     for(let index = 1; index < 1000; ++index) {
-      const filename = path + this.generator(interval && intervalBoundary ? new Date(this.prev) : this.rotation, index);
+      const filename = path + this.generator(interval && intervalBoundary ? new Date(this.prev) : this.rotation, index, compress && ! omitExtension ? true : false);
 
       if(! (await exists(filename))) return filename;
     }
