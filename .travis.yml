@@ -1,21 +1,11 @@
-after_script:
-  - "if [[ `node --version` =~ ^v20 ]] ; then ./cc-test-reporter after-build --exit-code $TRAVIS_TEST_RESULT ; fi"
-
-before_script:
-  - "curl -L https://codeclimate.com/downloads/test-reporter/test-reporter-latest-linux-amd64 > ./cc-test-reporter"
-  - "chmod +x ./cc-test-reporter"
-  - "./cc-test-reporter before-build"
-
 dist: focal
-
-env:
-  global:
-    - CC_TEST_REPORTER_ID=b96c8e14d13e6e0eac109776042700ebba5cddd019d9031fc476d8110842920f
-
-node_js:
-  - "20"
-  - "18"
-
 language: node_js
 script: "yarn coverage"
-sudo: false
+
+node_js:
+  - "24"
+  - "22"
+  - "20"
+
+after_success:
+  - "if [[ `node --version` =~ ^v24 ]] ; then curl https://qlty.sh | sh ; ~/.qlty/bin/qlty coverage publish coverage/lcov.info --override-branch $TRAVIS_BRANCH ; fi"

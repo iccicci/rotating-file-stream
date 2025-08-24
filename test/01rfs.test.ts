@@ -1,6 +1,6 @@
 process.env.TZ = "Europe/Rome";
 
-import { RotatingFileStream, createStream } from "..";
+import { FileSize, RotatingFileStream, createStream } from "..";
 import { strictEqual as eq, throws as ex } from "assert";
 import { Writable } from "stream";
 
@@ -37,14 +37,14 @@ describe("rfs", () => {
     it("unknown option", () => ex(() => createStream("test.log", { test: true } as any), Error("Unknown option: test")));
     it("no compress value", () => ex(() => createStream("test.log", { compress: undefined }), Error("A value for 'options.compress' must be specified")));
     it("wrong compress type", () => ex(() => createStream("test.log", { compress: 23 } as any), Error("Don't know how to handle 'options.compress' type: number")));
-    it("wrong compress method", () => ex(() => createStream("test.log", { compress: "test" }), Error("Don't know how to handle compression method: test")));
+    it("wrong compress method", () => ex(() => createStream("test.log", { compress: "test" as "gzip" }), Error("Don't know how to handle compression method: test")));
     it("wrong interval type", () => ex(() => createStream("test.log", { interval: 23 } as any), Error("Don't know how to handle 'options.interval' type: number")));
     it("wrong path type", () => ex(() => createStream("test.log", { path: 23 } as any), Error("Don't know how to handle 'options.path' type: number")));
     it("wrong size type", () => ex(() => createStream("test.log", { size: 23 } as any), Error("Don't know how to handle 'options.size' type: number")));
-    it("wrong size type", () => ex(() => createStream("test.log", { size: "test" }), Error("Unknown 'options.size' format: test")));
+    it("wrong size type", () => ex(() => createStream("test.log", { size: "test" as FileSize }), Error("Unknown 'options.size' format: test")));
     it("wrong size number", () => ex(() => createStream("test.log", { size: "-23B" }), Error("A positive integer number is expected for 'options.size'")));
-    it("missing size unit", () => ex(() => createStream("test.log", { size: "23" }), Error("Missing unit for 'options.size'")));
-    it("wrong size unit", () => ex(() => createStream("test.log", { size: "23test" }), Error("Unknown 'options.size' unit: t")));
+    it("missing size unit", () => ex(() => createStream("test.log", { size: "23" as FileSize }), Error("Missing unit for 'options.size'")));
+    it("wrong size unit", () => ex(() => createStream("test.log", { size: "23test" as FileSize }), Error("Unknown 'options.size' unit: t")));
     it("wrong interval seconds number", () => ex(() => createStream("test.log", { interval: "23s" }), Error("An integer divider of 60 is expected as seconds for 'options.interval'")));
     it("wrong interval minutes number", () => ex(() => createStream("test.log", { interval: "23m" }), Error("An integer divider of 60 is expected as minutes for 'options.interval'")));
     it("wrong interval hours number", () => ex(() => createStream("test.log", { interval: "23h" }), Error("An integer divider of 24 is expected as hours for 'options.interval'")));

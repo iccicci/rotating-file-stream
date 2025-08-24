@@ -1,0 +1,18 @@
+[checks]
+file_lines = { threshold = 1000 }
+method_complexity = { threshold = 30 }
+method_count = { threshold = 35 }
+method_lines = { threshold = 100 }
+return_statements = { threshold = 20 }
+similar_code = { threshold = 60 }
+
+[engines]
+duplication = { enabled = true }
+eslint = { enabled = true, channel = "eslint-8" }
+fixme = { enabled = true }
+
+[engines.duplication.config]
+languages = ["javascript", "typescript"]
+
+[ratings]
+paths = ["*.ts", "test/*.ts", "test/*.js"]
