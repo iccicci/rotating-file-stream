@@ -53,32 +53,38 @@ export declare interface RotatingFileStream extends Writable {
   removeListener<Event extends keyof RotatingFileStreamEvents>(event: Event, listener: RotatingFileStreamEvents[Event]): this;
 }
 
+export type IntervalUnit = 'M' | 'd' | 'h' | 'm' | 's';
+export type Interval = `${number}${IntervalUnit}`;
+
+export type FileSizeUnit = 'B' | 'K' | 'M' | 'G';
+export type FileSize = `${number}${FileSizeUnit}`;
+
 export interface Options {
-  compress?: boolean | string | Compressor;
+  compress?: boolean | 'gzip' | Compressor;
   encoding?: BufferEncoding;
   history?: string;
   immutable?: boolean;
   initialRotation?: boolean;
-  interval?: string;
+  interval?: Interval;
   intervalBoundary?: boolean;
   intervalUTC?: boolean;
   maxFiles?: number;
-  maxSize?: string;
+  maxSize?: FileSize;
   mode?: number;
   omitExtension?: boolean;
   path?: string;
   rotate?: number;
-  size?: string;
+  size?: FileSize;
   teeToStdout?: boolean;
 }
 
 interface Opts {
-  compress?: boolean | string | Compressor;
+  compress?: boolean | 'gzip' | Compressor;
   encoding?: BufferEncoding;
   history?: string;
   immutable?: boolean;
   initialRotation?: boolean;
-  interval?: { num: number; unit: string };
+  interval?: { num: number; unit: IntervalUnit };
   intervalBoundary?: boolean;
   intervalUTC?: boolean;
   maxFiles?: number;
