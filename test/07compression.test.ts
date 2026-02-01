@@ -1,4 +1,4 @@
-import { readFileSync } from "fs";
+import { readFileSync, createWriteStream } from "fs";
 import { deepStrictEqual as deq, strictEqual as eq } from "assert";
 import { gunzipSync } from "zlib";
 import { test } from "./helper";
@@ -73,5 +73,21 @@ describe("compression", () => {
     });
 
     it("events", () => deq(events, { close: 1, error: ["test"], finish: 1, open: ["test.log"], rotation: 1, stderr: [undefined], stdout: [undefined], write: 1 }));
+  });
+
+  describe("error while closing gzip", () => {
+    const events = test({ options: { compress: "gzip", size: "10B" } }, rfs => {
+      rfs.fsCreateWriteStream = ((path, options) => {
+        const stream = createWriteStream(path, options);
+
+        if(path === "1-test.log") stream.close = (callback?: (error: Error) => void) => callback?.(new Error("test"));
+
+        return stream;
+      }) as typeof createWriteStream;
+      rfs.end("test\ntest\n");
+    });
+
+    it("events", () => deq(events, { close: 1, finish: 1, open: ["test.log", "test.log"], rotated: ["1-test.log"], rotation: 1, warning: ["test"], write: 1 }));
+    it("rotated file content", () => eq(gunzipSync(readFileSync("1-test.log")).toString(), "test\ntest\n"));
   });
 });

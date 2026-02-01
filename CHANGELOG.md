@@ -1,3 +1,7 @@
+- 2026-02-01 - v3.2.8
+  - Fixed a bug [causing gzip files to not being properly closed](https://github.com/iccicci/rotating-file-stream/issues/123) (thanks to [rritik772](https://github.com/rritik772))
+- 2025-08-25 - v3.2.7
+  - Improved type safety (thanks to [kricsleo](https://github.com/kricsleo))
 - 2025-02-10 - v3.2.6
   - Fixed a bug [when using explicit false value for compress option](https://github.com/iccicci/rotating-file-stream/issues/110) (thanks to [eranbetzalel](https://github.com/eranbetzalel))
 - 2024-09-16 - v3.2.5

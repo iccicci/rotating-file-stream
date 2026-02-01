@@ -1,6 +1,6 @@
 {
   "name": "rotating-file-stream",
-  "version": "3.2.7",
+  "version": "3.2.8",
   "description": "Opens a stream.Writable to a file rotated by interval and/or size. A logrotate alternative.",
   "scripts": {
     "all": "yarn eslint && yarn coverage",
@@ -11,7 +11,9 @@
     "test": "rm -rf dist && TZ=Europe/Rome jest --runInBand"
   },
   "bugs": "https://github.com/iccicci/rotating-file-stream/issues",
-  "repository": "https://github.com/iccicci/rotating-file-stream",
+  "repository": {
+    "url": "git+https://github.com/iccicci/rotating-file-stream.git"
+  },
   "keywords": [
     "log",
     "rotate",

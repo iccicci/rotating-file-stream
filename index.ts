@@ -53,14 +53,14 @@ export declare interface RotatingFileStream extends Writable {
   removeListener<Event extends keyof RotatingFileStreamEvents>(event: Event, listener: RotatingFileStreamEvents[Event]): this;
 }
 
-export type IntervalUnit = 'M' | 'd' | 'h' | 'm' | 's';
+export type IntervalUnit = "M" | "d" | "h" | "m" | "s";
 export type Interval = `${number}${IntervalUnit}`;
 
-export type FileSizeUnit = 'B' | 'K' | 'M' | 'G';
+export type FileSizeUnit = "B" | "K" | "M" | "G";
 export type FileSize = `${number}${FileSizeUnit}`;
 
 export interface Options {
-  compress?: boolean | 'gzip' | Compressor;
+  compress?: boolean | "gzip" | Compressor;
   encoding?: BufferEncoding;
   history?: string;
   immutable?: boolean;
@@ -79,7 +79,7 @@ export interface Options {
 }
 
 interface Opts {
-  compress?: boolean | 'gzip' | Compressor;
+  compress?: boolean | "gzip" | Compressor;
   encoding?: BufferEncoding;
   history?: string;
   immutable?: boolean;
@@ -473,13 +473,24 @@ export class RotatingFileStream extends Writable {
     const out = this.fsCreateWriteStream(filename, options);
     const zip = this.createGzip();
 
-    return new Promise((resolve, reject) => {
+    await new Promise<void>((resolve, reject) => {
       inp.once("error", reject);
       out.once("error", reject);
       zip.once("error", reject);
       out.once("finish", resolve);
       inp.pipe(zip).pipe(out);
     });
+
+    await Promise.all([
+      new Promise<void>(resolve => zip.close(resolve)),
+      new Promise<void>(resolve =>
+        out.close(err => {
+          if(err) this.emit("warning", err);
+
+          resolve();
+        })
+      )
+    ]);
   }
 
   private async rotated(filename: string): Promise<void> {
