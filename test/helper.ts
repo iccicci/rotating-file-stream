@@ -1,5 +1,5 @@
 import { Generator, Options, createStream } from "..";
-import { chmod, mkdir, readdir, rm, rmdir, stat, unlink, utimes, writeFile } from "fs/promises";
+import { chmod, mkdir, readdir, rm, stat, unlink, utimes, writeFile } from "fs/promises";
 
 type FilesOpt = { [key: string]: string | { content: string; date?: Date; mode?: number } };
 
@@ -33,11 +33,11 @@ async function recursiveRemove(): Promise<void> {
 
   for(const file of files) {
     if(file.match(/(gz|log|tmp|txt)$/)) {
-      if(ge14_14) await rm(file, { recursive: true });
+      if(ge14_14) await rm(file, { force: true, recursive: true });
       else {
         const stats = await stat(file);
 
-        if(stats.isDirectory()) await rmdir(file, { recursive: true });
+        if(stats.isDirectory()) await rm(file, { force: true, recursive: true });
         else await unlink(file);
       }
     }

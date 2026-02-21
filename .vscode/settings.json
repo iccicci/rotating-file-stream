@@ -27,7 +27,7 @@
     "wangao",
     "zmssi"
   ],
-  "editor.codeActionsOnSave": ["source.formatDocument", "source.fixAll.eslint"],
+  "editor.codeActionsOnSave": ["source.formatDocument", "source.fixAll.eslint", "source.fixAll.eslint"],
   "editor.defaultFormatter": "esbenp.prettier-vscode",
   "editor.formatOnSave": true,
   "eslint.validate": ["javascript", "typescript"],
@@ -37,6 +37,8 @@
   "files.insertFinalNewline": true,
   "files.trimFinalNewlines": true,
   "git.ignoreMissingGitWarning": true,
+  "gitlens.codeLens.authors.enabled": false,
+  "gitlens.codeLens.recentChange.enabled": false,
   "window.zoomLevel": 0,
   "[javascript]": { "editor.formatOnSave": false },
   "[typescript]": { "editor.formatOnSave": false }

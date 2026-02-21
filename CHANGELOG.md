@@ -1,3 +1,6 @@
+- 2026-02-21 - v3.2.9
+  - Updated the README to reflect current API. - ref: [#116](https://github.com/iccicci/rotating-file-stream/issues/116)
+  - Changed options types to allow `string`s from ENV or files while continuing checking literal values. - ref: [#122](https://github.com/iccicci/rotating-file-stream/issues/122)
 - 2026-02-01 - v3.2.8
   - Fixed a bug [causing gzip files to not being properly closed](https://github.com/iccicci/rotating-file-stream/issues/123) (thanks to [rritik772](https://github.com/rritik772))
 - 2025-08-25 - v3.2.7

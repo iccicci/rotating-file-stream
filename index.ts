@@ -54,27 +54,32 @@ export declare interface RotatingFileStream extends Writable {
 }
 
 export type IntervalUnit = "M" | "d" | "h" | "m" | "s";
-export type Interval = `${number}${IntervalUnit}`;
+type HourInterval = 1 | 2 | 3 | 4 | 6 | 8 | 12 | 24;
+type MinuteInterval = 1 | 2 | 3 | 4 | 5 | 6 | 10 | 12 | 15 | 20 | 30 | 60;
+export type Interval = `${number}${"M" | "d"}` | `${HourInterval}h` | `${MinuteInterval}${"m" | "s"}`;
 
 export type FileSizeUnit = "B" | "K" | "M" | "G";
 export type FileSize = `${number}${FileSizeUnit}`;
 
-export interface Options {
+type IntervalOpt<I extends string = string> = string extends I ? string : I extends Interval ? I : never;
+type FileSizeOpt<S extends string = string> = string extends S ? string : S extends FileSize ? S : never;
+
+export interface Options<I extends string = string, MS extends string = string, RS extends string = string> {
   compress?: boolean | "gzip" | Compressor;
   encoding?: BufferEncoding;
   history?: string;
   immutable?: boolean;
   initialRotation?: boolean;
-  interval?: Interval;
+  interval?: IntervalOpt<I>;
   intervalBoundary?: boolean;
   intervalUTC?: boolean;
   maxFiles?: number;
-  maxSize?: FileSize;
+  maxSize?: FileSizeOpt<MS>;
   mode?: number;
   omitExtension?: boolean;
   path?: string;
   rotate?: number;
-  size?: FileSize;
+  size?: FileSizeOpt<RS>;
   teeToStdout?: boolean;
 }
 
@@ -710,7 +715,7 @@ const checks: any = {
   }
 };
 
-function checkOpts(options: Options): Opts {
+function checkOpts<I extends string = string, MS extends string = string, RS extends string = string>(options: Options<I, MS, RS>): Opts {
   const ret: Opts = {};
   let opt: keyof Options;
 
@@ -767,11 +772,11 @@ function createGenerator(filename: string, compress: boolean, omitExtension: boo
   };
 }
 
-export function createStream(filename: string | Generator, options?: Options): RotatingFileStream {
+export function createStream<I extends string = string, MS extends string = string, RS extends string = string>(filename: string | Generator, options?: Options<I, MS, RS>): RotatingFileStream {
   if(typeof options === "undefined") options = {};
   else if(typeof options !== "object") throw new Error(`The "options" argument must be of type object. Received type ${typeof options}`);
 
-  const opts = checkOpts(options);
+  const opts = checkOpts<I, MS, RS>(options);
   const { compress, omitExtension } = opts;
   let generator: Generator;
 

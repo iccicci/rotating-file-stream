@@ -1,6 +1,6 @@
 process.env.TZ = "Europe/Rome";
 
-import { FileSize, RotatingFileStream, createStream } from "..";
+import { FileSize, Interval, RotatingFileStream, createStream } from "..";
 import { strictEqual as eq, throws as ex } from "assert";
 import { Writable } from "stream";
 
@@ -45,9 +45,9 @@ describe("rfs", () => {
     it("wrong size number", () => ex(() => createStream("test.log", { size: "-23B" }), Error("A positive integer number is expected for 'options.size'")));
     it("missing size unit", () => ex(() => createStream("test.log", { size: "23" as FileSize }), Error("Missing unit for 'options.size'")));
     it("wrong size unit", () => ex(() => createStream("test.log", { size: "23test" as FileSize }), Error("Unknown 'options.size' unit: t")));
-    it("wrong interval seconds number", () => ex(() => createStream("test.log", { interval: "23s" }), Error("An integer divider of 60 is expected as seconds for 'options.interval'")));
-    it("wrong interval minutes number", () => ex(() => createStream("test.log", { interval: "23m" }), Error("An integer divider of 60 is expected as minutes for 'options.interval'")));
-    it("wrong interval hours number", () => ex(() => createStream("test.log", { interval: "23h" }), Error("An integer divider of 24 is expected as hours for 'options.interval'")));
+    it("wrong interval seconds number", () => ex(() => createStream("test.log", { interval: "23s" as Interval }), Error("An integer divider of 60 is expected as seconds for 'options.interval'")));
+    it("wrong interval minutes number", () => ex(() => createStream("test.log", { interval: "23m" as Interval }), Error("An integer divider of 60 is expected as minutes for 'options.interval'")));
+    it("wrong interval hours number", () => ex(() => createStream("test.log", { interval: "23h" as Interval }), Error("An integer divider of 24 is expected as hours for 'options.interval'")));
     it("string rotate value", () => ex(() => createStream("test.log", { rotate: "test" } as any), Error("'rotate' option must be a positive integer number")));
     it("negative rotate value", () => ex(() => createStream("test.log", { rotate: -23 }), Error("'rotate' option must be a positive integer number")));
     it("wrong history", () => ex(() => createStream("test.log", { history: {} } as any), Error("Don't know how to handle 'options.history' type: object")));

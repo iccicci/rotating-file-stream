@@ -37,8 +37,9 @@ rotated. Rotation behavior can be deeply customized; optionally, classical UNIX 
 ### Usage
 
 ```javascript
-const rfs = require("rotating-file-stream");
-const stream = rfs.createStream("file.log", {
+import { createStream } from "rotating-file-stream";
+
+const stream = createStream("file.log", {
   size: "10M", // rotate every 10 MegaBytes written
   interval: "1d", // rotate daily
   compress: "gzip" // compress rotated files
@@ -174,7 +175,6 @@ if part of returned destination path does not exists, the rotation job will try 
 #### filename(time[, index])
 
 - `time` [&lt;Date>](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Date)
-
   - By default: the time when rotation job started;
   - if both [`options.interval`](#interval) and [`intervalBoundary`](#intervalboundary) options are enabled: the start
     time of rotation period.
