@@ -1,8 +1,10 @@
 {
+  "extends": "./tsconfig.json",
   "compilerOptions": {
     "declaration": true,
     "emitDeclarationOnly": true,
+    "module": "ES2022",
+    "moduleResolution": "bundler",
     "outDir": "dist/types"
-  },
-  "extends": "./tsconfig.json"
+  }
 }

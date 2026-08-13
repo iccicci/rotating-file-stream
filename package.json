@@ -1,14 +1,20 @@
 {
   "name": "rotating-file-stream",
+  "private": true,
   "version": "3.2.10",
   "description": "Opens a stream.Writable to a file rotated by interval and/or size. A logrotate alternative.",
+  "workspaces": [
+    "packages/*"
+  ],
   "scripts": {
-    "all": "yarn eslint && yarn coverage",
-    "coverage": "rm -rf dist && TZ=Europe/Rome jest --coverage --runInBand",
-    "eslint": "eslint index.ts utils.ts test/*ts",
-    "ignore": "tsx utils ignore",
-    "prepare": "npm run ignore && tsc -p tsconfig.cjs.json && echo '{\"type\":\"commonjs\"}' > dist/cjs/package.json && tsc -p tsconfig.esm.json && tsc -p tsconfig.types.json",
-    "test": "rm -rf dist && TZ=Europe/Rome jest --runInBand"
+    "all": "yarn eslint && yarn coverage && yarn build && yarn test:build",
+    "build": "bash ./scripts/build.sh",
+    "coverage": "TZ=Europe/Rome vitest run --coverage",
+    "deps": "npm-check-updates -t minor -u && yarn && npm-check-updates -t latest",
+    "eslint": "eslint",
+    "prepack": "yarn build",
+    "test": "TZ=Europe/Rome vitest run",
+    "test:build": "bash ./scripts/test-build.sh"
   },
   "bugs": "https://github.com/iccicci/rotating-file-stream/issues",
   "repository": {
@@ -19,9 +25,6 @@
     "rotate",
     "logrotate"
   ],
-  "engines": {
-    "node": ">=14.0"
-  },
   "author": "Daniele Ricci <daniele.icc@gmail.com> (https://github.com/iccicci)",
   "contributors": [
     "cicci (https://www.trinityteam.it/DanieleRicci#en)",
@@ -39,35 +42,27 @@
     "url": "https://www.blockchain.com/btc/address/12p1p5q7sK75tPyuesZmssiMYr4TKzpSCN"
   },
   "readmeFilename": "README.md",
-  "main": "./dist/cjs/index.js",
-  "module": "./dist/esm/index.js",
-  "types": "./dist/types/index.d.ts",
-  "exports": {
-    ".": {
-      "import": "./dist/esm/index.js",
-      "require": "./dist/cjs/index.js",
-      "types": "./dist/types/index.d.ts"
-    }
-  },
   "type": "module",
   "devDependencies": {
-    "@types/jest": "30.0.0",
-    "@types/node": "25.3.0",
-    "@typescript-eslint/eslint-plugin": "6.16.0",
-    "@typescript-eslint/parser": "6.16.0",
-    "eslint": "8.56.0",
-    "eslint-plugin-sort-keys": "2.3.5",
-    "jest": "30.2.0",
-    "jest-environment-node-single-context": "29.4.0",
-    "prettier": "3.8.1",
-    "ts-jest": "29.4.6",
-    "tsx": "4.21.0",
-    "typescript": "5.9.3"
+    "@eslint/js": "10.0.1",
+    "@stylistic/eslint-plugin": "5.10.0",
+    "@types/node": "26.2.0",
+    "@vitest/coverage-v8": "4.1.10",
+    "eslint": "10.8.1",
+    "eslint-plugin-perfectionist": "5.10.1",
+    "eslint-plugin-simple-import-sort": "14.0.0",
+    "globals": "17.11.0",
+    "npm-check-updates": "23.0.2",
+    "prettier": "3.9.6",
+    "tsx": "4.23.12",
+    "typescript": "6.0.3",
+    "typescript-eslint": "8.67.0",
+    "vitest": "4.1.10"
   },
   "prettier": {
     "arrowParens": "avoid",
     "jsxBracketSameLine": true,
-    "printWidth": 200,
+    "printWidth": 150,
     "trailingComma": "none"
   }
 }

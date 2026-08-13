@@ -1,0 +1,42 @@
+{
+  "name": "rotating-file-stream",
+  "version": "3.2.9",
+  "description": "Opens a stream.Writable to a file rotated by interval and/or size. A logrotate alternative.",
+  "bugs": "https://github.com/iccicci/rotating-file-stream/issues",
+  "repository": {
+    "url": "git+https://github.com/iccicci/rotating-file-stream.git"
+  },
+  "keywords": [
+    "log",
+    "rotate",
+    "logrotate"
+  ],
+  "engines": {
+    "node": ">=22.0"
+  },
+  "author": "Daniele Ricci <daniele.icc@gmail.com> (https://github.com/iccicci)",
+  "contributors": [
+    "cicci (https://www.trinityteam.it/DanieleRicci#en)",
+    "allevo",
+    "kbirger",
+    "jvassev",
+    "wangao",
+    "rakshith-ravi",
+    "Jorge Silva <jorgemsrs@gmail.com>",
+    "Jan Christoph Bernack <jc.bernack@gmail.com>",
+    "cchare (https://github.com/cchare)"
+  ],
+  "license": "MIT",
+  "readmeFilename": "README.md",
+  "main": "./dist/cjs/index.js",
+  "module": "./dist/esm/index.js",
+  "types": "./dist/types/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/types/index.d.ts",
+      "import": "./dist/esm/index.js",
+      "require": "./dist/cjs/index.js"
+    }
+  },
+  "type": "module"
+}

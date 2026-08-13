@@ -1,0 +1,115 @@
+name: build
+
+on:
+  pull_request:
+  push:
+    branches:
+      - main
+      - master
+
+env:
+  TZ: Europe/Rome
+
+jobs:
+  # Single place to declare Node versions for CI checks and the one used for Codecov.
+  versions:
+    name: versions
+    runs-on: ubuntu-latest
+    outputs:
+      # Node versions that run coverage + build
+      node: ${{ steps.set.outputs.node }}
+      # Sole Node version whose coverage report is uploaded to Codecov
+      codecov_node: ${{ steps.set.outputs.codecov_node }}
+    steps:
+      - id: set
+        run: |
+          echo 'node=["22","24","26"]' >> "$GITHUB_OUTPUT"
+          echo 'codecov_node=26' >> "$GITHUB_OUTPUT"
+
+  coverage:
+    name: coverage (Node ${{ matrix.node-version }})
+    needs: versions
+    runs-on: ubuntu-latest
+
+    strategy:
+      fail-fast: false
+      matrix:
+        node-version: ${{ fromJSON(needs.versions.outputs.node) }}
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ matrix.node-version }}
+          cache: yarn
+
+      - name: Install dependencies
+        run: yarn install --frozen-lockfile
+
+      - name: Test with coverage
+        run: yarn coverage
+
+      - name: Upload coverage artifact
+        if: matrix.node-version == needs.versions.outputs.codecov_node
+        uses: actions/upload-artifact@v4
+        with:
+          name: coverage-lcov
+          path: coverage/lcov.info
+          if-no-files-found: error
+
+  build:
+    name: build (Node ${{ matrix.node-version }})
+    needs: versions
+    runs-on: ubuntu-latest
+
+    strategy:
+      fail-fast: false
+      matrix:
+        node-version: ${{ fromJSON(needs.versions.outputs.node) }}
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ matrix.node-version }}
+          cache: yarn
+
+      - name: Install dependencies
+        run: yarn install --frozen-lockfile
+
+      - name: Lint
+        run: yarn eslint
+
+      - name: Build
+        run: yarn build
+
+      - name: Test build
+        run: yarn test:build
+
+  codecov:
+    name: codecov (Node ${{ needs.versions.outputs.codecov_node }})
+    needs: [versions, coverage]
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Download coverage artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: coverage-lcov
+          path: coverage
+
+      - name: Upload coverage to Codecov
+        uses: codecov/codecov-action@v5
+        with:
+          fail_ci_if_error: true
+          files: coverage/lcov.info
+          token: ${{ secrets.CODECOV_TOKEN }}
