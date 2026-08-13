@@ -1,0 +1,7 @@
+.*
+test
+tsconfig.*
+.gitignore
+.npmignore
+index.ts
+node_modules

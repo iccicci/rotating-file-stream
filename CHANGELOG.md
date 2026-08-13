@@ -1,3 +1,14 @@
+- Unreleased - v4.0.0
+  - Complete repository refactoring to a Yarn workspaces monorepo, with the published package moved under `packages/rotating-file-stream`.
+  - Added [`rotating-file-stream-4js`](https://www.npmjs.com/package/rotating-file-stream-4js), a log4js appender backed by `rotating-file-stream` (`shareStream` for a single shared stream across appenders).
+  - Complete rewrite of `rotating-file-stream` internals with a modernized TypeScript codebase.
+  - Redesigned file name generator TypeScript API: `GeneratorArguments`, `StandardGenerator`, `ClassicalGenerator`.
+  - `createStream` TypeScript overloads discriminate classical (`options.rotate`) vs standard generators (`OptionsWithRotate` / `OptionsWithoutRotate`).
+  - Added [`options.symLink`](https://github.com/iccicci/rotating-file-stream#symlink) to keep a stable symlink on the active log file (especially useful with `immutable`).
+  - Library-originated failures are thrown as `RotatingFileStreamError`; errors from Node.js APIs are not wrapped.
+  - Requires **Node.js v22** (was `>=14`).
+  - Expanded README with logger wiring examples (bunyan, log4js, morgan, pino, winston) and an upgrading guide from v3 to v4.
+  - Switched the test runner from Jest to Vitest; added package build/deploy ordering and version consistency checks.
 - 2026-08-13 - v3.2.10
   - Fixed a bug which [requires a write operation to emit errors on open](https://github.com/iccicci/rotating-file-stream/issues/126) (thanks to [alexojegu](https://github.com/alexojegu))
   - Fixed a bug which [schedules intervalUTC hour/day/month boundaries in the host timezone](https://github.com/iccicci/rotating-file-stream/issues/127) (thanks to [christ12938](https://github.com/christ12938))
@@ -106,7 +117,7 @@
 - 2017-02-14 - v1.1.9
   - fixed warning events order in case of external compression errors
 - 2017-02-13 - v1.1.8
-  - removed tmp dependecy due it was causing a strange instability now disappeared
+  - removed tmp dependency due it was causing a strange instability now disappeared
 - 2017-02-07 - v1.1.7
   - fixed tmp.file call
 - 2017-02-03 - v1.1.6
@@ -121,7 +132,7 @@
   - Fixed bug: [unable to reuse configuration object](https://github.com/iccicci/rotating-file-stream/issues/10)
   - Fixed bug: [Events cross over: rotate and rotated](https://github.com/iccicci/rotating-file-stream/issues/6)
 - 2016-12-05 - v1.1.1
-  - Added classical **UNIX logrotate** tool behaviour.
+  - Added classical **UNIX logrotate** tool behavior.
 - 2016-04-29 - v1.0.5
   - Tested on node v6.0
   - Fixed a bug on rotation with interval and compression
@@ -135,7 +146,7 @@
 - 2015-10-08 - v1.0.1
   - README fix
 - 2015-10-08 - v1.0.0
-  - Async error reporting refactory
+  - Async error reporting refactoring
 - 2015-10-07 - v0.1.0
   - Internal gzip compression
 - 2015-10-06 - v0.0.5

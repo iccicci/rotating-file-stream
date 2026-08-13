@@ -1,0 +1,4 @@
+{
+  "extends": "./tsconfig.json",
+  "include": ["packages/*/index.ts", "packages/*/test/**/*.ts", "vitest.config.ts"]
+}

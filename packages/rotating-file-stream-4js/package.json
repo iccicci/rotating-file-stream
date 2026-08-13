@@ -1,0 +1,47 @@
+{
+  "name": "rotating-file-stream-4js",
+  "version": "4.0.0",
+  "description": "log4js appender backed by rotating-file-stream.",
+  "bugs": "https://github.com/iccicci/rotating-file-stream/issues",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/iccicci/rotating-file-stream.git",
+    "directory": "packages/rotating-file-stream-4js"
+  },
+  "keywords": [
+    "log",
+    "log4js",
+    "rotate",
+    "logrotate",
+    "rotating-file-stream"
+  ],
+  "engines": {
+    "node": ">=22.0"
+  },
+  "author": "Daniele Ricci <daniele.icc@gmail.com> (https://github.com/iccicci)",
+  "contributors": [
+    "cicci (https://www.trinityteam.it/DanieleRicci#en)"
+  ],
+  "license": "MIT",
+  "funding": {
+    "url": "https://www.blockchain.com/btc/address/12p1p5q7sK75tPyuesZmssiMYr4TKzpSCN"
+  },
+  "readmeFilename": "README.md",
+  "main": "./dist/cjs/index.js",
+  "module": "./dist/esm/index.js",
+  "types": "./dist/types/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/types/index.d.ts",
+      "import": "./dist/esm/index.js",
+      "require": "./dist/cjs/index.js"
+    }
+  },
+  "type": "module",
+  "dependencies": {
+    "rotating-file-stream": "4.0.0"
+  },
+  "peerDependencies": {
+    "log4js": ">=6.0.0"
+  }
+}
