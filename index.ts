@@ -409,13 +409,13 @@ export class RotatingFileStream extends Writable {
     } else if(unit === "d") hours = 0;
     else hours = parseInt((hours / num) as unknown as string, 10) * num;
 
-    this.prev = new Date(year, month, day, hours, 0, 0, 0).getTime();
+    this.prev = this.options.intervalUTC ? Date.UTC(year, month, day, hours, 0, 0, 0) : new Date(year, month, day, hours, 0, 0, 0).getTime();
 
     if(unit === "M") month += num;
     else if(unit === "d") day += num;
     else hours += num;
 
-    this.next = new Date(year, month, day, hours, 0, 0, 0).getTime();
+    this.next = this.options.intervalUTC ? Date.UTC(year, month, day, hours, 0, 0, 0) : new Date(year, month, day, hours, 0, 0, 0).getTime();
   }
 
   private intervalBounds(now: Date): Date {

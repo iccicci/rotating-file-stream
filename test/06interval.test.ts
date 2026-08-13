@@ -56,9 +56,51 @@ describe("interval", () => {
       }
     );
 
-    it("events", () => deq(events, { close: 1, finish: 1, open: ["test.log"], rotated: ["20150123-0000-01-test.log"], rotation: 1, write: 1 }));
+    it("events", () => deq(events, { close: 1, finish: 1, open: ["test.log"], rotated: ["20150123-0100-01-test.log"], rotation: 1, write: 1 }));
     it("file content", () => eq(readFileSync("test.log", "utf8"), "test\n"));
-    it("rotated file content", () => eq(readFileSync("20150123-0000-01-test.log", "utf8"), "test\n"));
+    it("rotated file content", () => eq(readFileSync("20150123-0100-01-test.log", "utf8"), "test\n"));
+  });
+
+  describe("intervalUTC day boundary", () => {
+    let next: number, prev: number;
+    const events = test({ options: { interval: "1d", intervalBoundary: true, intervalUTC: true } }, rfs =>
+      rfs.end("test\n", () => {
+        rfs.intervalBounds(new Date("2026-08-10T04:00:00.000Z"));
+        ({ next, prev } = rfs);
+      })
+    );
+
+    it("events", () => deq(events, { close: 1, finish: 1, open: ["test.log"], write: 1 }));
+    it("prev", () => eq(new Date(prev).toISOString(), "2026-08-10T00:00:00.000Z"));
+    it("next", () => eq(new Date(next).toISOString(), "2026-08-11T00:00:00.000Z"));
+  });
+
+  describe("intervalUTC hour boundary", () => {
+    let next: number, prev: number;
+    const events = test({ options: { interval: "3h", intervalBoundary: true, intervalUTC: true } }, rfs =>
+      rfs.end("test\n", () => {
+        rfs.intervalBounds(new Date("2026-08-10T04:00:00.000Z"));
+        ({ next, prev } = rfs);
+      })
+    );
+
+    it("events", () => deq(events, { close: 1, finish: 1, open: ["test.log"], write: 1 }));
+    it("prev", () => eq(new Date(prev).toISOString(), "2026-08-10T03:00:00.000Z"));
+    it("next", () => eq(new Date(next).toISOString(), "2026-08-10T06:00:00.000Z"));
+  });
+
+  describe("intervalUTC month boundary", () => {
+    let next: number, prev: number;
+    const events = test({ options: { interval: "1M", intervalBoundary: true, intervalUTC: true } }, rfs =>
+      rfs.end("test\n", () => {
+        rfs.intervalBounds(new Date("2026-08-10T04:00:00.000Z"));
+        ({ next, prev } = rfs);
+      })
+    );
+
+    it("events", () => deq(events, { close: 1, finish: 1, open: ["test.log"], write: 1 }));
+    it("prev", () => eq(new Date(prev).toISOString(), "2026-08-01T00:00:00.000Z"));
+    it("next", () => eq(new Date(next).toISOString(), "2026-09-01T00:00:00.000Z"));
   });
 
   describe("initialRotation option but ok", () => {

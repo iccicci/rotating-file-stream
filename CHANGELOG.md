@@ -1,5 +1,6 @@
 - Unreleased
   - Fixed a bug which [requires a write operation to emit errors on open](https://github.com/iccicci/rotating-file-stream/issues/126) (thanks to [alexojegu](https://github.com/alexojegu))
+  - Fixed a bug which [schedules intervalUTC hour/day/month boundaries in the host timezone](https://github.com/iccicci/rotating-file-stream/issues/127) (thanks to [christ12938](https://github.com/christ12938))
 - 2026-02-21 - v3.2.9
   - Updated the README to reflect current API. - ref: [#116](https://github.com/iccicci/rotating-file-stream/issues/116)
   - Changed options types to allow `string`s from ENV or files while continuing checking literal values. - ref: [#122](https://github.com/iccicci/rotating-file-stream/issues/122)
