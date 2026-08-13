@@ -174,7 +174,9 @@ export class RotatingFileStream extends Writable {
 
         await this.initPromise;
         delete this.initPromise;
-      } catch(e) {}
+      } catch(e) {
+        this.destroy(e);
+      }
     })();
   }
 

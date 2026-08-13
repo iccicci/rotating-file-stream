@@ -59,6 +59,12 @@ describe("errors", () => {
     it("events", () => deq(events, { close: 1, error: ["Can't write on: test (it is not a file)"], finish: 1, write: 1 }));
   });
 
+  describe("logging on directory without write", () => {
+    const events = test({ filename: "test", options: { size: "5B" } }, () => undefined);
+
+    it("events", () => deq(events, { close: 1, error: ["Can't write on: test (it is not a file)"], finish: 1 }));
+  });
+
   describe("logging on directory (immutable)", () => {
     const events = test({ filename: () => "test", options: { immutable: true, interval: "1d", size: "5B" } }, rfs => rfs.write("test\n"));
 
@@ -106,6 +112,12 @@ describe("errors", () => {
     });
 
     it("events", () => deq(events, { close: 1, error: ["EACCES"], finish: 1, write: 1 }));
+  });
+
+  describe("RO error without write", () => {
+    const events = test({ files: { "test.log": { content: "test\n", mode: 0o400 } }, options: { size: "10B" } }, () => undefined);
+
+    it("events", () => deq(events, { close: 1, error: ["EACCES"], finish: 1 }));
   });
 
   describe("error in timer after final", () => {

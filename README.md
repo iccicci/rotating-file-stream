@@ -223,6 +223,8 @@ function of `index`.
 Extends [stream.Writable](https://nodejs.org/api/stream.html#stream_class_stream_writable). It should not be directly
 used. Exported only to be used with `instanceof` operator and similar.
 
+`RotatingFileStream` emits all events emitted by `stream.Writable` plus the ones described below.
+
 ### Event: 'external'
 
 - `stdout` [&lt;string>](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Data_structures#String_type) The
