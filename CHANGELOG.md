@@ -1,4 +1,4 @@
-- Unreleased
+- 2026-08-13 - v3.2.10
   - Fixed a bug which [requires a write operation to emit errors on open](https://github.com/iccicci/rotating-file-stream/issues/126) (thanks to [alexojegu](https://github.com/alexojegu))
   - Fixed a bug which [schedules intervalUTC hour/day/month boundaries in the host timezone](https://github.com/iccicci/rotating-file-stream/issues/127) (thanks to [christ12938](https://github.com/christ12938))
 - 2026-02-21 - v3.2.9
