@@ -1,0 +1,12 @@
+coverage
+node_modules
+packages/*/.npmignore
+packages/*/dist
+packages/*/tsconfig.json
+packages/*/tsconfig.*.json
+test/cjs/node_modules
+test/cjs/yarn.lock
+test/esm/node_modules
+test/esm/yarn.lock
+test/types/node_modules
+test/types/yarn.lock

@@ -1,3 +1,8 @@
+- Unreleased - v4.x
+  - Complete repository refactoring to a Yarn workspaces monorepo, with the published package moved under `packages/rotating-file-stream`.
+  - Complete rewrite of `rotating-file-stream` internals with a modernized TypeScript codebase and updated generator API.
+  - Redesigned file name generator TypeScript API: `GeneratorArguments`, `StandardGenerator`, `ClassicalGenerator`.
+    See [Upgrading from v3 to v4](README.md#upgrading-from-v3-to-v4).
 - 2026-08-13 - v3.2.10
   - Fixed a bug which [requires a write operation to emit errors on open](https://github.com/iccicci/rotating-file-stream/issues/126) (thanks to [alexojegu](https://github.com/alexojegu))
   - Fixed a bug which [schedules intervalUTC hour/day/month boundaries in the host timezone](https://github.com/iccicci/rotating-file-stream/issues/127) (thanks to [christ12938](https://github.com/christ12938))

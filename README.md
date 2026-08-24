@@ -1,32 +1,30 @@
 # rotating-file-stream
 
-[![Build Status][travis-badge]][travis-url]
-[![Code Climate][code-badge]][code-url]
-[![Test Coverage][cover-badge]][code-url]
-
+[![Build Status][gha-badge]][gha-url]
+[![codecov][codecov-badge]][codecov-url]
 [![NPM version][npm-badge]][npm-url]
+
 [![NPM downloads][npm-downloads-badge]][npm-url]
+[![Dependents][deps-badge]][npm-url]
 [![Stars][stars-badge]][stars-url]
 
 [![Types][types-badge]][npm-url]
-[![Dependents][deps-badge]][npm-url]
 [![Donate][donate-badge]][donate-url]
 
-[code-badge]: https://codeclimate.com/github/iccicci/rotating-file-stream/badges/gpa.svg
-[code-url]: https://codeclimate.com/github/iccicci/rotating-file-stream
-[cover-badge]: https://codeclimate.com/github/iccicci/rotating-file-stream/badges/coverage.svg
+[codecov-badge]: https://codecov.io/gh/iccicci/rotating-file-stream/graph/badge.svg
+[codecov-url]: https://codecov.io/gh/iccicci/rotating-file-stream
 [deps-badge]: https://img.shields.io/librariesio/dependents/npm/rotating-file-stream?logo=npm
 [deps-url]: https://www.npmjs.com/package/rotating-file-stream?activeTab=dependents
 [donate-badge]: https://img.shields.io/static/v1?label=donate&message=bitcoin&color=blue&logo=bitcoin
 [donate-url]: https://blockchain.info/address/12p1p5q7sK75tPyuesZmssiMYr4TKzpSCN
+[gha-badge]: https://github.com/iccicci/rotating-file-stream/actions/workflows/build.yml/badge.svg
+[gha-url]: https://github.com/iccicci/rotating-file-stream/actions/workflows/build.yml
 [github-url]: https://github.com/iccicci/rotating-file-stream
 [npm-downloads-badge]: https://img.shields.io/npm/dw/rotating-file-stream?logo=npm
 [npm-badge]: https://img.shields.io/npm/v/rotating-file-stream?color=green&logo=npm
 [npm-url]: https://www.npmjs.com/package/rotating-file-stream
 [stars-badge]: https://img.shields.io/github/stars/iccicci/rotating-file-stream?logo=github&style=flat&color=green
 [stars-url]: https://github.com/iccicci/rotating-file-stream/stargazers
-[travis-badge]: https://img.shields.io/travis/com/iccicci/rotating-file-stream?logo=travis
-[travis-url]: https://app.travis-ci.com/github/iccicci/rotating-file-stream
 [types-badge]: https://img.shields.io/static/v1?label=types&message=included&color=green&logo=typescript
 
 ### Description
@@ -56,12 +54,13 @@ $ npm install --save rotating-file-stream
 
 ### Table of contents
 
+- [Upgrading from v3 to v4](#upgrading-from-v3-to-v4)
 - [Upgrading from v2 to v3](#upgrading-from-v2-to-v3)
 - [Upgrading from v1 to v2](#upgrading-from-v1-to-v2)
 - [API](#api)
-  - [rfs.createStream(filename[, options])](#rfscreatestreamfilename-options)
+  - [createStream(filename[, options])](#createstreamfilename-options)
     - [filename](#filename)
-      - [filename(time[, index])](#filenametime-index)
+      - [filename(args)](#filenameargs)
       - [filename(index)](#filenameindex)
   - [Class: RotatingFileStream](#class-rotatingfilestream)
     - [Event: 'external'](#event-external)
@@ -87,6 +86,7 @@ $ npm install --save rotating-file-stream
     - [path](#path)
     - [rotate](#rotate)
     - [size](#size)
+    - [symLink](#symlink)
     - [teeToStdout](#teeToStdout)
 - [Rotation logic](#rotation-logic)
 - [Under the hood](#under-the-hood)
@@ -96,6 +96,62 @@ $ npm install --save rotating-file-stream
 - [Bugs](#bugs)
 - [ChangeLog](#changelog)
 - [Donating](#donating)
+
+# Upgrading from v3 to v4
+
+In **v4** the _file name generator_ TypeScript API was redesigned. Custom generators are also validated at runtime by
+`createStream` (see below).
+
+**Breaking change**: the standard generator no longer receives `(time, index?)`. It receives a single argument:
+
+- `null`: return the _not-rotated file name_;
+- `{ time: Date, index: number }`: return the _rotated file name_ (both fields are always present together).
+
+**Breaking change**: the classical generator (when [`options.rotate`](#rotate) is used) no longer accepts an optional
+index. It receives `number | null` (`null` for the _not-rotated file name_).
+
+**Breaking change**: with TypeScript, `createStream` now picks the generator kind from options:
+
+- if `options.rotate` is a `number`, `filename` must be `string | ClassicalGenerator`;
+- otherwise `filename` must be `string | StandardGenerator`.
+
+**Runtime check**: when `filename` is a function (not a string), `createStream` validates it before creating the stream.
+A generator that still uses the v3 two-parameter signature, or that returns the same name for `null` and for distinct
+rotation parameters, causes `createStream` to throw `RotatingFileStreamError`.
+
+Exported types: `GeneratorArguments`, `StandardGenerator`, `ClassicalGenerator`, and `Generator`
+(`ClassicalGenerator | StandardGenerator`).
+
+### Errors
+
+In **v4**, every error raised by the library (invalid options or generator passed to `createStream`, invariant
+failures, unexpected thrown values, and similar) is a `RotatingFileStreamError`. Errors originating from Node.js
+built-in APIs used at runtime (filesystem, streams, child processes, and the like) are propagated to the caller
+unchanged: same type, message, and `code` where applicable.
+
+### Migrating a standard generator
+
+**v3:**
+
+```javascript
+const generator = (time, index) => {
+  if (!time) return "file.log";
+  return `${time.getFullYear()}-${index}-file.log`;
+};
+
+createStream(generator, { size: "10M" });
+```
+
+**v4:**
+
+```javascript
+const generator = args => {
+  if (!args) return "file.log";
+  return `${args.time.getFullYear()}-${args.index}-file.log`;
+};
+
+createStream(generator, { size: "10M" });
+```
 
 # Upgrading from v2 to v3
 
@@ -144,18 +200,20 @@ compatibility upgrading from **v1** to **v2**, just follow this rules:
 # API
 
 ```javascript
-const rfs = require("rotating-file-stream");
+import { createStream } from "rotating-file-stream";
 ```
 
-## rfs.createStream(filename[, options])
+## createStream(filename[, options])
 
-- `filename` [&lt;string>](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Data_structures#String_type) |
-  [&lt;Function>](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Function) The name
+- `filename` [`<string>`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Guide/Data_structures#string_type) |
+  [`<Function>`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Function) The name
   of the file or the function to generate it, called _file name generator_. See below for
   [details](#filename-stringfunction).
-- `options` [&lt;Object>](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Object)
+  With **TypeScript**, the accepted function type depends on options: `StandardGenerator` by default, or
+  `ClassicalGenerator` when [`options.rotate`](#rotate) is set.
+- `options` [`<Object>`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Object)
   Rotation options, See below for [details](#options).
-- Returns: [&lt;RotatingFileStream>](#class-rotatingfilestream) The **rotating file stream**!
+- Returns: [`<RotatingFileStream>`](#class-rotatingfilestream) The **rotating file stream**!
 
 This interface is inspired to
 [fs.createWriteStream](https://nodejs.org/api/fs.html#fs_fs_createwritestream_path_options) one. The file is rotated
@@ -172,68 +230,89 @@ otherwise a `Function` which returns the _rotated file name_ can be used.
 **Note:**
 if part of returned destination path does not exists, the rotation job will try to create it.
 
-#### filename(time[, index])
+#### filename(args)
 
-- `time` [&lt;Date>](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Date)
-  - By default: the time when rotation job started;
-  - if both [`options.interval`](#interval) and [`intervalBoundary`](#intervalboundary) options are enabled: the start
-    time of rotation period.
+Used for **standard** rotation (when [`options.rotate`](#rotate) is not set).
 
-  If `null`, the _not-rotated file name_ must be returned.
+- `args` [`<Object>`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Object) |
+  [`<null>`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Guide/Data_structures#null_type)
+  - If `null`, the _not-rotated file name_ must be returned.
+  - Otherwise an object with both properties set:
+    - `time` [`<Date>`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Date)
+      By default: the time when rotation job started. If both [`options.interval`](#interval) and
+      [`options.intervalBoundary`](#intervalboundary) options are enabled: the start time of rotation period.
+    - `index` [`<number>`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Guide/Data_structures#number_type) The
+      progressive index of rotation by size in the same rotation period.
 
-- `index` [&lt;number>](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Data_structures#Number_type) The
-  progressive index of rotation by size in the same rotation period.
+`index` is there so the generator can produce two distinct _rotated file names_ if more than one rotation happens inside
+the same time window. That occurs when [`options.size`](#size) is reached more than once before
+[`options.interval`](#interval) elapses: each extra size-based rotation in that interval still uses the same `time`, so
+`index` is the value that keeps the destinations from colliding.
+
+`index` is also passed when only [`options.interval`](#interval) is set, and when only [`options.size`](#size) is set.
+When only [`options.interval`](#interval) is set, or when only [`options.size`](#size) is set, `index` is a safeguard:
+if the name the generator would otherwise produce already exists on disk, the stream retries with a higher `index`
+instead of overwriting the existing file.
+
+The starting value of `index` depends only on [`options.size`](#size): that option is **necessary and sufficient** for
+`index` to start from `1`. When [`options.size`](#size) is not set, `index` starts from `0`. Because of that, a
+generator that always interpolates `index` into the file name will produce names like `...-0-file.log` unless it omits
+`index` when it is `0`.
 
 An example of a complex _rotated file name generator_ function could be:
 
 ```javascript
+import { createStream } from "rotating-file-stream";
+
 const pad = num => (num > 9 ? "" : "0") + num;
-const generator = (time, index) => {
-  if (!time) return "file.log";
+const generator = args => {
+  if (!args) return "file.log";
 
-  var month = time.getFullYear() + "" + pad(time.getMonth() + 1);
-  var day = pad(time.getDate());
-  var hour = pad(time.getHours());
-  var minute = pad(time.getMinutes());
+  const { time, index } = args;
+  const month = time.getFullYear() + "" + pad(time.getMonth() + 1);
+  const day = pad(time.getDate());
+  const hour = pad(time.getHours());
+  const minute = pad(time.getMinutes());
+  // Do not include the index in the file name when it is 0
+  const idx = index ? `-${index}` : "";
 
-  return `${month}/${month}${day}-${hour}${minute}-${index}-file.log`;
+  return `${month}/${month}${day}-${hour}${minute}${idx}-file.log`;
 };
 
-const rfs = require("rotating-file-stream");
-const stream = rfs.createStream(generator, {
+const stream = createStream(generator, {
   size: "10M",
   interval: "30m"
 });
 ```
 
-**Note:**
-if both of [`options.interval`](#interval) [`options.size`](#size) are used, returned _rotated file name_ **must** be
-function of both arguments `time` and `index`.
-
 #### filename(index)
 
-- `index` [&lt;number>](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Data_structures#Number_type) The
-  progressive index of rotation. If `null`, the _not-rotated file name_ must be returned.
+Used when classical **logrotate** behavior is enabled (by [`options.rotate`](#rotate)).
 
-If classical **logrotate** behavior is enabled (by [`options.rotate`](#rotate)), _rotated file name_ is only a
-function of `index`.
+- `index` [`<number>`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Guide/Data_structures#number_type) |
+  [`<null>`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Guide/Data_structures#null_type) The progressive index of rotation. If `null`, the _not-rotated file name_ must be returned.
+
+In this mode the _rotated file name_ is only a function of `index`.
 
 ## Class: RotatingFileStream
 
 Extends [stream.Writable](https://nodejs.org/api/stream.html#stream_class_stream_writable). It should not be directly
 used. Exported only to be used with `instanceof` operator and similar.
 
-`RotatingFileStream` emits all events emitted by `stream.Writable` plus the ones described below.
+`RotatingFileStream` emits all events emitted by [`EventEmitter`](https://nodejs.org/api/events.html#class-eventemitter),
+[`stream.Stream`](https://nodejs.org/api/stream.html#class-streamstream) and
+[`stream.Writable`](https://nodejs.org/api/stream.html#stream_class_stream_writable), plus the ones described below.
 
 ### Event: 'external'
 
-- `stdout` [&lt;string>](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Data_structures#String_type) The
+- `stdout` [`<string>`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Guide/Data_structures#string_type) The
   standard output of the external compression command.
-- `stderr` [&lt;string>](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Data_structures#String_type) The
+- `stderr` [`<string>`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Guide/Data_structures#string_type) The
   standard error of the external compression command.
 
 The `external` event is emitted once an _external compression command_ completes its execution to give access to the
-command output streams.
+command output streams. It is emitted even when the command exits with a non-zero status, so listeners can inspect
+`stdout` and `stderr` before handling the subsequent `error` event.
 
 ### Event: 'history'
 
@@ -241,16 +320,16 @@ The `history` event is emitted once the _history check job_ is completed.
 
 ### Event: 'open'
 
-- `filename` [&lt;string>](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Data_structures#String_type) Is
+- `filename` [`<string>`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Guide/Data_structures#string_type) Is
   constant unless [`options.immutable`](#immutable) is `true`.
 
 The `open` event is emitted once the _not-rotated file_ is opened.
 
 ### Event: 'removed'
 
-- `filename` [&lt;string>](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Data_structures#String_type) The
+- `filename` [`<string>`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Guide/Data_structures#string_type) The
   name of the removed file.
-- `number` [&lt;boolean>](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Data_structures#Boolean_type)
+- `number` [`<boolean>`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Guide/Data_structures#boolean_type)
   - `true` if the file was removed due to [`options.maxFiles`](#maxFiles)
   - `false` if the file was removed due to [`options.maxSize`](#maxSize)
 
@@ -263,14 +342,14 @@ The `rotation` event is emitted once the _rotation job_ is started.
 
 ### Event: 'rotated'
 
-- `filename` [&lt;string>](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Data_structures#String_type) The
+- `filename` [`<string>`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Guide/Data_structures#string_type) The
   _rotated file name_ produced.
 
 The `rotated` event is emitted once the _rotation job_ is completed.
 
 ### Event: 'warning'
 
-- `error` [&lt;Error>](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Error) The
+- `error` [`<Error>`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Error) The
   non blocking error.
 
 The `warning` event is emitted once a non blocking error happens.
@@ -278,55 +357,59 @@ The `warning` event is emitted once a non blocking error happens.
 ## options
 
 - [`compress`](#compress):
-  [&lt;boolean>](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Data_structures#Boolean_type) |
-  [&lt;string>](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Data_structures#String_type) |
-  [&lt;Function>](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Function)
+  [`<boolean>`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Guide/Data_structures#boolean_type) |
+  [`<string>`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Guide/Data_structures#string_type) |
+  [`<Function>`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Function)
   Specifies compression method of rotated files. **Default:** `null`.
 - [`encoding`](#encoding):
-  [&lt;string>](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Data_structures#String_type)
+  [`<string>`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Guide/Data_structures#string_type)
   Specifies the default encoding. **Default:** `'utf8'`.
 - [`history`](#history):
-  [&lt;string>](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Data_structures#String_type)
+  [`<string>`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Guide/Data_structures#string_type)
   Specifies the _history filename_. **Default:** `null`.
 - [`immutable`](#immutable):
-  [&lt;boolean>](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Data_structures#Boolean_type)
+  [`<boolean>`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Guide/Data_structures#boolean_type)
   Never mutate file names. **Default:** `null`.
 - [`initialRotation`](#initialRotation):
-  [&lt;boolean>](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Data_structures#Boolean_type)
+  [`<boolean>`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Guide/Data_structures#boolean_type)
   Initial rotation based on _not-rotated file_ timestamp. **Default:** `null`.
 - [`interval`](#interval):
-  [&lt;string>](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Data_structures#String_type)
+  [`<string>`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Guide/Data_structures#string_type)
   Specifies the time interval to rotate the file. **Default:** `null`.
 - [`intervalBoundary`](#intervalBoundary):
-  [&lt;boolean>](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Data_structures#Boolean_type)
+  [`<boolean>`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Guide/Data_structures#boolean_type)
   Makes rotated file name with lower boundary of rotation period. **Default:** `null`.
 - [`intervalUTC`](#intervalutc):
-  [&lt;boolean>](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Data_structures#Boolean_type)
+  [`<boolean>`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Guide/Data_structures#boolean_type)
   Boundaries for rotation are computed in UTC. **Default:** `null`.
 - [`maxFiles`](#maxFiles):
-  [&lt;number>](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Data_structures#Number_type)
+  [`<number>`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Guide/Data_structures#number_type)
   Specifies the maximum number of rotated files to keep. **Default:** `null`.
 - [`maxSize`](#maxSize):
-  [&lt;string>](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Data_structures#String_type)
+  [`<string>`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Guide/Data_structures#string_type)
   Specifies the maximum size of rotated files to keep. **Default:** `null`.
 - [`mode`](#mode):
-  [&lt;number>](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Data_structures#Number_type)
+  [`<number>`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Guide/Data_structures#number_type)
   Forwarded to [fs.createWriteStream](https://nodejs.org/api/fs.html#fs_fs_createwritestream_path_options).
   **Default:** `0o666`.
 - [`omitExtension`](#omitextension):
-  [&lt;boolean>](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Data_structures#Boolean_type)
+  [`<boolean>`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Guide/Data_structures#boolean_type)
   Omits the `.gz` extension from compressed rotated files. **Default:** `null`.
 - [`path`](#path):
-  [&lt;string>](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Data_structures#String_type)
+  [`<string>`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Guide/Data_structures#string_type)
   Specifies the base path for files. **Default:** `null`.
 - [`rotate`](#rotate):
-  [&lt;number>](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Data_structures#Number_type)
+  [`<number>`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Guide/Data_structures#number_type)
   Enables the classical UNIX **logrotate** behavior. **Default:** `null`.
 - [`size`](#size):
-  [&lt;string>](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Data_structures#String_type)
+  [`<string>`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Guide/Data_structures#string_type)
   Specifies the file size to rotate the file. **Default:** `null`.
+- [`symLink`](#symlink):
+  [`<boolean>`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Guide/Data_structures#boolean_type)
+  Creates a symbolic link with the not-rotated file name pointing to the file currently being written. **Default:**
+  `null`.
 - [`teeToStdout`](#teeToStdout):
-  [&lt;boolean>](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Data_structures#Boolean_type)
+  [`<boolean>`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Guide/Data_structures#boolean_type)
   Writes file content to `stdout` as well. **Default:** `null`.
 
 ### encoding
@@ -405,19 +488,21 @@ Accepts a positive integer followed by one of these possible letters:
 
 ### intervalBoundary
 
-If set to `true`, the argument `time` of _filename generator_ is no longer the time when _rotation job_ started, but
-the _lower boundary_ of rotation interval.
+If set to `true`, the `time` property of _filename generator_ `args` is no longer the time when _rotation job_ started,
+but the _lower boundary_ of rotation interval.
 
 **Note:**
 this option has effect only if [`options.interval`](#interval) is used.
 
 ### intervalUTC
 
-If set to `true`, the boundaries of the rotation interval are computed against UTC time rather than against system time
-zone.
+If set to `true`, interval window boundaries are computed against UTC rather than against the system time zone.
+
+With [`options.intervalBoundary`](#intervalboundary), those UTC boundaries are passed as the `time` property of the standard filename generator `args`. With [`options.initialRotation`](#initialrotation), the same UTC boundaries are used when comparing the not-rotated file mtime against the current interval window on stream open.
 
 **Note:**
-this option has effect only if [`options.intervalBoundary`](#intervalboundary) is used.
+this option has effect only if at least one of [`options.intervalBoundary`](#intervalboundary) or
+[`options.initialRotation`](#initialrotation) is used (both require [`options.interval`](#interval)).
 
 ### compress
 
@@ -432,16 +517,18 @@ compress the file.
 The two following code snippets have exactly the same effect:
 
 ```javascript
-var rfs = require("rotating-file-stream");
-var stream = rfs.createStream("file.log", {
+import { createStream } from "rotating-file-stream";
+
+const stream = createStream("file.log", {
   size: "10M",
   compress: true
 });
 ```
 
 ```javascript
-var rfs = require("rotating-file-stream");
-var stream = rfs.createStream("file.log", {
+import { createStream } from "rotating-file-stream";
+
+const stream = createStream("file.log", {
   size: "10M",
   compress: (source, dest) => `cat ${source} | gzip -c9 > ${dest}`
 });
@@ -452,7 +539,7 @@ this option is ignored if [`options.immutable`](#immutable) is used.
 
 **Note:**
 the shell command to compress the rotated file should not remove the source file, it will be removed by the package
-if rotation job complete with success.
+if the rotation job completes with success.
 
 ### omitExtension
 
@@ -467,11 +554,13 @@ is performed against the _not-rotated file_ timestamp and, if it falls in a prev
 rotation job is done as well.
 
 **Note:**
-this option has effect only if both [`options.interval`](#interval) and [`options.intervalBoundary`](#intervalboundary)
-are used.
+this option has effect only if [`options.interval`](#interval) is used. When [`options.intervalUTC`](#intervalutc)
+is also enabled, the initial check uses UTC interval boundaries. [`options.intervalBoundary`](#intervalboundary) is
+not required: without it, the period comparison is the same but the rotated file name uses the rotation job start
+time rather than the window lower boundary.
 
 **Note:**
-this option is ignored if [`options.rotate`](#rotate) is used.
+this option is ignored if [`options.rotate`](#rotate) or [`options.immutable`](#immutable) are used.
 
 ### rotate
 
@@ -481,12 +570,12 @@ _logrotate.conf_ file.
 **Note:**
 if this option is used following ones take no effect: [`options.history`](#history), [`options.immutable`](#immutable),
 [`options.initialRotation`](#initialrotation), [`options.intervalBoundary`](#intervalboundary),
-[`options.maxFiles`](#maxfiles), [`options.maxSize`](#maxsize).
+[`options.intervalUTC`](#intervalutc), [`options.maxFiles`](#maxfiles), [`options.maxSize`](#maxsize).
 
 ### immutable
 
 If set to `true`, names of generated files never changes. New files are immediately generated with their rotated
-name. In other words the _rotated file name generator_ is never called with a `null` _time_ argument unless to
+name. In other words the _rotated file name generator_ is never called with a `null` argument unless to
 determinate the _history file_ name; this can happen if [`options.history`](#history) is not used while
 [`options.maxFiles`](#maxfiles) or [`options.maxSize`](#maxsize) are used.
 The `filename` argument passed to [`'open'`](#event-open) _event_ evaluates now as the newly created file name.
@@ -498,6 +587,14 @@ if this option is used, [`options.compress`](#compress) is ignored.
 
 **Note:**
 this option is ignored if [`options.interval`](#interval) is not used.
+
+### symLink
+
+If set to `true`, a symbolic link is created with the _not-rotated file name_, pointing to the file that is currently
+receiving writes.
+
+**Note:**
+this option takes effect only if [`options.immutable`](#immutable) is used.
 
 ### history
 
@@ -560,9 +657,9 @@ Once an **error** _event_ is emitted, nothing more can be done: the stream is cl
 
 # Compatibility
 
-Requires **Node.js v14**.
+Requires **Node.js v22**.
 
-The package is tested under [all Node.js versions](https://app.travis-ci.com/github/iccicci/rotating-file-stream)
+The package is tested under [all Node.js versions](https://github.com/iccicci/rotating-file-stream/actions/workflows/build.yml)
 currently supported accordingly to [Node.js Release](https://github.com/nodejs/Release#readme).
 
 To work with the package under Windows, be sure to configure `bash.exe` as your _script-shell_.

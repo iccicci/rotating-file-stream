@@ -1,0 +1,8 @@
+{
+  "name": "rotating-file-stream-e2e-types",
+  "private": true,
+  "type": "module",
+  "dependencies": {
+    "rotating-file-stream": "file:../../packages/rotating-file-stream"
+  }
+}

@@ -1,0 +1,7 @@
+{
+  "extends": "./tsconfig.json",
+  "compilerOptions": {
+    "allowJs": true
+  },
+  "include": ["eslint.config.js", "packages/*/index.ts", "packages/*/test/**/*.ts", "scripts/*.js", "vitest.config.ts"]
+}

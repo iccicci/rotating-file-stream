@@ -1,0 +1,8 @@
+{
+  "name": "rotating-file-stream-e2e-cjs",
+  "private": true,
+  "type": "commonjs",
+  "dependencies": {
+    "rotating-file-stream": "file:../../packages/rotating-file-stream"
+  }
+}

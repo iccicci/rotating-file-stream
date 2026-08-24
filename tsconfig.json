@@ -1,11 +1,11 @@
 {
+  "extends": "./tsconfig.base.json",
   "compilerOptions": {
-    "forceConsistentCasingInFileNames": true,
-    "lib": ["es2019", "es2020.bigint", "es2020.string", "es2020.symbol.wellknown"],
-    "module": "commonjs",
-    "noImplicitAny": true,
-    "skipLibCheck": true,
-    "target": "es2020"
+    "allowImportingTsExtensions": true,
+    "module": "ESNext",
+    "moduleResolution": "bundler",
+    "noEmit": true,
+    "strict": true
   },
-  "include": ["./index.ts"]
+  "include": ["packages/*/index.ts", "packages/*/test/**/*.ts", "vitest.config.ts"]
 }
